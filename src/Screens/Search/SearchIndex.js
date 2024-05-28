@@ -20,7 +20,7 @@ import NavigationService from '../../Services/Navigation';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import {useTranslation} from 'react-i18next';
-
+import AllSourcePath from '../../Constants/PathConfig';
 const {width, height} = Dimensions.get('screen');
 
 const SearchIndex = props => {
@@ -29,7 +29,7 @@ const SearchIndex = props => {
   const [filteredData, setFilteredData] = useState([]);
   const [cat, setCat] = useState(0);
   const [data, setData] = useState([]);
-
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   useEffect(() => {
     console.log('Category changed:', cat);
     const fetchData = async () => {
@@ -184,7 +184,9 @@ const SearchIndex = props => {
                 <View
                   style={{marginLeft: 3, borderRadius: 10, overflow: 'hidden'}}>
                   <Image
-                    source={{uri: item.imageUrl}}
+                    // source={{uri: item.imageUrl}}
+
+                    source={cat===0 ?{uri: item.imageUrl} : {uri:`${imageUrl}${item?.image}`} }
                     style={{
                       height: 100,
                       width: 100,
@@ -195,7 +197,7 @@ const SearchIndex = props => {
                 <Pressable
                   onPress={() => {
                     if (cat === 0) {
-                      NavigationService.navigate('PodcastLive', {item});
+                      NavigationService.navigate('LiveDetails', {item});
                     } else if (cat === 1) {
                       NavigationService.navigate('PodcastLive', {item});
                     } else if (cat === 2) {

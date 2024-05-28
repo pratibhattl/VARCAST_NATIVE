@@ -41,7 +41,9 @@ import UserDetails from '../Screens/Profile/UserDetails';
 import OurPicks from '../Screens/Home/OurPicks';
 import FollowingUser from '../Screens/Home/FollowingUser';
 import UploadScreen from '../Screens/Upload/UploadScreen';
+import LiveDetails from '../Screens/Live/Livedetails';
 import ChatRoom from '../Screens/Chat/ChatRoom'
+
 const Stack = createNativeStackNavigator();
 
 function MainNavigation() {
@@ -79,6 +81,11 @@ function MainNavigation() {
   options={{headerShown: false}}
   component={UpdatePass}
 /> */}
+<Stack.Screen
+        name="ChatRoom"
+        options={{headerShown:false,headerTitle:'Chat'}}
+        component={ChatRoom}
+      />
       <Stack.Screen
         name="DrawerNavigation"
         options={{headerShown: false}}
@@ -96,11 +103,7 @@ function MainNavigation() {
           <HomePage {...props} goToUserDetails={goToUserDetails} />
         )}
       />
- <Stack.Screen
-        name="ChatRoom"
-        options={{headerShown:false,headerTitle:'Chat'}}
-        component={ChatRoom}
-      />
+
       <Stack.Screen
         name="Wallet"
         options={{headerShown: false}}
@@ -210,6 +213,11 @@ function MainNavigation() {
         name="PodcastLive"
         options={{headerShown: false}}
         component={PodcastLive}
+      />
+      <Stack.Screen
+        name="LiveDetails"
+        options={{headerShown: false}}
+        component={LiveDetails}
       />
       <Stack.Screen
         name="OwnPodcastLive"

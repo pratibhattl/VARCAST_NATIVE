@@ -29,6 +29,7 @@ const PodcastIndex = props => {
   const route = useRoute();
   const selectedData = route.params?.item;
   const {t} = useTranslation();
+  const token = useSelector(state => state.auth.token);
 
   console.log('userData:', selectedData);
   // Access the customProp passed from the source screen

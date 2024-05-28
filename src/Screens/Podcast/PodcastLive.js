@@ -45,6 +45,9 @@ import RocketIcon from '../../assets/icons/RocketIcon';
 import DiamondIcon from '../../assets/icons/DiamondIcon';
 import CrownIcon from '../../assets/icons/CrownIcon';
 import {PermissionsAndroid, Platform} from 'react-native';
+import {useSelector} from 'react-redux';
+import {apiCall} from '../../Services/Service';
+// import {toast} from 'react-toastify';
 import {
   ClientRoleType,
   createAgoraRtcEngine,
@@ -62,13 +65,15 @@ const {width, height} = Dimensions.get('screen');
 const PodcastLive = props => {
   const route = useRoute();
   const selectedData = route.params?.item;
-  console.log('select Data', selectedData);
+  const token = useSelector(state => state.authData.token);
+  const [likeStatus, setLikeStatus] = useState(null);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [message, setMessage] = useState('');
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
+  const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
 
   const [GiftData, setGiftData] = useState([
     {gift: <BulbIcon />},
@@ -83,7 +88,7 @@ const PodcastLive = props => {
   ]);
   const [allData, setAllData] = useState([
     {
-      title: 'Video Watched',
+      title: 'Video Watcheda',
       date: 'typing...',
       time: '19:45',
       image: require('../../assets/images/image3.png'),
@@ -160,8 +165,8 @@ const PodcastLive = props => {
 
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
-  const token =
-    '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
+  // const token =
+  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   const uid = 0;
   function showMessage(msg) {
     setMessage(msg);
@@ -298,6 +303,40 @@ const PodcastLive = props => {
       console.log(e);
     }
   };
+
+  // Function to handle the press event of the heart icon
+  const handleLikePress = () => {
+    // console.log('Heart icon pressed');
+    const podcastId = selectedData?._id;
+    // console.log('Hart', podcastId);
+    if (!podcastId) {
+      console.error('Podcast ID is missing');
+      return;
+    }
+
+    const payload = {
+      podcastId: podcastId,
+    };
+    console.log('PayLoad', payload);
+
+    apiCall('podcast/like', 'POST', payload, token)
+      .then(response => {
+        console.log('Message', response.message);
+        if (response.message === 'Liked') {
+          setLikeStatus('liked');
+          console.log('Podcast liked successfully');
+          HelperFunctions.showToastMsg('Podcast liked');
+        } else {
+          setLikeStatus(null);
+          console.log('Podcast disliked successfully');
+          HelperFunctions.showToastMsg('Podcast Disliked');
+        }
+      })
+      .catch(error => {
+        console.error('Error while liking the podcast:', error);
+      });
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -661,11 +700,13 @@ const PodcastLive = props => {
           <ShareIcon />
         </Pressable>
         <Pressable
+          onPress={handleLikePress}
           style={{
             height: 50,
             width: 50,
             borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.96)',
+            backgroundColor:
+              likeStatus === 'liked' ? 'white' : 'rgba(27, 27, 27, 0.96)',
             alignItems: 'center',
             justifyContent: 'center',
             // marginBottom:10

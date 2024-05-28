@@ -1,3 +1,4 @@
+/* eslint-disable react-native/no-inline-styles */
 import {useRoute} from '@react-navigation/native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
@@ -68,21 +69,17 @@ const HomePage = props => {
       const endpoint = 'follow/followings';
       const response = await apiCall(endpoint, 'GET', {}, token);
 
-      console.log('Raw response:', response); // Log the raw response
+      // console.log('Raw response:', response); // Log the raw response
 
-      if (response && response.status === true && response.data) {
-        const data = response.data; // Assuming response is already parsed as JSON
-
-        const usermappedData = data.map(item => ({
-          name: item.followings.name,
-          email: item.followings.email,
-          imageUrl: item.followings.full_path_image,
-        }));
-
-        setUserData(usermappedData); // Ensure the state update function is correct
-        console.log('User Data', usermappedData);
-      } else {
-        console.log('Unexpected response structure:', response);
+      if (response?.status === true) {
+        const usermappedData =
+          response?.data?.length > 0 &&
+          response?.data?.map(item => ({
+            name: item.followings.name,
+            email: item.followings.email,
+            imageUrl: item.followings.full_path_image,
+          }));
+        setUserData(usermappedData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -344,9 +341,9 @@ const HomePage = props => {
         </View>
         <View>
           <TouchableOpacity onPress={goToUserDetails}>
-            {userData && (
+            {userData?.length > 0 && (
               <FlatList
-                data={[userData]}
+                data={userData}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
@@ -363,7 +360,7 @@ const HomePage = props => {
                       backgroundColor: 'transparent',
                     }}>
                     <Image
-                      source={{uri: item.full_path_image}}
+                      source={{uri: item?.imageUrl}}
                       style={{
                         width: 128,
                         height: 110,

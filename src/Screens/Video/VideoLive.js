@@ -33,6 +33,7 @@ import ShareIcon from '../../assets/icons/ShareIcon';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
 import {PermissionsAndroid, Platform} from 'react-native';
+import {useSelector} from 'react-redux';
 import Video from 'react-native-video';
 import {
   ClientRoleType,
@@ -50,12 +51,15 @@ import HelperFunctions from '../../Constants/HelperFunctions';
 import MicroPhoneIcon from '../../assets/icons/MicrophoneIcon';
 import PauseIcon from '../../assets/icons/PauseIcon';
 import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
+import {apiCall} from '../../Services/Service';
 const {width, height} = Dimensions.get('screen');
 
 const VideoLive = props => {
   const route = useRoute();
   const selectedData = route.params?.item;
   console.log('select Data', selectedData);
+  const token = useSelector(state => state.authData.token);
+  const [likeStatus, setLikeStatus] = useState(null);
   const {width, height} = Dimensions.get('window');
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -68,8 +72,8 @@ const VideoLive = props => {
   const [message, setMessage] = useState(''); // Message to the user
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
-  const token =
-    '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
+  // const token =
+  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   const uid = 0;
   function showMessage(msg) {
     setMessage(msg);
@@ -93,6 +97,7 @@ const VideoLive = props => {
       });
     }
   };
+
 
   useEffect(() => {
     // Initialize Agora engine when the app starts
@@ -235,7 +240,7 @@ const VideoLive = props => {
 
   const [allData, setAllData] = useState([
     {
-      title: 'Allian Buttlar',
+      title: 'Allian Buttldar',
       date: 'typing...',
       time: '19:45',
       image: require('../../assets/images/image3.png'),
@@ -355,6 +360,37 @@ const VideoLive = props => {
       price: '- $ 120',
     },
   ]);
+  const handleLikePress = () => {
+    // console.log('Heart icon pressed');
+    const videoId = selectedData?._id;
+    // console.log('Hart', podcastId);
+    if (!videoId) {
+      console.error('Podcast ID is missing');
+      return;
+    }
+
+    const payload = {
+      videoId: videoId,
+    };
+    console.log('PayLoad', payload);
+
+    apiCall('videos/like', 'POST', payload, token)
+      .then(response => {
+        console.log('Message', response.message);
+        if (response.message === 'Liked') {
+          setLikeStatus('liked');
+          console.log('Video liked successfully');
+          HelperFunctions.showToastMsg('Video liked');
+        } else {
+          setLikeStatus(null);
+          console.log('Video disliked successfully');
+          HelperFunctions.showToastMsg('Video Disliked');
+        }
+      })
+      .catch(error => {
+        console.error('Error while liking the Video:', error);
+      });
+  };
   return (
     <View style={styles.container}>
       <StatusBar
@@ -455,7 +491,7 @@ const VideoLive = props => {
           }}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <Image
-              source={{uri: selectedData.image}} // Assuming 'image' is the key for the image URL in your selectedData object
+              source={{uri: selectedData?.image}} // Assuming 'image' is the key for the image URL in your selectedData object
               style={{
                 height: 38,
                 width: 38,
@@ -471,7 +507,7 @@ const VideoLive = props => {
                   fontSize: 14,
                   fontFamily: Theme.FontFamily.normal,
                 }}>
-                {selectedData.created_by_name}{' '}
+                {selectedData?.created_by_name}{' '}
                 {/* Assuming 'created_by_name' is the key for the name in your selectedData object */}
               </Text>
               <Text
@@ -482,20 +518,12 @@ const VideoLive = props => {
                   textAlign: 'center',
                   marginTop: 1,
                 }}>
-                {selectedData.views} views{' '}
+                {selectedData?.views} views{' '}
                 {/* Assuming 'views' is the key for the views count in your selectedData object */}
               </Text>
             </View>
           </View>
-          <View style={{flex: 1, backgroundColor: 'black'}}>
-            {/* <Video
-              source={{uri: selectedData.video_link}}
-              style={{width, height}}
-              resizeMode="contain"
-            /> */}
-          </View>
         </TouchableOpacity>
-
         {isJoined && props.route.params.host ? (
           <TouchableOpacity
             onPress={SwitchCamera}
@@ -718,11 +746,13 @@ const VideoLive = props => {
           <ShareIcon />
         </Pressable>
         <Pressable
+          onPress={handleLikePress}
           style={{
             height: 50,
             width: 50,
             borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.86)',
+            backgroundColor:
+              likeStatus === 'liked' ? 'white' : 'rgba(27, 27, 27, 0.96)',
             alignItems: 'center',
             justifyContent: 'center',
             // marginBottom:10

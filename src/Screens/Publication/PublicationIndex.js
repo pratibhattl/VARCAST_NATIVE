@@ -36,9 +36,14 @@ import ImagePicker from 'react-native-image-crop-picker';
 import {VESDK, CanvasAction, AudioClip} from 'react-native-videoeditorsdk';
 import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
 import {PermissionsAndroid} from 'react-native';
-import {postApi} from '../../Services/Service';
+import {apiCall} from '../../Services/Service';
 import HelperFunctions from '../../Constants/HelperFunctions';
-
+import {useSelector} from 'react-redux';
+ import AllSourcePath from '../../Constants/PathConfig';
+ import RNFS from 'react-native-fs';
+ import DocumentPicker from 'react-native-document-picker';
+import RNFetchBlob from 'rn-fetch-blob'
+import axios from 'axios';
 // import { loadingState } from "../../../../../../../../";
 const {width, height} = Dimensions.get('screen');
 
@@ -52,38 +57,17 @@ const PublicationIndex = props => {
   const customProp = route.params?.showButton;
   const [loadingStates, changeloadingStates] = useState(false);
   const [Imagee, changeImagee] = useState('');
-
-  const [allImage, setAllImage] = useState([
-    {
-      img: 'https://cdn.vectorstock.com/i/preview-1x/82/99/no-image-available-like-missing-picture-vector-43938299.jpg',
-      self: true,
-    },
-    {img: require('../../assets/images/image104.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image157.png')},
-    // {img:require('../../assets/images/image157(1).png')},
-    {img: require('../../assets/images/image158.png')},
-    {img: require('../../assets/images/image159.png')},
-    {img: require('../../assets/images/image160.png')},
-    {img: require('../../assets/images/image161.png')},
-    {img: require('../../assets/images/image162.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image103.png')},
-  ]);
-  const token =
-    '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
+  const [pickedImg, setPickedImg] = useState();
+  const [audio, setAudio] = useState();
+  const [imgUrl, setImgUrl] = useState('');
+  const [allImage, setAllImage] = useState([]);
+  const token = useSelector(state => state.authData.token);
   const audioToken =
     '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   const [cat, setCat] = useState('Publication');
   const [option, setOption] = useState('');
-  const [Name, setName] = useState('');
-  const [overView, setOverview] = useState('');
+  const [name, setName] = useState('');
+  const [overView, setOverView] = useState('');
   const [Loder, setLoader] = useState(false);
   const {t} = useTranslation();
   const [Musiclist, setMusiclist] = useState([]);
@@ -105,11 +89,68 @@ const PublicationIndex = props => {
         PERMISSIONS.IOS.CAMERA,
         PERMISSIONS.IOS.MICROPHONE,
       ]).then(statuses => {
-        console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
-        console.log('MICROPHONE', statuses[PERMISSIONS.IOS.MICROPHONE]);
+        // console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
+        // console.log('MICROPHONE', statuses[PERMISSIONS.IOS.MICROPHONE]);
         // console.log('MEDIA_LIBRARY', statuses[PERMISSIONS.IOS.MEDIA_LIBRARY]);
       });
     }
+  };
+
+
+  const fetchAllPublicationList = async() => {
+    setLoader(true);
+    try {
+      const endpoint = 'videos/list';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      const data = response?.data?.listData; // Assuming response is already parsed as JSON
+      const mappedData = data?.map(item => ({
+        title: item.title,
+        slug: item.slug,
+        img: item.imageUrl,
+        videoUrl: item.videoUrl,
+      }));
+     setAllImage(mappedData);
+    } catch (error) {
+      // console.error('Error fetching data:', error);
+    }
+  };
+useEffect(()=>{
+  fetchAllPublicationList();
+},[])
+
+  const uploadPublicationData = (file) => {
+    setLoader(true);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    // Send formData to your API call
+    // apiCall('videos/create', formData, '', 'multipart/form-data')
+     axios.post(`${baseUrl}videos/create`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${tokenData}`,
+      },
+    })
+      .then(response => {
+        console.log('response',response)
+        if (response?.status == 'true') {
+          changeImagee(url);
+          // let image = `${AllSourcePath.API_BASE_URL_DEV}upload`
+          allImage.unshift({img: url, self: true});
+          setAllImage([...allImage]);
+          setLoader(false);
+        } else {
+          // setModalVisible(true)
+          setLoader(false);
+        }
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+      .finally(() => {
+        setLoader(false);
+      });
   };
   const openPhotoFromLocalPathExample = async () => {
     try {
@@ -128,6 +169,7 @@ const PublicationIndex = props => {
       if (pickerResult.cancelled) {
         return;
       }
+      // console.log("Selected images", pickerResult.path);
       const result = await PESDK.openEditor(pickerResult.path);
       // ImagePicker.openPicker({
       //     width: 300,
@@ -142,19 +184,28 @@ const PublicationIndex = props => {
       // const photo = require("../../assets/images/image105.png");
 
       // Open the photo editor and handle the export as well as any occuring errors.
-
-      if (result != null) {
+      const fileUri = pickerResult.path;
+      // const fileData = await RNFS.readFile(fileUri, 'base64');
+      const fileName = fileUri.split('/').pop();
+      const fileType = fileName.split('.').pop();
+    
+      const file = {
+        uri: fileUri,
+        name: fileName,
+        
+        type: `image/${fileType}`,
+      };
+      // if (result != null) {
         // The user exported a new photo successfully and the newly generated photo is located at `result.image`.
-        console.log('imageready,', result.image);
-        changeImagee(result.image);
-        allImage.unshift({img: result.image, self: true});
-        setAllImage([...allImage]);
+      
+        uploadPublicationData(file);
+       
         // setAllImage(s => s.map((res, ind) => ind == 0 ? { ...res, img: result.image,self:true } : { ...res }))
-      } else {
-        // The user tapped on the cancel button within the editor.
-        console.log('nocddt found');
-        return;
-      }
+      // } else {
+      //   // The user tapped on the cancel button within the editor.
+      //   console.log('nocddt found');
+      //   return;
+      // }
     } catch (error) {
       // There was an error generating the photo.
       console.log(error);
@@ -223,7 +274,7 @@ const PublicationIndex = props => {
       const result = await VESDK.openEditor(video, configuration);
       if (result != null) {
         // The user exported a new video successfully and the newly generated video is located at `result.video`.
-        console.log('videdoready', result);
+       
         console.log('videdoready', result.video, {
           ...result,
           path: result.video,
@@ -339,7 +390,6 @@ const PublicationIndex = props => {
         });
       } else {
         // The user tapped on the cancel button within the editor.
-        console.log('ddsffs', result);
         return;
       }
     } catch (error) {
@@ -356,7 +406,7 @@ const PublicationIndex = props => {
       keyword: '',
       page: null,
     };
-    postApi('api/all-music', data, '')
+    apiCall('api/all-music', data, '')
       .then(response => {
         // console.log('response',response)
         if (response?.status == 'success') {
@@ -375,6 +425,81 @@ const PublicationIndex = props => {
         setLoader(false);
       });
   };
+
+  //  Create new podcast //
+
+  const uploadFileOnPressHandler = async () => {
+    try {
+      const pickedFile = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.allFiles],
+      });
+      console.log('pickedFile', pickedFile);
+
+      pickedFile.type === 'audio/mpeg'
+        ? setAudio(pickedFile)
+        : setPickedImg(pickedFile);
+
+        const realPath= await RNFetchBlob.fs.contentUriToPath(pickedFile.uri)
+      
+       setImgUrl(`file://${realPath}`)
+      
+      await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
+        // console.log('base64', data);
+        setImgUrl(data);
+      });
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log(err);
+      } else {
+        console.log(error);
+        throw err;
+      }
+    }
+  };
+
+  // formData.append('videoUrl', {
+  //   uri: 'https://www.youtube.com/watch?v=ixr7ZYgH_6I',
+  //   filename: 'avc',
+  //   type: 'video/mp4',
+  // });
+  const tokenData = useSelector(state => state.authData.token);
+
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+
+  const fileSubmit = async () => {
+    let formData = new FormData();
+
+    formData.append('title', name);
+    formData.append('overview', overView);
+    formData.append('image', pickedImg);
+    formData.append('audio', audio);
+    console.log(formData);
+    setLoader(true);
+
+    try {
+      const data = await axios.post(`${baseUrl}podcast/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${tokenData}`,
+        },
+      });
+             setName('');
+        setOverView('');
+        setPickedImg();
+         setAudio();
+         HelperFunctions.showToastMsg('Podcast has been sucessfully uploaded');
+        NavigationService.navigate('ProfileIndex');
+      return data;
+    } catch (error) {
+      console.log('error', error);
+      HelperFunctions.showToastMsg(error?.message);
+      setLoader(false);
+    }
+
+    
+  };
+
   useEffect(() => {
     fetchMusicList();
   }, []);
@@ -477,7 +602,9 @@ const PublicationIndex = props => {
                         marginTop: 10,
                       }}>
                       <Image
-                        source={item.self ? {uri: item?.img} : item?.img}
+                        // source={item?.self ? {uri: item?.img} : item?.img}
+                        source={{uri:`${imageUrl}${item?.img}`}}
+
                         style={{
                           height: 180,
                           width: 120,
@@ -529,6 +656,7 @@ const PublicationIndex = props => {
           <View
             style={{...styles.container, alignItems: 'center', height: height}}>
             <Pressable
+              onPress={async () => await uploadFileOnPressHandler()}
               style={{
                 height: 130,
                 width: 130,
@@ -541,10 +669,12 @@ const PublicationIndex = props => {
                 borderWidth: 2,
                 borderColor: 'rgba(255, 255, 255, 0.14)',
               }}>
-              <GallaryIcon />
+              {pickedImg?.uri && <Image source={imgUrl} resizeMode='cover' style={{ width: 200, height: 200 }}/>}
+
+              {!pickedImg && <GallaryIcon />}
             </Pressable>
             <AppTextInput
-              value={Name}
+              value={name}
               onChangeText={a => setName(a)}
               placeholder="Name Podcast"
               placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
@@ -563,7 +693,7 @@ const PublicationIndex = props => {
             />
             <AppTextInput
               value={overView}
-              onChangeText={a => setOverview(a)}
+              onChangeText={a => setOverView(a)}
               placeholder="Overview"
               placeholderTextColor={'rgba(255, 255, 255, 0.44)'}
               inputStyle={{fontSize: 15}}
@@ -579,7 +709,43 @@ const PublicationIndex = props => {
               inputContainerStyle={styles.input_container_sty}
               style={styles.text_style}
             />
+
+            <View style={styles.upload}>
+              {audio && (
+                <Text
+                  style={{
+                    ...styles.upload_text,
+                    width: 100,
+                    overflow: 'hidden',
+                    marginRight: 10,
+                  }}>
+                  {audio.name}
+                </Text>
+              )}
+              {!audio && (
+                <Text style={styles.upload_text}> Upload Audio File</Text>
+              )}
+              <Pressable
+                style={styles.upload_btn}
+                onPress={async () => await uploadFileOnPressHandler()}>
+                <Text
+                  style={{
+                    fontFamily: Theme.FontFamily.normal,
+                    textAlign: 'center',
+                    fontSize: 15,
+                    color: '#fff',
+                  }}>
+                  Upload
+                </Text>
+              </Pressable>
+            </View>
+
             <Pressable
+              onPress={fileSubmit}
+              style={{...styles.upload_btn, width: 350, marginTop: 20}}>
+              <Text style={styles.upload_text}>SUBMIT</Text>
+            </Pressable>
+            {/* <Pressable
               style={{
                 height: 64,
                 width: 64,
@@ -588,7 +754,7 @@ const PublicationIndex = props => {
                 borderColor: '#fff',
                 alignItems: 'center',
                 justifyContent: 'center',
-                marginTop: width / 2.5,
+                marginTop: 50,
               }}>
               <Pressable
                 onPress={() => NavigationService.navigate('OwnPodcastLive')}
@@ -612,7 +778,7 @@ const PublicationIndex = props => {
                     backgroundColor: '#ED4040',
                   }}></View>
               </Pressable>
-            </Pressable>
+            </Pressable> */}
           </View>
         </ScreenLayout>
       )}
@@ -811,6 +977,26 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: 15,
     color: '#fff',
+  },
+  upload: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: 350,
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+  upload_text: {
+    fontFamily: Theme.FontFamily.normal,
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#fff',
+  },
+  upload_btn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
 });
 

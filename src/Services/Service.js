@@ -10,13 +10,8 @@ const apiCall = (
   ContentType = 'application/json',
   baseUrl = AllSourcePath.API_BASE_URL_DEV,
 ) => {
-  console.log(endpoint, 'api endpoint and params and token =====>');
-  console.log('Endpoint', endpoint);
   console.log('params', data);
-  console.log('Token', token);
-  console.log('baseUrl', baseUrl);
-  console.log('==============================');
-
+  
   return new Promise((resolve, reject) => {
     // Ensure method is a string and convert to uppercase
     const config = {
@@ -39,8 +34,7 @@ const apiCall = (
 
     axios(config)
       .then(response => {
-        console.log(endpoint, 'api response data=====>');
-        console.log(response.data);
+        console.log("Response",response.data);
         resolve(response.data);
       })
       .catch(error => {

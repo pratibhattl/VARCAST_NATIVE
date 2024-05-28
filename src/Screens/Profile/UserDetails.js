@@ -35,6 +35,7 @@ import CustomHeader from '../../Components/Header/CustomHeader';
 const UserDetails = props => {
   const route = useRoute();
   const {userData} = route.params;
+  console.log('Followinguser Data ', userData);
   const Tab = createMaterialTopTabNavigator();
   const [loadingState, setLoadingState] = useState(false);
   const {following} = useSelector(state => state.commonData);
@@ -87,7 +88,7 @@ const UserDetails = props => {
               padding: 25,
             }}>
             <Image
-              source={{uri: userData?.image}}
+              source={{uri: userData?.imageUrl}}
               style={{
                 height: 75,
                 width: 75,
@@ -104,7 +105,7 @@ const UserDetails = props => {
                 marginTop: 12,
                 textAlign: 'center',
               }}>
-              {userData.name}
+              {userData?.name}
             </Text>
             <Text
               style={{
@@ -115,7 +116,7 @@ const UserDetails = props => {
                 textAlign: 'center',
                 lineHeight: 25,
               }}>
-              {userData.total_views} views
+              {/* {userData.total_views} views */}
             </Text>
             <View
               style={{
@@ -135,7 +136,7 @@ const UserDetails = props => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  {userData.no_of_followers}
+                  {/* {userData.no_of_followers} */}
                 </Text>
                 <Text
                   style={{
@@ -156,7 +157,7 @@ const UserDetails = props => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  {userData.total_videos}
+                  {/* {userData.total_videos} */}
                 </Text>
                 <Text
                   style={{
@@ -177,7 +178,7 @@ const UserDetails = props => {
                     textAlign: 'center',
                     marginTop: 10,
                   }}>
-                  {userData.total_podcasts}
+                  {/* {userData.total_podcasts} */}
                 </Text>
                 <Text
                   style={{
@@ -198,7 +199,7 @@ const UserDetails = props => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  {userData.no_of_followings}
+                  {/* {userData.no_of_followings} */}
                 </Text>
                 <Text
                   style={{
