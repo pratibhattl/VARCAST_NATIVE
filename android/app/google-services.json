@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "201914040643",
+    "project_id": "varcast-demo",
+    "storage_bucket": "varcast-demo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:201914040643:android:33602e0e57c6adc22f6ff6",
+        "android_client_info": {
+          "package_name": "com.varcast.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArGt3eh7bQUTMXycrXTHYV-HhPJjvPM34"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
