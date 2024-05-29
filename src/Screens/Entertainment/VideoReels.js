@@ -1,97 +1,107 @@
-import {View, Text, FlatList, StyleSheet, Pressable} from 'react-native';
-import React, {useState} from 'react';
-import {Image} from 'react-native';
+import {View, Text, FlatList, StyleSheet, Pressable, Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import Theme from '../../Constants/Theme';
 import EyeOpen from '../../assets/icons/EyeOpen';
 import NavigationService from '../../Services/Navigation';
+import AllSourcePath from '../../Constants/PathConfig';
 
-const VideoReels = () => {
-  const [allImage, setAllImage] = useState([
-    {img: require('../../assets/images/image103.png')},
-    {img: require('../../assets/images/image104.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image157.png')},
-    // {img:require('../../assets/images/image157(1).png')},
-    {img: require('../../assets/images/image158.png')},
-    {img: require('../../assets/images/image159.png')},
-    {img: require('../../assets/images/image160.png')},
-    {img: require('../../assets/images/image161.png')},
-    {img: require('../../assets/images/image162.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image103.png')},
-  ]);
+const VideoReels = ({userData}) => {
+  const [videoImages, setVideoImages] = useState([]);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+
+  useEffect(() => {
+    console.log('Users:', userData);
+    if (
+      userData &&
+      userData.latest_videos &&
+      userData.latest_videos.length > 0
+    ) {
+      const userVideos = userData.latest_videos.map(video => ({
+        img: {uri: `${imageUrl}${video.image}`},
+        id: video._id,
+        title: video.title,
+        views: video.views,
+      }));
+
+      setVideoImages(userVideos);
+      console.log('User Videos:', userVideos);
+    }
+  }, [userData]);
+
+  console.log('Videos:', videoImages);
+
+  const handleVideoPress = videoId => {
+    const clickedVideo = userData.latest_videos.find(
+      video => video._id === videoId,
+    );
+    if (clickedVideo) {
+      NavigationService.navigate('ReelVideoIndex', {videoData: clickedVideo});
+    }
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={allImage}
-        //    horizontal
+        data={videoImages}
         numColumns={3}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingHorizontal: 0, paddingVertical: 10}}
-        renderItem={({item, index}) => {
-          return (
-            <Pressable
-              onPress={() => NavigationService.navigate('ReelVideoIndex')}
-              key={index}
-              style={{
-                marginRight: index == 2 ? 0 : 6,
-                marginTop: 10,
-              }}>
-              <Image
-                source={item?.img}
-                style={{
-                  height: 180,
-                  width: 120,
-                  borderRadius: 15,
-                }}
-                resizeMode="cover"
-              />
-              <View
-                style={{
-                  // backgroundColor: 'rgba(28, 28, 28, 0.54)',
-                  height: 30,
-                  width: '100%',
-                  borderRadius: 5,
-                  position: 'absolute',
-                  bottom: 5,
-                  // right: 5,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                }}>
-                <EyeOpen Width={20} Height={20} />
-                <Text
-                  style={{
-                    fontFamily: Theme.FontFamily.normal,
-                    color: '#fff',
-                    fontSize: 12,
-                    marginHorizontal: 3,
-                  }}>
-                  10K Views
-                </Text>
-              </View>
-            </Pressable>
-          );
-        }}
+        contentContainerStyle={styles.contentContainer}
+        renderItem={({item, index}) => (
+          <Pressable
+            onPress={() => handleVideoPress(item.id)}
+            key={index}
+            style={[
+              styles.itemContainer,
+              {marginRight: (index + 1) % 3 === 0 ? 0 : 6},
+            ]}>
+            <Image source={item.img} style={styles.image} resizeMode="cover" />
+            <View style={styles.overlay}>
+              <EyeOpen Width={20} Height={20} />
+              <Text style={styles.viewsText}>{item.views} Views</Text>
+            </View>
+          </Pressable>
+        )}
       />
     </View>
   );
 };
 
 export default VideoReels;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#131313',
-    // alignSelf:'center'
+  },
+  contentContainer: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+  itemContainer: {
+    flex: 1 / 3, // Ensure three items per row
+    marginTop: 10,
+  },
+  image: {
+    height: 180,
+    width: '100%',
+    borderRadius: 15,
+  },
+  overlay: {
+    height: 30,
+    width: '100%',
+    borderRadius: 5,
+    position: 'absolute',
+    bottom: 5,
     alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  viewsText: {
+    fontFamily: Theme.FontFamily.normal,
+    color: '#fff',
+    fontSize: 12,
+    marginHorizontal: 3,
   },
 });

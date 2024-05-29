@@ -513,6 +513,7 @@ const OwnPodcastLive = props => {
             // style={{position:'absolute',bottom:10,width:width,height:height/2}}
           >
             {allData.map((res, ind) => {
+              console.log('resPodcast', res);
               return (
                 <Pressable
                   key={ind}

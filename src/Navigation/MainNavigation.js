@@ -42,8 +42,7 @@ import OurPicks from '../Screens/Home/OurPicks';
 import FollowingUser from '../Screens/Home/FollowingUser';
 import UploadScreen from '../Screens/Upload/UploadScreen';
 import LiveDetails from '../Screens/Live/Livedetails';
-import ChatRoom from '../Screens/Chat/ChatRoom'
-
+import ChatRoom from '../Screens/Chat/ChatRoom';
 const Stack = createNativeStackNavigator();
 
 function MainNavigation() {
@@ -81,9 +80,9 @@ function MainNavigation() {
   options={{headerShown: false}}
   component={UpdatePass}
 /> */}
-<Stack.Screen
+      <Stack.Screen
         name="ChatRoom"
-        options={{headerShown:false,headerTitle:'Chat'}}
+        options={{headerShown: false}}
         component={ChatRoom}
       />
       <Stack.Screen

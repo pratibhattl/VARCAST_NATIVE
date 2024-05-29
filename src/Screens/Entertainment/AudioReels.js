@@ -1,140 +1,143 @@
-import {View, Text, FlatList, StyleSheet, Pressable} from 'react-native';
-import React, {useState} from 'react';
-import {Image} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, Text, FlatList, StyleSheet, Pressable, Image} from 'react-native';
 import Theme from '../../Constants/Theme';
-import {ClipPath} from 'react-native-svg';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import NavigationService from '../../Services/Navigation';
+import AllSourcePath from '../../Constants/PathConfig';
 
-const AudioReels = () => {
-  const [allImage, setAllImage] = useState([
-    {img: require('../../assets/images/image103.png')},
-    {img: require('../../assets/images/image97.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image157.png')},
-    // {img:require('../../assets/images/image157(1).png')},
-    {img: require('../../assets/images/image158.png')},
-    {img: require('../../assets/images/image159.png')},
-    {img: require('../../assets/images/image160.png')},
-    {img: require('../../assets/images/image161.png')},
-    {img: require('../../assets/images/image162.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image103.png')},
-  ]);
+const AudioReels = ({userData}) => {
+  const [podcastImages, setPodcastImages] = useState([]);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+
+  useEffect(() => {
+    console.log('Users:', userData);
+    if (
+      userData &&
+      userData.latest_podcasts &&
+      userData.latest_podcasts.length > 0
+    ) {
+      const userPodcasts = userData.latest_podcasts.map(podcast => ({
+        img: {uri: `${imageUrl}${podcast.image}`},
+        id: podcast._id,
+        title: podcast.title,
+        duration: podcast.duration,
+      }));
+
+      setPodcastImages(userPodcasts);
+      console.log('User Podcasts:', userPodcasts);
+    }
+  }, [userData]);
+
+  console.log('Podcasts:', podcastImages);
+
+  const handlePodcastPress = podcastId => {
+    const clickedPodcast = userData.latest_podcasts.find(
+      podcast => podcast._id === podcastId,
+    );
+    console.log('Click', clickedPodcast);
+    if (clickedPodcast) {
+      NavigationService.navigate('PodcastIndex', {podcastData: clickedPodcast});
+    }
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
-        data={allImage}
-        //    horizontal
+        data={podcastImages}
         numColumns={2}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingHorizontal: 0, paddingVertical: 10}}
-        renderItem={({item, index}) => {
-          return (
-            <Pressable
-              onPress={() => NavigationService.navigate('PodcastIndex')}
-              key={index}
-              style={{
-                marginRight: index % 2 == 0 ? 15 : 0,
-                marginTop: 10,
-                borderRadius: 15,
-                borderTopRightRadius: 15,
-                borderTopLeftRadius: 15,
-                overflow: 'hidden',
-              }}>
-              <Image
-                source={item?.img}
-                style={{
-                  height: 180,
-                  width: 180,
-                }}
-                resizeMode="cover"
-              />
-              <View
-                style={{
-                  height: 55,
-                  width: 180,
-                  backgroundColor: '#1C1C1C',
-                  borderBottomRightRadius: 15,
-                  borderBottomLeftRadius: 15,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 5,
-                }}>
-                <Text
-                  style={{
-                    fontFamily: Theme.FontFamily.normal,
-                    color: '#fff',
-                    fontSize: Theme.sizes.s13,
-                  }}>
-                  Lorem ipsum dolor sit amet, consectetur
-                </Text>
-              </View>
-              <View
-                style={{
-                  backgroundColor: 'rgba(28, 28, 28, 0.54)',
-                  height: 33,
-                  width: 33,
-                  borderRadius: 33,
-                  position: 'absolute',
-                  top: 5,
-                  left: 5,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontFamily: Theme.FontFamily.normal,
-                    color: '#fff',
-                    fontSize: Theme.sizes.s12,
-                  }}>
-                  {index + 1}
-                </Text>
-              </View>
-              <View
-                style={{
-                  backgroundColor: 'rgba(28, 28, 28, 0.54)',
-                  height: 20,
-                  width: 60,
-                  borderRadius: 5,
-                  position: 'absolute',
-                  bottom: 65,
-                  right: 5,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'row',
-                }}>
-                <ClockCircleIcon />
-                <Text
-                  style={{
-                    fontFamily: Theme.FontFamily.normal,
-                    color: '#fff',
-                    fontSize: 11,
-                    marginHorizontal: 3,
-                  }}>
-                  2.45
-                </Text>
-              </View>
-            </Pressable>
-          );
-        }}
+        contentContainerStyle={styles.flatListContent}
+        renderItem={({item, index}) => (
+          <Pressable
+            onPress={() => handlePodcastPress(item.id)}
+            key={index}
+            style={[styles.pressable, {marginRight: index % 2 === 0 ? 15 : 0}]}>
+            <Image source={item.img} style={styles.image} resizeMode="cover" />
+            <View style={styles.titleContainer}>
+              <Text style={styles.titleText}>{item.title}</Text>
+            </View>
+            <View style={styles.idContainer}>
+              <Text style={styles.idText}>{item.id}</Text>
+            </View>
+            <View style={styles.durationContainer}>
+              <ClockCircleIcon />
+              <Text style={styles.durationText}>{item.duration}</Text>
+            </View>
+          </Pressable>
+        )}
       />
     </View>
   );
 };
 
 export default AudioReels;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#131313',
+    paddingHorizontal: 10,
+  },
+  flatListContent: {
+    paddingVertical: 10,
+  },
+  pressable: {
+    marginTop: 10,
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  image: {
+    height: 150,
+    width: 180,
+  },
+  titleContainer: {
+    height: 55,
+    width: 180,
+    backgroundColor: '#1C1C1C',
+    borderBottomRightRadius: 15,
+    borderBottomLeftRadius: 15,
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: 5,
+  },
+  titleText: {
+    fontFamily: Theme.FontFamily.normal,
+    color: '#fff',
+    fontSize: Theme.sizes.s13,
+  },
+  idContainer: {
+    backgroundColor: 'rgba(28, 28, 28, 0.54)',
+    height: 33,
+    width: 33,
+    borderRadius: 33,
+    position: 'absolute',
+    top: 5,
+    left: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  idText: {
+    fontFamily: Theme.FontFamily.normal,
+    color: '#fff',
+    fontSize: Theme.sizes.s12,
+  },
+  durationContainer: {
+    backgroundColor: 'rgba(28, 28, 28, 0.54)',
+    height: 20,
+    width: 60,
+    borderRadius: 5,
+    position: 'absolute',
+    bottom: 65,
+    right: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  durationText: {
+    fontFamily: Theme.FontFamily.normal,
+    color: '#fff',
+    fontSize: 11,
+    marginHorizontal: 3,
   },
 });

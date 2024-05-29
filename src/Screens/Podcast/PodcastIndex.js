@@ -23,15 +23,18 @@ import {BlurView} from '@react-native-community/blur';
 import WatchLaterIcon from '../../assets/icons/Watchlater';
 import {useTranslation} from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useSelector} from 'react-redux';
+import AllSourcePath from '../../Constants/PathConfig';
 const {width, height} = Dimensions.get('screen');
 
-const PodcastIndex = props => {
+const PodcastIndex = () => {
   const route = useRoute();
-  const selectedData = route.params?.item;
+  const {podcastData} = route.params;
   const {t} = useTranslation();
-  const token = useSelector(state => state.auth.token);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  // const token = useSelector(state => state.authData.token);
 
-  console.log('userData:', selectedData);
+  console.log('userData:', podcastData);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -95,7 +98,7 @@ const PodcastIndex = props => {
               overflow: 'hidden',
             }}>
             <Image
-              source={{uri: selectedData.imageUrl}}
+              source={{uri: `${imageUrl}${podcastData.image}`}}
               style={{
                 height: 140,
                 width: 140,
@@ -116,7 +119,7 @@ const PodcastIndex = props => {
                   fontSize: 16,
                   color: '#fff',
                 }}>
-                {selectedData.id}
+                {podcastData.id}
               </Text>
               <Text
                 style={{
@@ -125,7 +128,7 @@ const PodcastIndex = props => {
                   color: '#fff',
                   marginTop: 1,
                 }}>
-                {selectedData.title}
+                {podcastData.title}
               </Text>
               <Text
                 style={{
@@ -154,7 +157,7 @@ const PodcastIndex = props => {
                   marginHorizontal: 25,
                   marginVertical: -21,
                 }}>
-                {selectedData.duration}
+                {podcastData.duration}
               </Text>
             </View>
           </View>
@@ -178,7 +181,7 @@ const PodcastIndex = props => {
           </TouchableOpacity>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => addToWatchLater(selectedData)}
+          onPress={() => addToWatchLater(podcastData)}
           style={{
             position: 'absolute',
             bottom: -25,
@@ -190,7 +193,7 @@ const PodcastIndex = props => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <TouchableOpacity onPress={() => addToWatchLater(selectedData)}>
+          <TouchableOpacity onPress={() => addToWatchLater(podcastData)}>
             <WatchLaterIcon Width={30} Height={30} />
           </TouchableOpacity>
         </TouchableOpacity>
@@ -214,9 +217,7 @@ const PodcastIndex = props => {
             marginTop: 20,
             //   marginHorizontal:3
           }}>
-          In 2014, the world avoided a global outbreak of Ebola, thanks to
-          thousands of selfless health workers - plus, frankly, some very good
-          luck. In hindsight, we know what we should have done better.
+          {podcastData.overview}
         </Text>
         <View
           style={{

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import HomeHeader from '../../Components/Header/HomeHeader';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Theme from '../../Constants/Theme';
 import {Image} from 'react-native';
-
+import {apiCall} from '../../Services/Service';
 import AudioReels from '../Entertainment/AudioReels';
 import VideoReels from '../Entertainment/VideoReels';
 import {useSelector, useDispatch} from 'react-redux';
@@ -33,14 +33,37 @@ const {width, height} = Dimensions.get('screen');
 const ProfileIndex = () => {
   const Tab = createMaterialTopTabNavigator();
   const route = useRoute();
-  const {userDetails} = useSelector(state => state.authData);
+  // const {userDetails} = useSelector(state => state.authData);
+  const token = useSelector(state => state.authData.token);
   const [loadingState, setLoadingState] = useState(false);
+  const [userDetails, setUserDetails] = useState([]);
+  console.log('useD', userDetails);
   const {following} = useSelector(state => state.commonData); // Get following state from the store
   const dispatch = useDispatch(); // Initialize useDispatch
 
   const handleFollow = () => {
     dispatch(followUser()); // Dispatch the followUser action when the button is pressed
   };
+  useEffect(() => {
+    const fetchLoggedInUserData = async () => {
+      try {
+        const endpoint = 'get-user';
+        const response = await apiCall(endpoint, 'GET', {}, token);
+        const data = response.data;
+        console.log('data', data);
+        // const mappedData = data?.map(item => ({
+        //   name: item.name,
+        //   email: item.email,
+        //   imageUrl: item.imageUrl,
+        //   videoUrl: item.videoUrl,
+        // }));
+        setUserDetails(data);
+      } catch (error) {
+        console.error('Error fetching My profile data:', error);
+      }
+    };
+    fetchLoggedInUserData();
+  }, []);
 
   const handleShare = async () => {
     try {
@@ -144,7 +167,7 @@ const ProfileIndex = () => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  4.5m
+                  {userDetails.count_followers}
                 </Text>
                 <Text
                   style={{
@@ -165,7 +188,7 @@ const ProfileIndex = () => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  12
+                  {userDetails.count_videos}
                 </Text>
                 <Text
                   style={{
@@ -186,7 +209,7 @@ const ProfileIndex = () => {
                     textAlign: 'center',
                     marginTop: 10,
                   }}>
-                  32
+                  {userDetails.count_podcasts}
                 </Text>
                 <Text
                   style={{
@@ -207,7 +230,7 @@ const ProfileIndex = () => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  1.75k
+                  {userDetails.count_followings}
                 </Text>
                 <Text
                   style={{
@@ -329,7 +352,7 @@ const ProfileIndex = () => {
                       fontSize: 10,
                       // fontFamily:Theme.FontFamily.normal
                     }}>
-                    32
+                    {userDetails.count_podcasts}
                   </Text>
                 </Pressable>
               ),
@@ -352,7 +375,7 @@ const ProfileIndex = () => {
                       fontSize: 10,
                       // fontFamily:Theme.FontFamily.normal
                     }}>
-                    32
+                    {userDetails.count_videos}
                   </Text>
                 </Pressable>
               ),

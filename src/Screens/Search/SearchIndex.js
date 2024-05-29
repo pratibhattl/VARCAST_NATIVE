@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {BlurView} from '@react-native-community/blur';
 import React, {useState, useEffect} from 'react';
 import {
@@ -29,6 +30,7 @@ const SearchIndex = props => {
   const [filteredData, setFilteredData] = useState([]);
   const [cat, setCat] = useState(0);
   const [data, setData] = useState([]);
+ 
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   useEffect(() => {
     console.log('Category changed:', cat);
@@ -159,8 +161,8 @@ const SearchIndex = props => {
           data={filteredData}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{paddingBottom: 20, paddingTop: 5}}
-          renderItem={({item}) => {
-            return (
+          renderItem={({ item }) => {
+                      return (
               <LinearGradient
                 colors={[
                   'rgba(255, 255, 255, 0.3)',
@@ -186,7 +188,11 @@ const SearchIndex = props => {
                   <Image
                     // source={{uri: item.imageUrl}}
 
-                    source={cat===0 ?{uri: item.imageUrl} : {uri:`${imageUrl}${item?.image}`} }
+                    source={
+                      cat === 0
+                        ? {uri: item.imageUrl}
+                        : {uri: `${imageUrl}${item?.image}`}
+                    }
                     style={{
                       height: 100,
                       width: 100,

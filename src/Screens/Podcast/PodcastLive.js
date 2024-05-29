@@ -47,6 +47,7 @@ import CrownIcon from '../../assets/icons/CrownIcon';
 import {PermissionsAndroid, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
+import AllSourcePath from '../../Constants/PathConfig';
 // import {toast} from 'react-toastify';
 import {
   ClientRoleType,
@@ -65,14 +66,17 @@ const {width, height} = Dimensions.get('screen');
 const PodcastLive = props => {
   const route = useRoute();
   const selectedData = route.params?.item;
+  console.log('SelectedData', selectedData);
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(null);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
-  const [message, setMessage] = useState('');
+  const [comment, setComment] = useState('');
+  console.log('Comment', comment);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
 
   const [GiftData, setGiftData] = useState([
@@ -154,6 +158,32 @@ const PodcastLive = props => {
       hostedby: 'Hosted by: Kevin Hart',
     },
   ]);
+  const [newComment, setNewComment] = useState([]);
+  useEffect(() => {
+    const fetchCommentData = async () => {
+      try {
+        const endpoint = 'podcast/list';
+        const id = selectedData?._id;
+        const response = await apiCall(endpoint, 'GET', {id}, token);
+
+        console.log('Raw response:', response);
+
+        if (response?.status === true) {
+          const userCommentData = response?.data;
+          console.log('CommentData', userCommentData);
+          // const userCommentData = response?.data?.map(item => ({
+          //   name: item.followings.name,
+          //   email: item.followings.email,
+          //   imageUrl: item.followings.full_path_image,
+          // }));
+          setNewComment(userCommentData);
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+    fetchCommentData();
+  }, []);
 
   const [messages, setMessages] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
@@ -163,13 +193,13 @@ const PodcastLive = props => {
   const [messagee, setMessagee] = useState(''); // Message to the user
   const [podcasts, setPodcasts] = useState([]);
 
-  const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
+  const appId = '4c1c49fdaa764987ae75bf36be453456';
   const channelName = 'test';
-  // const token =
-  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
+  const agoraToken =
+    '007eJxTYHjbt+HxtvbWKfNaO8+80TWSetf371Gl8fXn7ly2Un7fvgcoMJgkGyabWKalJCaam5lYWpgnppqbJqUZmyWlmpgam5ianb4cmtYQyMiQcVKVgREKQXwWhpLU4hIGBgBKsSJo';
   const uid = 0;
   function showMessage(msg) {
-    setMessage(msg);
+    setMessagee(msg);
   }
   const getPermission = async () => {
     if (Platform.OS === 'android') {
@@ -195,9 +225,9 @@ const PodcastLive = props => {
     setupAudioSDKEngine(appId, channelName);
     setTimeout(() => {
       if (props?.route?.params?.host) {
-        joinHost(channelName, token);
+        joinHost(channelName, agoraToken);
       } else {
-        joinAudience(channelName, token);
+        joinAudience(channelName, agoraToken);
       }
     }, 300);
     return () => {
@@ -265,7 +295,7 @@ const PodcastLive = props => {
       // channeloptions.audienceLatencyLevel =
       // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
       agoraEngine.updateChannelMediaOptions(channeloptions);
-      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(agoraToken, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleAudience,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -283,7 +313,7 @@ const PodcastLive = props => {
       agoraEngineRef.current?.setChannelProfile(
         ChannelProfileType.ChannelProfileLiveBroadcasting,
       );
-      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(agoraToken, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -306,35 +336,46 @@ const PodcastLive = props => {
 
   // Function to handle the press event of the heart icon
   const handleLikePress = () => {
-    // console.log('Heart icon pressed');
     const podcastId = selectedData?._id;
-    // console.log('Hart', podcastId);
     if (!podcastId) {
       console.error('Podcast ID is missing');
       return;
     }
-
     const payload = {
       podcastId: podcastId,
     };
     console.log('PayLoad', payload);
-
     apiCall('podcast/like', 'POST', payload, token)
       .then(response => {
-        console.log('Message', response.message);
+        // console.log('Message', response.message);
         if (response.message === 'Liked') {
           setLikeStatus('liked');
-          console.log('Podcast liked successfully');
+          // console.log('Podcast liked successfully');
           HelperFunctions.showToastMsg('Podcast liked');
         } else {
           setLikeStatus(null);
-          console.log('Podcast disliked successfully');
+          // console.log('Podcast disliked successfully');
           HelperFunctions.showToastMsg('Podcast Disliked');
         }
       })
       .catch(error => {
         console.error('Error while liking the podcast:', error);
       });
+  };
+
+  // Function to handle the Comment
+  const sendComment = () => {
+    const podcastId = selectedData?._id;
+    if (!podcastId) {
+      console.error('Podcast ID is missing');
+      return;
+    }
+    const payload = {
+      podcastId: podcastId,
+      comment: comment,
+    };
+    console.log('PayLoad', payload);
+    apiCall('podcast/comment', 'POST', payload, token);
   };
 
   return (
@@ -411,7 +452,7 @@ const PodcastLive = props => {
                   backgroundColor: 'red',
                 }}>
                 <Image
-                  source={{uri: selectedData.image}}
+                  source={{uri: `${imageUrl}${selectedData?.image}`}}
                   style={{
                     height: 38,
                     width: 38,
@@ -484,7 +525,7 @@ const PodcastLive = props => {
                 overflow: 'hidden',
               }}>
               <Image
-                source={{uri: selectedData.imageUrl}}
+                source={{uri: `${imageUrl}${selectedData?.image}`}}
                 style={{
                   height: 140,
                   width: 140,
@@ -642,8 +683,8 @@ const PodcastLive = props => {
           multiline={true}
           style={[styles.input, {minHeight: 40, maxHeight: 100}]}
           placeholder="Message..."
-          value={messagee}
-          onChangeText={setMessagee}
+          value={comment}
+          onChangeText={setComment}
           placeholderTextColor={Theme.colors.grey}
         />
 
@@ -656,8 +697,9 @@ const PodcastLive = props => {
               // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
             },
           ]}
-          //   onPress={()=>{ sendMsg() }}
-        >
+          onPress={() => {
+            sendComment();
+          }}>
           <SendIcon />
         </TouchableOpacity>
       </View>

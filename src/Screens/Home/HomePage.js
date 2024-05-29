@@ -26,6 +26,8 @@ import {useNavigation} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import FollowingUser from './FollowingUser';
 import {useSelector} from 'react-redux';
+import AllSourcePath from '../../Constants/PathConfig';
+import MostPlayed from './MostPlayed';
 
 const HomePage = props => {
   const route = useRoute();
@@ -38,6 +40,7 @@ const HomePage = props => {
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [userData, setUserData] = useState([]);
   const [ourpickData, setourpickData] = useState([]);
   const {t} = useTranslation();
@@ -49,7 +52,7 @@ const HomePage = props => {
     try {
       const endpoint = 'lives/list';
       const response = await apiCall(endpoint, 'GET', {}, token);
-      const data = response.data; // Assuming response is already parsed as JSON
+      const data = response.data;
       const mappedData = data.listData.map(item => ({
         title: item.title,
         slug: item.slug,
@@ -57,9 +60,9 @@ const HomePage = props => {
         videoUrl: item.videoUrl,
       }));
       setLiveData(mappedData);
-      console.log('Liveresponse', mappedData);
+      // console.log('Liveresponse', mappedData);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching Live :', error);
     }
   };
 
@@ -78,8 +81,10 @@ const HomePage = props => {
             name: item.followings.name,
             email: item.followings.email,
             imageUrl: item.followings.full_path_image,
+            userId: item.followings._id,
           }));
         setUserData(usermappedData);
+        // console.log('UserMapData', userData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -104,48 +109,35 @@ const HomePage = props => {
     navigation.navigate('UserDetails', {userData: userData});
   };
   //Fetching Catergoires
-  const fetchCategories = useCallback(() => {
-    setLoader(true);
-    let data = {
-      limit: '10',
-      keyword: '',
-      page: null,
-    };
-    apiCall('api/all-category', data, '')
-      .then(response => {
-        // console.log('response',response)
-        if (response?.status == 'success') {
-          setCategorylist(response?.data);
-          setLoader(false);
-        } else {
-          // setModalVisible(true)
-          setLoader(false);
-        }
-      })
-      .catch(error => {
-        HelperFunctions.showToastMsg(error?.message);
-        setLoader(false);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
-  }, []);
-  //Fetching Most Played Data
-  const fetchMostPlayedData = async () => {
+  const fetchCategories = async () => {
     try {
-      const response = await fetch(
-        'https://dev2024.co.in/web/varcast/publication-1.json',
-      );
-      if (!response.ok) {
-        throw new Error('Failed to fetch data');
+      const endpoint = 'home/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      if (response?.status === true) {
+        setCategorylist(response?.data.categories || []);
+        setMostPlayedData(response?.data?.latest_videos);
+        console.log('MostPlayed', response?.data.latest_podcasts);
       }
-      const jsonData = await response.json();
-      console.log('Fetched data:', jsonData);
-      setMostPlayedData(jsonData.Publication);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      HelperFunctions.showToastMsg(error?.message);
     }
   };
+  // //Fetching Most Played Data
+  // const fetchMostPlayedData = async () => {
+  //   try {
+  //     const response = await fetch(
+  //       'https://dev2024.co.in/web/varcast/publication-1.json',
+  //     );
+  //     if (!response.ok) {
+  //       throw new Error('Failed to fetch data');
+  //     }
+  //     const jsonData = await response.json();
+  //     // console.log('Fetched data:', jsonData);
+  //     setMostPlayedData(jsonData.Publication);
+  //   } catch (error) {
+  //     console.error('Error fetching data:', error);
+  //   }
+  // };
 
   //Fetch Following Our Picks Data
   const fetchOurPicksData = () => {
@@ -167,7 +159,7 @@ const HomePage = props => {
     fetchCategories();
     fetchData();
     fetchPopularEpisodes();
-    fetchMostPlayedData();
+    // fetchMostPlayedData();
     fetchOurPicksData();
   }, []);
   return (
@@ -340,7 +332,7 @@ const HomePage = props => {
           </Text>
         </View>
         <View>
-          <TouchableOpacity onPress={goToUserDetails}>
+          <TouchableOpacity>
             {userData?.length > 0 && (
               <FlatList
                 data={userData}
@@ -348,55 +340,79 @@ const HomePage = props => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
                 renderItem={({item}) => (
-                  <View
-                    style={{
-                      width: 128,
-                      height: 110,
-                      borderRadius: 15,
-                      marginRight: 20,
-                      borderTopRightRadius: 0,
-                      borderTopLeftRadius: 0,
-                      overflow: 'hidden',
-                      backgroundColor: 'transparent',
+                  <TouchableOpacity
+                    onPress={async () => {
+                      try {
+                        const response = await apiCall(
+                          'user-profile',
+                          'POST',
+                          {userId: item.userId},
+                          token,
+                        );
+
+                        if (response.status === true) {
+                          const userDetails = response.data;
+                          console.log('UserID', userDetails);
+                          NavigationService.navigate('UserDetails', {
+                            userData: userDetails,
+                          });
+                        } else {
+                          console.error('Failed to fetch user details');
+                        }
+                      } catch (error) {
+                        console.error('Error fetching user details:', error);
+                      }
                     }}>
-                    <Image
-                      source={{uri: item?.imageUrl}}
+                    <View
                       style={{
                         width: 128,
                         height: 110,
                         borderRadius: 15,
-                      }}
-                      resizeMode="cover"
-                    />
-                    <View
-                      style={{
-                        height: 35,
-                        width: 128,
-                        alignItems: 'center',
-                        alignSelf: 'center',
-                        position: 'absolute',
-                        justifyContent: 'center',
-                        bottom: 0,
-                        backgroundColor: 'rgba(200,200,200, 0.5)',
-                        opacity: 0.9,
+                        marginRight: 20,
+                        borderTopRightRadius: 0,
+                        borderTopLeftRadius: 0,
+                        overflow: 'hidden',
+                        backgroundColor: 'transparent',
                       }}>
+                      <Image
+                        source={{uri: item?.imageUrl}}
+                        style={{
+                          width: 128,
+                          height: 110,
+                          borderRadius: 15,
+                        }}
+                        resizeMode="cover"
+                      />
                       <View
                         style={{
-                          overflow: 'hidden',
-                          paddingTop: 5,
+                          height: 35,
+                          width: 128,
+                          alignItems: 'center',
+                          alignSelf: 'center',
+                          position: 'absolute',
+                          justifyContent: 'center',
+                          bottom: 0,
+                          backgroundColor: 'rgba(200,200,200, 0.5)',
+                          opacity: 0.9,
                         }}>
-                        <Text
+                        <View
                           style={{
-                            color: '#fff',
-                            fontSize: 14,
-                            fontFamily: 'YourFontFamily',
-                            marginHorizontal: 5,
+                            overflow: 'hidden',
+                            paddingTop: 5,
                           }}>
-                          {item.name}
-                        </Text>
+                          <Text
+                            style={{
+                              color: '#fff',
+                              fontSize: 14,
+                              fontFamily: 'YourFontFamily',
+                              marginHorizontal: 5,
+                            }}>
+                            {item.name}
+                          </Text>
+                        </View>
                       </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 )}
                 keyExtractor={(item, index) => index.toString()}
               />
@@ -771,7 +787,7 @@ const HomePage = props => {
                     backgroundColor: 'transparent',
                   }}>
                   <Image
-                    source={{uri: item.image}}
+                    source={{uri: `${item.imageUrl}`}}
                     style={{
                       width: '100%',
                       height: '100%',
