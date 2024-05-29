@@ -16,14 +16,6 @@
 	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>NSCameraUsageDescription</key>
-  <string>app want to access camera</string>
-  <key>NSMicrophoneUsageDescription</key>
-  <string>app want to access mic</string>
-  <key>NSPhotoLibraryUsageDescription</key>
-  <string>app want to access storage</string>
-  <key>NSPhotoLibraryAddUsageDescription</key>
-  <string>app want to access storage</string>
 	<key>NSAppleMusicUsageDescription</key>
   <string>app want to access </string>
 	<key>CFBundleShortVersionString</key>

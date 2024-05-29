@@ -1,5 +1,5 @@
 #import "AppDelegate.h"
-//#import <Firebase.h>
+#import <Firebase.h>
 #import <React/RCTBundleURLProvider.h>
 #import "React/RCTI18nUtil.h"
 @implementation AppDelegate
@@ -9,7 +9,7 @@
 - (BOOL)application:(UIApplication *)application
 didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-//  [FIRApp configure];
+ [FIRApp configure];
   
   self.moduleName = @"VarCast";
   // You can add your custom initial props in the dictionary below.
