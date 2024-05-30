@@ -9,6 +9,7 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
