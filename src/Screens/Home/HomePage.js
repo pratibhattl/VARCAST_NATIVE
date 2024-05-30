@@ -28,9 +28,10 @@ import FollowingUser from './FollowingUser';
 import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import MostPlayed from './MostPlayed';
-
+import { useIsFocused } from '@react-navigation/native';
 const HomePage = props => {
   const route = useRoute();
+  const isFocused = useIsFocused();
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -155,13 +156,15 @@ const HomePage = props => {
   };
 
   useEffect(() => {
+    if (isFocused) {
     fetchUserData();
     fetchCategories();
     fetchData();
     fetchPopularEpisodes();
     // fetchMostPlayedData();
     fetchOurPicksData();
-  }, []);
+    }
+  }, [isFocused]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}

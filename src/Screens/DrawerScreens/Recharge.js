@@ -1,5 +1,5 @@
 import {BlurView} from '@react-native-community/blur';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -18,11 +18,67 @@ import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
 import NavigationService from '../../Services/Navigation';
 import {AppTextInput} from 'react-native-basic-elements';
+import { apiCall } from '../../Services/Service';
+import {useSelector} from 'react-redux';
+import HelperFunctions from '../../Constants/HelperFunctions';
+import AllSourcePath from '../../Constants/PathConfig';
+import axios from 'axios';
+
 const {width, height} = Dimensions.get('screen');
 
 const Recharge = props => {
   const [Amount, setAmount] = useState('');
-  const [ValueCoin, setValueCoin] = useState('');
+  const [coinValue, setCoinValue] = useState({});
+  const [coinPalnList, setCoinPlanList] = useState([]);
+  const [Loder, setLoader] = useState(false);
+  const token = useSelector(state => state.authData.token);
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+
+  const fetchPlanList = async () => {
+    setLoader(true);
+    try {
+      const endpoint = 'coin-inventory/plans';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      const data = response?.data?.listData; 
+      console.log(data,"data");
+      setCoinPlanList(data);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  useEffect(() => {
+    fetchPlanList();
+  }, []);
+
+
+  const paymentForAddCoins = () => {
+    setLoader(true);
+    const formData = new FormData();
+    console.log(token,"token");
+    formData.append('coin_id', coinValue?._id);
+    axios
+      .post(`${baseUrl}coin-inventory/add`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        setLoader(false);
+        NavigationService.navigate('Wallet');
+        setCoinValue({})
+        if (response?.status === true) {
+          HelperFunctions.showToastMsg(response?.message);
+          NavigationService.navigate('Wallet');
+        } else {
+          setLoader(false);
+        }
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,7 +170,7 @@ const Recharge = props => {
                 textAlign: 'center',
                 marginTop: 10,
               }}>
-              1000 Coins
+               {coinValue?.from_coin} Coins
             </Text>
           </LinearGradient>
         </View>
@@ -167,19 +223,19 @@ const Recharge = props => {
           />
 
           <FlatList
-            data={['1K', '2K', '3K', '4K', '5K', '6K', '7K', '8K', '9K', '10K']}
+            data={coinPalnList}
             horizontal
             contentContainerStyle={{marginLeft: 20, marginVertical: 25}}
             showsHorizontalScrollIndicator={false}
             renderItem={({item, index}) => {
               return (
                 <Pressable
-                  onPress={() => setValueCoin(item)}
+                  onPress={() => setCoinValue(item)}
                   style={{
                     width: 104,
                     height: 84,
                     borderRadius: 15,
-                    backgroundColor: ValueCoin == item ? '#E1D01E' : '#1C1C1C',
+                    backgroundColor: coinValue?._id == item?._id ? '#E1D01E' : '#1C1C1C',
                     marginRight: 19,
                     borderColor: 'rgba(255, 255, 255, 0.4)',
                     borderWidth: 0.4,
@@ -202,24 +258,24 @@ const Recharge = props => {
                     />
                     <Text
                       style={{
-                        color: ValueCoin == item ? '#000' : '#fff',
+                        color: coinValue?._id == item?._id ? '#000' : '#fff',
                         fontSize: 18,
                         fontFamily: Theme.FontFamily.semiBold,
                         //  textAlign:'center',
                         marginLeft: 8,
                       }}>
-                      {item}
+                      {item?.from_coin}
                     </Text>
                   </View>
                   <Text
                     style={{
-                      color: ValueCoin == item ? '#000' : '#fff',
+                      color: coinValue?._id == item?._id ? '#000' : '#fff',
                       fontSize: 14,
                       fontFamily: Theme.FontFamily.normal,
                       textAlign: 'center',
                       marginTop: 10,
                     }}>
-                    $ {0.49 + index}
+                    $ {item?.price}
                   </Text>
                 </Pressable>
               );
@@ -250,7 +306,7 @@ const Recharge = props => {
                   //  textAlign:'center',
                   marginRight: 5,
                 }}>
-                $ 0.99
+                $ {coinValue?.price}
               </Text>
               <Text
                 style={{
@@ -266,7 +322,7 @@ const Recharge = props => {
             </View>
           </View>
           <Pressable
-            onPress={() => NavigationService.navigate('BottomTabNavigation')}
+            onPress={() => paymentForAddCoins()}
             style={{
               height: 53,
               width: 350,

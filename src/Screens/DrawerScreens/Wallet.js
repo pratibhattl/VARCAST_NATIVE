@@ -17,36 +17,41 @@ import {apiCall} from '../../Services/Service';
 import LinearGradient from 'react-native-linear-gradient';
 import Theme from '../../Constants/Theme';
 import NavigationService from '../../Services/Navigation';
-
+import { useIsFocused } from '@react-navigation/native';
 const {width, height} = Dimensions.get('screen');
 
-const Wallet = () => {
+const Wallet = (props) => {
+  const isFocused = useIsFocused();
   const token = useSelector(state => state.authData.token);
   const [transactions, setTransactions] = useState([]);
   const [coinBalance, setCoinBalance] = useState(0);
+  const [totalCoin,setTotalCoin] = useState('')
+  const fetchData = async () => {
+    try {
+      const endpoint = 'coin-inventory/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const endpoint = 'wallet/index';
-        const response = await apiCall(endpoint, 'GET', {}, token);
-        console.log('response', response);
-
-        if (response.status) {
-          setTransactions(response.data.listData);
-          setCoinBalance(response.data.countData);
-        } else {
-          console.error('Error fetching data: ', response.message);
-        }
-      } catch (error) {
-        console.error('Error fetching data: ', error);
+      if (response.status) {
+        setTotalCoin(response?.data?.total)
+        setTransactions(response?.data?.listData);
+        setCoinBalance(response?.data?.countData);
+      } else {
+        console.error('Error fetching data: ', response?.message);
       }
-    };
-
-    if (token) {
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    }
+  };
+  useEffect(() => {
+    if (isFocused) {
       fetchData();
     }
-  }, [token]);
+  }, [isFocused]);
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -108,7 +113,7 @@ const Wallet = () => {
                 textAlign: 'center',
                 marginTop: 20,
               }}>
-              {coinBalance}
+              {totalCoin}
             </Text>
             <TouchableOpacity
               onPress={() => NavigationService.navigate('Recharge')}
@@ -177,7 +182,7 @@ const Wallet = () => {
                         fontSize: 16,
                         fontFamily: Theme.FontFamily.medium,
                       }}>
-                      Amount: {transaction.amount}
+                      Amount: {transaction.coin_value}
                     </Text>
                     <Text
                       style={{
@@ -185,7 +190,7 @@ const Wallet = () => {
                         fontSize: 14,
                         fontFamily: Theme.FontFamily.light,
                       }}>
-                      Date: {transaction.txn_date}
+                      Date: {formatDate(transaction.created_at)}
                     </Text>
                   </View>
                 </View>
@@ -197,8 +202,8 @@ const Wallet = () => {
                       transaction.type === 'credit' ? '#1CB62B' : '#ED4040',
                   }}>
                   {transaction.type === 'credit'
-                    ? `+ ${transaction.amount}`
-                    : `- ${transaction.amount}`}
+                    ? `+ ${transaction.coin_value}`
+                    : `- ${transaction.coin_value}`}
                 </Text>
               </View>
             ))}

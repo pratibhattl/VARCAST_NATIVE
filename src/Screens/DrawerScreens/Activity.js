@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {FlatList, StyleSheet} from 'react-native';
 import {View, Text} from 'react-native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -7,81 +7,39 @@ import Theme from '../../Constants/Theme';
 import {Image} from 'react-native';
 import NavigationService from '../../Services/Navigation';
 import {Dimensions} from 'react-native';
+import {useSelector} from 'react-redux';
+import {apiCall} from '../../Services/Service';
 const {width, height} = Dimensions.get('screen');
 
-const Activity = () => {
+const Activity = (props) => {
   const route = useRoute();
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
-  const [allData, setAllData] = useState([
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: '25 Sep ',
-      time: '• 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: '• 14:45',
-      image: require('../../assets/images/Coin.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: '25 Sep ',
-      time: '• 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: '• 14:45',
-      image: require('../../assets/images/Coin.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-  ]);
+  const [allData, setAllData] = useState([])
+  const token = useSelector(state => state.authData.token);
+
+   
+  const fetchData = async () => {
+    try {
+      const endpoint = 'activity/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+
+      if (response.status) {
+        setAllData(response?.data?.listData);
+      } else {
+        console.error('Error fetching data: ', response?.message);
+      }
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    }
+  };
+
+  useEffect(() => {
+    if(props){
+      fetchData();
+    }
+  }, [props]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
@@ -96,6 +54,14 @@ const Activity = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{paddingHorizontal: 20, paddingTop: 0}}
           renderItem={({item, index}) => {
+            const formatDate = (timestamp) => {
+              const date = new Date(timestamp);
+              return date.toISOString().split('T')[0];
+          };
+          const formatTime = (timestamp) => {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        };
             return (
               <View
                 key={index}
@@ -111,7 +77,7 @@ const Activity = () => {
                     fontSize: 16,
                     fontFamily: Theme.FontFamily.medium,
                   }}>
-                  {item.title}
+                  {item?.message}
                 </Text>
                 <Text
                   style={{
@@ -120,14 +86,14 @@ const Activity = () => {
                     fontFamily: Theme.FontFamily.light,
                     marginTop: 3,
                   }}>
-                  {item.date}{' '}
+                  {formatDate(item?.created_at)}{' '}
                   <Text
                     style={{
                       color: 'rgba(255, 255, 255, 0.54)',
                       fontSize: 14,
                       fontFamily: Theme.FontFamily.light,
                     }}>
-                    {item.time}
+                    {formatTime(item?.created_at)}
                   </Text>
                 </Text>
                 <View style={{flexDirection: 'row', marginTop: 12}}>
