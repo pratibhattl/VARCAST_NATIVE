@@ -24,6 +24,7 @@ const ChatRoom = () => {
   const {userDetails} = useSelector(state => state.authData);
 
   console.log('user', userDetails);
+  console.log('route',route)
 
   const [messages, setMessages] = useState([]);
 
@@ -39,7 +40,7 @@ const ChatRoom = () => {
   useEffect(() => {
     const subscriber = firestore()
       .collection('chats')
-      .doc(userDetails._id + route.params.id)
+      .doc(userDetails._id + route.params.data.id)
       .collection('messages')
       .orderBy('createdAt', 'desc');
 
@@ -64,7 +65,7 @@ const ChatRoom = () => {
     const myMessage = {
       ...msg,
       sendBy: userDetails._id,
-      sendTo: route.params.id,
+      sendTo: route.params.data.id,
       createdAt: Date.parse(msg.createdAt),
     };
 
@@ -76,13 +77,13 @@ const ChatRoom = () => {
 
     await firestore()
       .collection('chats')
-      .doc('' + userDetails._id + route.params.id)
+      .doc('' + userDetails._id + route.params.data.id)
       .collection('messages')
       .add(myMessage);
 
     await firestore()
       .collection('chats')
-      .doc('' + route.params.id + userDetails._id)
+      .doc('' + route.params.data.id + userDetails._id)
       .collection('messages')
       .add(myMessage);
   }, []);
@@ -117,7 +118,7 @@ const ChatRoom = () => {
           user={{
             _id: userDetails._id,
             name: userDetails.name,
-            avatar: userDetails.image,
+            avatar: userDetails.full_path_image,
           }}
         />
       </View>
