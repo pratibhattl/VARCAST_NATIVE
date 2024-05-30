@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import {useRoute} from '@react-navigation/native';
@@ -25,6 +25,7 @@ import {useTranslation} from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
+import {apiCall} from '../../Services/Service';
 const {width, height} = Dimensions.get('screen');
 
 const PodcastIndex = () => {
@@ -32,12 +33,27 @@ const PodcastIndex = () => {
   const {podcastData} = route.params;
   const {t} = useTranslation();
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-  // const token = useSelector(state => state.authData.token);
-
-  console.log('userData:', podcastData);
+  const token = useSelector(state => state.authData.token);
+  // console.log('userData:', podcastData);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await apiCall('podcast/list', 'GET', null, token);
+        const podcastList = response.data.listData;
+        setData(podcastList); // Adjust according to the actual data structure
+        console.log('podcastlisr', podcastList);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, [token]);
 
   const addToWatchLater = async podcastData => {
     try {
@@ -246,7 +262,7 @@ const PodcastIndex = () => {
           </Text>
         </View>
         <FlatList
-          data={[1, 2, 3, 4]}
+          data={data}
           showsHorizontalScrollIndicator={false}
           horizontal
           contentContainerStyle={{paddingTop: 20, paddingLeft: 0}}
@@ -265,11 +281,7 @@ const PodcastIndex = () => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={
-                    index % 2 == 0
-                      ? require('../../assets/images/image143.png')
-                      : require('../../assets/images/image144.png')
-                  }
+                  source={{uri: `${imageUrl}${item.image}`}}
                   style={{
                     width: 200,
                     height: 180,
@@ -308,7 +320,7 @@ const PodcastIndex = () => {
                         marginHorizontal: 5,
                         // textAlign:'auto'
                       }}>
-                      Lorem ipsum dolor sit amet, consectetur elit.
+                      {item.title}
                     </Text>
 
                     <Text

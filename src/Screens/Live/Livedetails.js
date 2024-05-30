@@ -66,12 +66,15 @@ const {width, height} = Dimensions.get('screen');
 const LiveDetails = props => {
   const route = useRoute();
   const selectedData = route.params?.item;
+  console.log('Data', selectedData);
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(null);
-  // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [message, setMessage] = useState('');
+  const [comment, setComment] = useState('');
+  const [mapComment, setMapcomment] = useState([]);
+  console.log('Comment', mapComment);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -87,75 +90,39 @@ const LiveDetails = props => {
     {gift: <CrownIcon />},
     // {gift:<BulbIcon/>},
   ]);
-  const [allData, setAllData] = useState([
-    {
-      title: 'Video Watcheda',
-      date: 'typing...',
-      time: '19:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: 'Hey, I’m good what about you?',
-      time: '19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: 'By pioneering reusable rockets, SpaceX is pursuing the long-term goal,Is your team hiring? Cause I"d be a great fit.',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: 'By pioneering reusable rockets, SpaceX is pursuing the long-term goal',
-      time: ' 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Video Watched',
-      date: 'Is your team hiring? Cause I"d be a great fit.',
-      time: ' 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: 'Is your team hiring? Cause I"d be a great fit.',
-      time: ' 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: "Is your team hiring? Cause I'd be a great fit.",
-      time: '19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-  ]);
 
+  useEffect(() => {
+    const fetchCommentData = async () => {
+      try {
+        const endpoint = 'lives/list';
+        const response = await apiCall(endpoint, 'GET', {}, token);
+        if (
+          response.status === true &&
+          response.data &&
+          response.data.listData
+        ) {
+          // Extract and map comments from each live item
+          const mappedData = response.data.listData.flatMap(live =>
+            live.comments.map(comment => ({
+              comment: comment.comment,
+              user: comment.user.name,
+              liveId: comment.liveId,
+              createdAt: comment.created_at,
+              image: comment.user.full_path_image,
+            })),
+          );
+          setMapcomment(mappedData);
+          console.log('Mapped Comments:', mappedData);
+        } else {
+          console.error('Unexpected API response structure:', response);
+        }
+      } catch (error) {
+        console.error('Error fetching Live comments:', error);
+      }
+    };
+
+    fetchCommentData();
+  }, []);
   const [messages, setMessages] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
@@ -338,6 +305,22 @@ const LiveDetails = props => {
       });
   };
 
+  // Function to handle the Comment
+  const sendComment = () => {
+    const liveId = selectedData?._id;
+    if (!liveId) {
+      console.error('Podcast ID is missing');
+      return;
+    }
+    const payload = {
+      liveId: liveId,
+      comment: comment,
+    };
+    console.log('PayLoad', payload);
+    apiCall('lives/comment', 'POST', payload, token);
+    Keyboard.dismiss();
+    setComment('');
+  };
   return (
     <View style={styles.container}>
       <StatusBar
@@ -409,10 +392,10 @@ const LiveDetails = props => {
                   height: 38,
                   width: 38,
                   borderRadius: 10,
-                  backgroundColor: 'red',
+                  backgroundColor: 'white',
                 }}>
                 <Image
-                  source={{uri: selectedData.image}}
+                  source={{uri: selectedData.imageUrl}}
                   style={{
                     height: 38,
                     width: 38,
@@ -558,83 +541,61 @@ const LiveDetails = props => {
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
-        {allData.map((res, ind) => {
-          return (
-            <Pressable
-              key={ind}
-              onPress={() => NavigationService.navigate('ChatIndex')}
+        {mapComment?.map((comment, index) => (
+          <Pressable
+            key={index}
+            onPress={() => NavigationService.navigate('ChatIndex')}
+            style={{
+              flexDirection: 'row',
+              marginTop: 15,
+              paddingLeft: 20,
+              paddingRight: 15,
+            }}>
+            <Pressable>
+              <Image
+                source={{uri: comment?.image}}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 45,
+                  borderWidth: 0.7,
+                  borderColor: 'white',
+                }}
+                resizeMode="contain"
+              />
+            </Pressable>
+            <View
               style={{
                 flexDirection: 'row',
-                // alignItems: 'center',
-                // justifyContent:'space-between',
-                marginTop: 15,
-                paddingLeft: 20,
-                paddingRight: 15,
+                flex: 1,
+                justifyContent: 'space-between',
+                marginLeft: 20,
+                borderColor: 'rgba(118, 118, 128, 0.24)',
+                borderBottomWidth: 0,
+                paddingBottom: 10,
               }}>
-              <Pressable>
-                <Image
-                  source={res?.image}
+              <View>
+                <Text
                   style={{
-                    height: 40,
-                    width: 40,
-                    borderRadius: 45,
-                    borderWidth: 0.7,
-                    borderColor: 'white',
-                  }}
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  marginLeft: 20,
-                  borderColor: 'rgba(118, 118, 128, 0.24)',
-                  borderBottomWidth: 0,
-                  paddingBottom: 10,
-                  // marginTop:5
-                }}>
-                <View>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.medium,
-                    }}>
-                    {res.title}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.54)',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.light,
-                      marginTop: 3,
-                    }}>
-                    {res.date}{' '}
-                  </Text>
-                </View>
-                {/* <Pressable
-                                          onPress={() => {
-                                              // setModalVisible(false)
-                                              // NavigationService.navigate('Publication02')
-                                          }}
-                                          style={{
-                                              marginRight:20,
-                                              alignItems:'flex-end'
-                                          }}>
-                                        <Text style={{
-                                              color: 'rgba(255, 255, 255, 0.54)',
-                                              fontSize: 14,
-                                              fontFamily: Theme.FontFamily.light,
-                                              marginBottom: 3
-                                          }}>{res.time} </Text>
-                                          <DoubleTick/>
-                                      </Pressable> */}
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.medium,
+                  }}>
+                  {comment.comment}
+                </Text>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.light,
+                    marginTop: 3,
+                  }}>
+                  {comment.user}{' '}
+                </Text>
               </View>
-            </Pressable>
-          );
-        })}
+            </View>
+          </Pressable>
+        ))}
       </KeyboardAwareScrollView>
       <View style={styles.inputContainer}>
         {/* <View style={{}}> */}
@@ -644,7 +605,7 @@ const LiveDetails = props => {
           style={[styles.input, {minHeight: 40, maxHeight: 100}]}
           placeholder="Message..."
           value={messagee}
-          onChangeText={setMessagee}
+          onChangeText={setComment}
           placeholderTextColor={Theme.colors.grey}
         />
 
@@ -657,8 +618,9 @@ const LiveDetails = props => {
               // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
             },
           ]}
-          //   onPress={()=>{ sendMsg() }}
-        >
+          onPress={() => {
+            sendComment();
+          }}>
           <SendIcon />
         </TouchableOpacity>
       </View>

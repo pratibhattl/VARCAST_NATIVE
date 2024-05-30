@@ -8,6 +8,7 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  Keyboard,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -73,7 +74,8 @@ const PodcastLive = props => {
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [comment, setComment] = useState('');
-  console.log('Comment', comment);
+  const [mapComment, setMapcomment] = useState([]);
+  console.log('Comment', mapComment);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
@@ -90,99 +92,44 @@ const PodcastLive = props => {
     {gift: <CrownIcon />},
     // {gift:<BulbIcon/>},
   ]);
-  const [allData, setAllData] = useState([
-    {
-      title: 'Video Watcheda',
-      date: 'typing...',
-      time: '19:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: 'Hey, I’m good what about you?',
-      time: '19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: 'By pioneering reusable rockets, SpaceX is pursuing the long-term goal,Is your team hiring? Cause I"d be a great fit.',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: 'By pioneering reusable rockets, SpaceX is pursuing the long-term goal',
-      time: ' 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Video Watched',
-      date: 'Is your team hiring? Cause I"d be a great fit.',
-      time: ' 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: 'Is your team hiring? Cause I"d be a great fit.',
-      time: ' 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: "Is your team hiring? Cause I'd be a great fit.",
-      time: '19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-  ]);
   const [newComment, setNewComment] = useState([]);
   useEffect(() => {
     const fetchCommentData = async () => {
       try {
         const endpoint = 'podcast/list';
-        const id = selectedData?._id;
-        const response = await apiCall(endpoint, 'GET', {id}, token);
-
-        console.log('Raw response:', response);
-
-        if (response?.status === true) {
-          const userCommentData = response?.data;
-          console.log('CommentData', userCommentData);
-          // const userCommentData = response?.data?.map(item => ({
-          //   name: item.followings.name,
-          //   email: item.followings.email,
-          //   imageUrl: item.followings.full_path_image,
-          // }));
-          setNewComment(userCommentData);
+        const response = await apiCall(endpoint, 'GET', {}, token);
+        if (
+          response.status === true &&
+          response.data &&
+          response.data.listData
+        ) {
+          // Extract and map comments from each live item
+          const mappedData = response.data.listData.flatMap(live =>
+            live.comments.map(comment => ({
+              comment: comment.comment,
+              user: comment.user.name,
+              liveId: comment.liveId,
+              createdAt: comment.created_at,
+              image: comment.user.full_path_image,
+            })),
+          );
+          setMapcomment(mappedData);
+          console.log('Mapped Pdocast Comments:', mappedData);
+        } else {
+          console.error('Unexpected API response structure:', response);
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching Live comments:', error);
       }
     };
+
     fetchCommentData();
+    const intervalId = setInterval(() => {
+      fetchCommentData();
+    }, 5000); // Fetch every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
 
   const [messages, setMessages] = useState('');
@@ -193,10 +140,10 @@ const PodcastLive = props => {
   const [messagee, setMessagee] = useState(''); // Message to the user
   const [podcasts, setPodcasts] = useState([]);
 
-  const appId = '4c1c49fdaa764987ae75bf36be453456';
+  const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
-  const agoraToken =
-    '007eJxTYHjbt+HxtvbWKfNaO8+80TWSetf371Gl8fXn7ly2Un7fvgcoMJgkGyabWKalJCaam5lYWpgnppqbJqUZmyWlmpgam5ianb4cmtYQyMiQcVKVgREKQXwWhpLU4hIGBgBKsSJo';
+  // const token =
+  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   const uid = 0;
   function showMessage(msg) {
     setMessagee(msg);
@@ -225,9 +172,9 @@ const PodcastLive = props => {
     setupAudioSDKEngine(appId, channelName);
     setTimeout(() => {
       if (props?.route?.params?.host) {
-        joinHost(channelName, agoraToken);
+        joinHost(channelName, token);
       } else {
-        joinAudience(channelName, agoraToken);
+        joinAudience(channelName, token);
       }
     }, 300);
     return () => {
@@ -295,7 +242,7 @@ const PodcastLive = props => {
       // channeloptions.audienceLatencyLevel =
       // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
       agoraEngine.updateChannelMediaOptions(channeloptions);
-      agoraEngineRef.current?.joinChannel(agoraToken, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleAudience,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -313,7 +260,7 @@ const PodcastLive = props => {
       agoraEngineRef.current?.setChannelProfile(
         ChannelProfileType.ChannelProfileLiveBroadcasting,
       );
-      agoraEngineRef.current?.joinChannel(agoraToken, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -376,6 +323,9 @@ const PodcastLive = props => {
     };
     console.log('PayLoad', payload);
     apiCall('podcast/comment', 'POST', payload, token);
+
+    Keyboard.dismiss();
+    setComment('');
   };
 
   return (
@@ -598,83 +548,61 @@ const PodcastLive = props => {
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
-        {allData.map((res, ind) => {
-          return (
-            <Pressable
-              key={ind}
-              onPress={() => NavigationService.navigate('ChatIndex')}
+        {mapComment?.map((comment, index) => (
+          <Pressable
+            key={index}
+            onPress={() => NavigationService.navigate('ChatIndex')}
+            style={{
+              flexDirection: 'row',
+              marginTop: 15,
+              paddingLeft: 20,
+              paddingRight: 15,
+            }}>
+            <Pressable>
+              <Image
+                source={{uri: comment?.image}}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 45,
+                  borderWidth: 0.7,
+                  borderColor: 'white',
+                }}
+                resizeMode="contain"
+              />
+            </Pressable>
+            <View
               style={{
                 flexDirection: 'row',
-                // alignItems: 'center',
-                // justifyContent:'space-between',
-                marginTop: 15,
-                paddingLeft: 20,
-                paddingRight: 15,
+                flex: 1,
+                justifyContent: 'space-between',
+                marginLeft: 20,
+                borderColor: 'rgba(118, 118, 128, 0.24)',
+                borderBottomWidth: 0,
+                paddingBottom: 10,
               }}>
-              <Pressable>
-                <Image
-                  source={res?.image}
+              <View>
+                <Text
                   style={{
-                    height: 40,
-                    width: 40,
-                    borderRadius: 45,
-                    borderWidth: 0.7,
-                    borderColor: 'white',
-                  }}
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  marginLeft: 20,
-                  borderColor: 'rgba(118, 118, 128, 0.24)',
-                  borderBottomWidth: 0,
-                  paddingBottom: 10,
-                  // marginTop:5
-                }}>
-                <View>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.medium,
-                    }}>
-                    {res.title}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.54)',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.light,
-                      marginTop: 3,
-                    }}>
-                    {res.date}{' '}
-                  </Text>
-                </View>
-                {/* <Pressable
-                                        onPress={() => {
-                                            // setModalVisible(false)
-                                            // NavigationService.navigate('Publication02')
-                                        }}
-                                        style={{
-                                            marginRight:20,
-                                            alignItems:'flex-end'
-                                        }}>
-                                      <Text style={{
-                                            color: 'rgba(255, 255, 255, 0.54)',
-                                            fontSize: 14,
-                                            fontFamily: Theme.FontFamily.light,
-                                            marginBottom: 3
-                                        }}>{res.time} </Text>
-                                        <DoubleTick/>
-                                    </Pressable> */}
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.medium,
+                  }}>
+                  {comment.comment}
+                </Text>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.light,
+                    marginTop: 3,
+                  }}>
+                  {comment.user}{' '}
+                </Text>
               </View>
-            </Pressable>
-          );
-        })}
+            </View>
+          </Pressable>
+        ))}
       </KeyboardAwareScrollView>
       <View style={styles.inputContainer}>
         {/* <View style={{}}> */}

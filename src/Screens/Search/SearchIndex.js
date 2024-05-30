@@ -22,6 +22,7 @@ import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import {useTranslation} from 'react-i18next';
 import AllSourcePath from '../../Constants/PathConfig';
+
 const {width, height} = Dimensions.get('screen');
 
 const SearchIndex = props => {
@@ -30,8 +31,8 @@ const SearchIndex = props => {
   const [filteredData, setFilteredData] = useState([]);
   const [cat, setCat] = useState(0);
   const [data, setData] = useState([]);
- 
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  
   useEffect(() => {
     console.log('Category changed:', cat);
     const fetchData = async () => {
@@ -161,8 +162,8 @@ const SearchIndex = props => {
           data={filteredData}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{paddingBottom: 20, paddingTop: 5}}
-          renderItem={({ item }) => {
-                      return (
+          renderItem={({item}) => {
+            return (
               <LinearGradient
                 colors={[
                   'rgba(255, 255, 255, 0.3)',
@@ -186,8 +187,6 @@ const SearchIndex = props => {
                 <View
                   style={{marginLeft: 3, borderRadius: 10, overflow: 'hidden'}}>
                   <Image
-                    // source={{uri: item.imageUrl}}
-
                     source={
                       cat === 0
                         ? {uri: item.imageUrl}
@@ -214,25 +213,27 @@ const SearchIndex = props => {
                     marginHorizontal: 10,
                     width: '60%',
                   }}>
-                  <Pressable
-                    style={{
-                      height: 29,
-                      width: 58,
-                      borderRadius: 30,
-                      backgroundColor: '#ED4040',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      marginLeft: 2,
-                    }}>
-                    <Text
+                  {cat === 0 && (
+                    <Pressable
                       style={{
-                        color: '#fff',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.normal,
+                        height: 29,
+                        width: 58,
+                        borderRadius: 30,
+                        backgroundColor: '#ED4040',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginLeft: 2,
                       }}>
-                      {t('Live')}
-                    </Text>
-                  </Pressable>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.normal,
+                        }}>
+                        {t('Live')}
+                      </Text>
+                    </Pressable>
+                  )}
                   <View style={{marginTop: 12}}>
                     <Text
                       style={{

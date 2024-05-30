@@ -40,6 +40,7 @@ const HomePage = props => {
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
+  console.log('MostPlay', mostPlayedData);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [userData, setUserData] = useState([]);
   const [ourpickData, setourpickData] = useState([]);
@@ -58,9 +59,10 @@ const HomePage = props => {
         slug: item.slug,
         imageUrl: item.imageUrl,
         videoUrl: item.videoUrl,
+        _id: item._id,
       }));
       setLiveData(mappedData);
-      // console.log('Liveresponse', mappedData);
+      // console.log('Liveresponse', mappedData.comments);
     } catch (error) {
       console.error('Error fetching Live :', error);
     }
@@ -108,15 +110,15 @@ const HomePage = props => {
   const goToUserDetails = () => {
     navigation.navigate('UserDetails', {userData: userData});
   };
-  //Fetching Catergoires
-  const fetchCategories = async () => {
+  //Fetching HomePage Data
+  const fetchHomePageData = async () => {
     try {
       const endpoint = 'home/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       if (response?.status === true) {
         setCategorylist(response?.data.categories || []);
         setMostPlayedData(response?.data?.latest_videos);
-        console.log('MostPlayed', response?.data.latest_podcasts);
+        // console.log('MostPlayed', response?.data.latest_podcasts);
       }
     } catch (error) {
       HelperFunctions.showToastMsg(error?.message);
@@ -156,7 +158,7 @@ const HomePage = props => {
 
   useEffect(() => {
     fetchUserData();
-    fetchCategories();
+    fetchHomePageData();
     fetchData();
     fetchPopularEpisodes();
     // fetchMostPlayedData();
@@ -211,7 +213,7 @@ const HomePage = props => {
             return (
               <Pressable
                 onPress={() =>
-                  NavigationService.navigate('PodcastLive', {item})
+                  NavigationService.navigate('LiveDetails', {item})
                 }
                 style={{
                   width: 335,
@@ -766,66 +768,64 @@ const HomePage = props => {
           </Text>
         </View>
         <View>
-          {mostPlayedData && ( // Check if mostPlayedData is not null or undefined
-            <FlatList
-              data={mostPlayedData}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
-              renderItem={({item}) => (
-                <Pressable
-                  onPress={() => {
-                    // Navigate to Live Detail page
-                    NavigationService.navigate('PodcastIndex', {item});
-                  }}
+          <FlatList
+            data={mostPlayedData}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
+            renderItem={({item}) => (
+              <Pressable
+                onPress={() => {
+                  // Navigate to Live Detail page
+                  NavigationService.navigate('PodcastIndex', {item});
+                }}
+                style={{
+                  width: 200,
+                  height: 200,
+                  borderRadius: 15,
+                  marginRight: 20,
+                  overflow: 'hidden',
+                  backgroundColor: 'transparent',
+                }}>
+                <Image
+                  source={{uri: `${item.image}`}}
                   style={{
-                    width: 200,
-                    height: 200,
+                    width: '100%',
+                    height: '100%',
                     borderRadius: 15,
-                    marginRight: 20,
-                    overflow: 'hidden',
-                    backgroundColor: 'transparent',
+                  }}
+                  resizeMode="cover"
+                />
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    padding: 10,
                   }}>
-                  <Image
-                    source={{uri: `${item.imageUrl}`}}
+                  <Text
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: 15,
-                    }}
-                    resizeMode="cover"
-                  />
-                  <View
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                      padding: 10,
+                      color: '#fff',
+                      fontSize: 16,
+                      fontFamily: 'Arial', // Use your desired font family
+                      marginBottom: 5,
                     }}>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 16,
-                        fontFamily: 'Arial', // Use your desired font family
-                        marginBottom: 5,
-                      }}>
-                      {item.title}
-                    </Text>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 14,
-                        fontFamily: 'Arial', // Use your desired font family
-                      }}>
-                      Views: {item.views}
-                    </Text>
-                  </View>
-                </Pressable>
-              )}
-            />
-          )}
+                    {item.title}
+                  </Text>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 14,
+                      fontFamily: 'Arial', // Use your desired font family
+                    }}>
+                    Views: {item.views}
+                  </Text>
+                </View>
+              </Pressable>
+            )}
+          />
         </View>
 
         <View

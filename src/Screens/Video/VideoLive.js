@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   View,
   Text,
@@ -9,6 +10,7 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  Keyboard,
   Switch,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
@@ -65,15 +67,18 @@ const VideoLive = props => {
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [messages, setMessages] = useState('');
+  const [mapComment, setMapcomment] = useState([]);
+  console.log('Comment', mapComment);
+  const [comment, setComment] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
   const [isHostMic, setIsHosMic] = useState(true); // Client role
   const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
   const [message, setMessage] = useState(''); // Message to the user
-  const appId = '39dc863c99dc4f3d8723332b93d8be6';
+  const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
-  const agoraToken =
-    '007eJxTYHjbt+HxtvbWKfNaO8+80TWSetf371Gl8fXn7ly2Un7fvgcoMJgkGyabWKalJCaam5lYWpgnppqbJqUZmyWlmpgam5ianb4cmtYQyMiQcVKVgREKQXwWhpLU4hIGBgBKsSJo';
+  // const token =
+  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   const uid = 0;
   function showMessage(msg) {
     setMessage(msg);
@@ -98,15 +103,14 @@ const VideoLive = props => {
     }
   };
 
-
   useEffect(() => {
     // Initialize Agora engine when the app starts
     setupVideoSDKEngine(appId, channelName);
     setTimeout(() => {
       if (props?.route?.params?.host) {
-        joinHost(channelName, agoraToken);
+        joinHost(channelName, token);
       } else {
-        joinAudience(channelName, agoraToken);
+        joinAudience(channelName, token);
       }
     }, 500);
     return () => {
@@ -197,7 +201,7 @@ const VideoLive = props => {
       );
 
       agoraEngineRef.current?.startPreview();
-      agoraEngineRef.current?.joinChannel(agoraToken, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -238,128 +242,38 @@ const VideoLive = props => {
     }
   };
 
-  const [allData, setAllData] = useState([
-    {
-      title: 'Allian Buttldar',
-      date: 'typing...',
-      time: '19:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Augustas Walter',
-      date: 'Hey, I’m good what about you?',
-      time: '19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'William Jhonson',
-      date: 'By pioneering reusable rockets, SpaceX is pursuing the long-term goal,Is your team hiring? Cause I"d be a great fit.',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'David Willy',
-      date: 'By pioneering reusable rockets, SpaceX is pursuing the long-term goal',
-      time: ' 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Steve Smith',
-      date: 'Is your team hiring? Cause I"d be a great fit.',
-      time: ' 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Virat Kohli',
-      date: 'Is your team hiring? Cause I"d be a great fit.',
-      time: ' 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: "Is your team hiring? Cause I'd be a great fit.",
-      time: '19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Van der dedassun',
-      date: '23 Sep ',
-      time: ' 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-  ]);
+  useEffect(() => {
+    const fetchCommentData = async () => {
+      try {
+        const endpoint = 'videos/list';
+        const response = await apiCall(endpoint, 'GET', {}, token);
+        if (
+          response.status === true &&
+          response.data &&
+          response.data.listData
+        ) {
+          // Extract and map comments from each live item
+          const mappedData = response.data.listData.flatMap(live =>
+            live.comments.map(comment => ({
+              comment: comment.comment,
+              user: comment.user.name,
+              videoId: comment.videoId,
+              createdAt: comment.created_at,
+              image: comment.user.full_path_image,
+            })),
+          );
+          setMapcomment(mappedData);
+          console.log('Mapped Video Comments:', mappedData);
+        } else {
+          console.error('Unexpected API response structure:', response);
+        }
+      } catch (error) {
+        console.error('Error fetching Live comments:', error);
+      }
+    };
+
+    fetchCommentData();
+  }, []);
   const handleLikePress = () => {
     // console.log('Heart icon pressed');
     const videoId = selectedData?._id;
@@ -390,6 +304,23 @@ const VideoLive = props => {
       .catch(error => {
         console.error('Error while liking the Video:', error);
       });
+  };
+
+  // Function to handle the Comment
+  const sendComment = () => {
+    const videoId = selectedData?._id;
+    if (!videoId) {
+      console.error('Podcast ID is missing');
+      return;
+    }
+    const payload = {
+      videoId: videoId,
+      comment: comment,
+    };
+    console.log('PayLoad', payload);
+    apiCall('videos/comment', 'POST', payload, token);
+    Keyboard.dismiss();
+    setComment('');
   };
   return (
     <View style={styles.container}>
@@ -596,17 +527,18 @@ const VideoLive = props => {
       </View>
       <FlatList
         showsVerticalScrollIndicator={false}
-        data={allData}
+        data={mapComment}
         style={{
           position: 'absolute',
           bottom: 10,
           width: width,
           height: height / 2.2,
         }}
-        renderItem={({item, ind}) => {
+        renderItem={({item, index}) => {
+          // Destructure item and index directly
           return (
             <Pressable
-              key={ind}
+              key={index}
               // onPress={()=>NavigationService.navigate('ChatIndex')}
               style={{
                 flexDirection: 'row',
@@ -619,7 +551,7 @@ const VideoLive = props => {
               }}>
               <Pressable>
                 <Image
-                  source={item?.image}
+                  source={{uri: item?.image}}
                   style={{
                     height: 40,
                     width: 40,
@@ -647,7 +579,7 @@ const VideoLive = props => {
                       fontSize: 14,
                       fontFamily: Theme.FontFamily.medium,
                     }}>
-                    {item.title}
+                    {item.comment}
                   </Text>
                   <Text
                     style={{
@@ -656,26 +588,26 @@ const VideoLive = props => {
                       fontFamily: Theme.FontFamily.normal,
                       marginTop: 3,
                     }}>
-                    {item.date}{' '}
+                    {item.user}{' '}
                   </Text>
                 </View>
                 {/* <Pressable
-                            onPress={() => {
-                                // setModalVisible(false)
-                                // NavigationService.navigate('Publication02')
-                            }}
-                            style={{
-                                marginRight:20,
-                                alignItems:'flex-end'
-                            }}>
-                          <Text style={{
-                                color: 'rgba(255, 255, 255, 0.54)',
-                                fontSize: 14,
-                                fontFamily: Theme.FontFamily.light,
-                                marginBottom: 3
-                            }}>{res.time} </Text>
-                            <DoubleTick/>
-                        </Pressable> */}
+                      onPress={() => {
+                          // setModalVisible(false)
+                          // NavigationService.navigate('Publication02')
+                      }}
+                      style={{
+                          marginRight:20,
+                          alignItems:'flex-end'
+                      }}>
+                    <Text style={{
+                          color: 'rgba(255, 255, 255, 0.54)',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.light,
+                          marginBottom: 3
+                      }}>{res.time} </Text>
+                      <DoubleTick/>
+                  </Pressable> */}
               </View>
             </Pressable>
           );
@@ -691,7 +623,7 @@ const VideoLive = props => {
           style={[styles.input, {minHeight: 40, maxHeight: 100}]}
           placeholder="Message..."
           value={messages}
-          onChangeText={setMessages}
+          onChangeText={setComment}
           placeholderTextColor={Theme.colors.white}
         />
 
@@ -704,8 +636,9 @@ const VideoLive = props => {
               // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
             },
           ]}
-          //   onPress={()=>{ sendMsg() }}
-        >
+          onPress={() => {
+            sendComment();
+          }}>
           <SendIcon />
         </TouchableOpacity>
       </View>
