@@ -630,7 +630,7 @@ const VideoLive = props => {
           multiline={true}
           style={[styles.input, {minHeight: 40, maxHeight: 100}]}
           placeholder="Message..."
-          value={messages}
+          value={comment}
           onChangeText={setComment}
           placeholderTextColor={Theme.colors.white}
         />

@@ -75,7 +75,7 @@ const LiveDetails = props => {
   const [message, setMessage] = useState('');
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
-  console.log('Comment', mapComment);
+  // console.log('Comment', mapComment);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -123,12 +123,12 @@ const LiveDetails = props => {
     };
 
     fetchCommentData();
-    const intervalId = setInterval(() => {
-      fetchCommentData();
-    }, 5000); // Fetch every 5 seconds
+    // // const intervalId = setInterval(() => {
+    // //   fetchCommentData();
+    // // }, 5000); // Fetch every 5 seconds
 
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
+    // // Cleanup interval on component unmount
+    // return () => clearInterval(intervalId);
   }, []);
   const [messages, setMessages] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
@@ -613,7 +613,7 @@ const LiveDetails = props => {
           multiline={true}
           style={[styles.input, {minHeight: 40, maxHeight: 100}]}
           placeholder="Message..."
-          value={messagee}
+          value={comment}
           onChangeText={setComment}
           placeholderTextColor={Theme.colors.grey}
         />
