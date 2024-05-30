@@ -5,58 +5,43 @@ import NavigationService from '../../Services/Navigation';
 import {Icon} from 'react-native-basic-elements';
 import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
+import AllSourcePath from '../../Constants/PathConfig';
+import {useSelector} from 'react-redux';
+import { apiCall } from '../../Services/Service';
+import { useIsFocused } from '@react-navigation/native';
 
 const NotificationIndex = props => {
   const [loadingState, setloadingState] = useState(false);
   const [newData, setNewData] = useState([]);
-  const [oldData, setOldData] = useState([
-    {
-      title: 'Lexi knows best is live now!',
-      date: 'Just Now',
-      time: '• 19:45',
-      image: require('../../assets/images/Rectangle23x.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      live: true,
-    },
+  const [oldData, setOldData] = useState([]);
+  const token = useSelector(state => state.authData.token);
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const isFocused = useIsFocused();
+  
+  const fetchData = async () => {
+    try {
+      const endpoint = 'notification/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
 
-    {
-      title: 'Lorem ipsum dolor sit a consetetur sadipscing elitr sed diam',
-      date: '5 hours ago',
-      time: '• 19:32',
-      image: require('../../assets/images/Rectangle3x.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Lorem ipsum dolor sit a consetetur sadipscing elitr sed diam',
-      date: '8 hours ago',
-      time: '• 14:45',
-      image: require('../../assets/images/Rectangle183.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-  ]);
-
-  // Fetch data from the API
+      if (response.status) {
+        setNewData(response?.data?.listData)
+        
+      } 
+    } catch (error) {
+      console.error('Error fetching data: ', error);
+    }
+  };
   useEffect(() => {
-    const fetchNewData = async () => {
-      try {
-        const response = await fetch(
-          'https://dev2024.co.in/web/varcast/notification-list.json',
-        );
-        const data = await response.json();
-        // Update state with fetched data
-        setNewData(data.notifications);
-      } catch (error) {
-        console.error('Error fetching new notifications:', error);
-      }
-    };
+    if (isFocused) {
+      fetchData();
+    }
+  }, [isFocused]);
+  
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
 
-    // Call the fetchNewData function when the component mounts
-    fetchNewData();
-  }, []);
   return (
     <ScreenLayout
       isScrollable={false}
@@ -104,7 +89,7 @@ const NotificationIndex = props => {
                   borderColor: '#E1D01F',
                   borderWidth: notification.live ? 1.5 : 0,
                 }}>
-                <Image
+                {/* <Image
                   source={{uri: notification.image}}
                   style={{
                     height: 43,
@@ -112,7 +97,7 @@ const NotificationIndex = props => {
                     borderRadius: 43,
                   }}
                   resizeMode="contain"
-                />
+                /> */}
               </View>
               <View
                 style={{
@@ -132,7 +117,7 @@ const NotificationIndex = props => {
                       fontSize: 15,
                       fontFamily: Theme.FontFamily.normal,
                     }}>
-                    {notification.title}
+                    {notification?.message}
                   </Text>
                   <Text
                     style={{
@@ -141,10 +126,10 @@ const NotificationIndex = props => {
                       fontFamily: Theme.FontFamily.light,
                       marginTop: 3,
                     }}>
-                    {notification.date}
+                    {formatDate(notification.created_at)}
                   </Text>
                 </View>
-                <Pressable
+                {/* <Pressable
                   onPress={() => {
                     setModalVisible(false);
                     NavigationService.navigate('Publication02');
@@ -170,7 +155,7 @@ const NotificationIndex = props => {
                       resizeMode="contain"
                     />
                   )}
-                </Pressable>
+                </Pressable> */}
               </View>
             </View>
           );
