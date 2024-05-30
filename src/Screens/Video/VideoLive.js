@@ -273,6 +273,12 @@ const VideoLive = props => {
     };
 
     fetchCommentData();
+    const intervalId = setInterval(() => {
+      fetchCommentData();
+    }, 5000); // Fetch every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
   const handleLikePress = () => {
     // console.log('Heart icon pressed');
@@ -319,6 +325,8 @@ const VideoLive = props => {
     };
     console.log('PayLoad', payload);
     apiCall('videos/comment', 'POST', payload, token);
+
+
     Keyboard.dismiss();
     setComment('');
   };

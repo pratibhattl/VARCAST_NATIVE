@@ -123,6 +123,12 @@ const LiveDetails = props => {
     };
 
     fetchCommentData();
+    const intervalId = setInterval(() => {
+      fetchCommentData();
+    }, 5000); // Fetch every 5 seconds
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
   }, []);
   const [messages, setMessages] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
@@ -319,6 +325,8 @@ const LiveDetails = props => {
     };
     console.log('PayLoad', payload);
     apiCall('lives/comment', 'POST', payload, token);
+
+
     Keyboard.dismiss();
     setComment('');
   };
