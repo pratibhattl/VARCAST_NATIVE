@@ -294,7 +294,7 @@ const PodcastLive = props => {
     const payload = {
       podcastId: podcastId,
     };
-    console.log('PayLoad', payload);
+   
     apiCall('podcast/like', 'POST', payload, token)
       .then(response => {
         // console.log('Message', response.message);

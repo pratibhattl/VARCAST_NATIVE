@@ -43,6 +43,7 @@ import FollowingUser from '../Screens/Home/FollowingUser';
 import UploadScreen from '../Screens/Upload/UploadScreen';
 import LiveDetails from '../Screens/Live/Livedetails';
 import ChatRoom from '../Screens/Chat/ChatRoom';
+import FollowingUsers from '../Screens/Profile/FollowingUsers'
 const Stack = createNativeStackNavigator();
 
 function MainNavigation() {
@@ -197,6 +198,11 @@ function MainNavigation() {
         name="Followers"
         options={{headerShown: false}}
         component={Followers}
+      />
+      <Stack.Screen
+        name="FollowingUsers"
+        options={{headerShown: false}}
+        component={FollowingUsers}
       />
       <Stack.Screen
         name="ChatIndex"
