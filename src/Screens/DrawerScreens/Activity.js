@@ -9,10 +9,14 @@ import NavigationService from '../../Services/Navigation';
 import {Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
+import { useIsFocused } from '@react-navigation/native';
+
 const {width, height} = Dimensions.get('screen');
 
 const Activity = (props) => {
   const route = useRoute();
+  const isFocused = useIsFocused();
+
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -36,10 +40,10 @@ const Activity = (props) => {
   };
 
   useEffect(() => {
-    if(props){
+    if(isFocused){
       fetchData();
     }
-  }, [props]);
+  }, [isFocused]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}

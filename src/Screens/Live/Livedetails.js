@@ -11,20 +11,20 @@ import {
   TextInput,
   Keyboard,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
-import {ImageBackground} from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { ImageBackground } from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
-import {Image} from 'react-native';
+import { Image } from 'react-native';
 import Theme from '../../Constants/Theme';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
-import {BlurView} from '@react-native-community/blur';
+import { BlurView } from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DoubleTick from '../../assets/icons/DoubleTick';
 import SendIcon from '../../assets/icons/SendIcon';
 import LinkIcon from '../../assets/icons/LinkIcon';
@@ -46,9 +46,12 @@ import BatchIcon from '../../assets/icons/BatchIcon';
 import RocketIcon from '../../assets/icons/RocketIcon';
 import DiamondIcon from '../../assets/icons/DiamondIcon';
 import CrownIcon from '../../assets/icons/CrownIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
-import {useSelector} from 'react-redux';
-import {apiCall} from '../../Services/Service';
+import { PermissionsAndroid, Platform } from 'react-native';
+import { useSelector } from 'react-redux';
+import { apiCall } from '../../Services/Service';
+import { useIsFocused } from '@react-navigation/native';
+import DislikeIcon from '../../assets/icons/DislikeIcon';
+import { setUserDetails } from '../../Store/Reducers/AuthReducer';
 // import {toast} from 'react-toastify';
 import {
   ClientRoleType,
@@ -60,14 +63,14 @@ import {
   AudienceLatencyLevelType,
 } from 'react-native-agora';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
+import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
 
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const LiveDetails = props => {
   const route = useRoute();
+  const isFocused = useIsFocused();
   const selectedData = route.params?.item;
-  console.log('Data', selectedData);
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(null);
   const customProp = route.params?.showButton;
@@ -81,55 +84,18 @@ const LiveDetails = props => {
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
 
   const [GiftData, setGiftData] = useState([
-    {gift: <BulbIcon />},
-    {gift: <BoeIcon />},
-    {gift: <BlastIcon />},
-    {gift: <RoseIcon />},
-    {gift: <BatchIcon />},
-    {gift: <RocketIcon />},
-    {gift: <DiamondIcon />},
-    {gift: <CrownIcon />},
+    { gift: <BulbIcon /> },
+    { gift: <BoeIcon /> },
+    { gift: <BlastIcon /> },
+    { gift: <RoseIcon /> },
+    { gift: <BatchIcon /> },
+    { gift: <RocketIcon /> },
+    { gift: <DiamondIcon /> },
+    { gift: <CrownIcon /> },
     // {gift:<BulbIcon/>},
   ]);
 
-  useEffect(() => {
-    const fetchCommentData = async () => {
-      try {
-        const endpoint = 'lives/list';
-        const response = await apiCall(endpoint, 'GET', {}, token);
-        if (
-          response.status === true &&
-          response.data &&
-          response.data.listData
-        ) {
-          // Extract and map comments from each live item
-          const mappedData = response.data.listData.flatMap(live =>
-            live.comments.map(comment => ({
-              comment: comment.comment,
-              user: comment.user.name,
-              liveId: comment.liveId,
-              createdAt: comment.created_at,
-              image: comment.user.full_path_image,
-            })),
-          );
-          setMapcomment(mappedData);
-          console.log('Mapped Comments:', mappedData);
-        } else {
-          console.error('Unexpected API response structure:', response);
-        }
-      } catch (error) {
-        console.error('Error fetching Live comments:', error);
-      }
-    };
 
-    fetchCommentData();
-    // // const intervalId = setInterval(() => {
-    // //   fetchCommentData();
-    // // }, 5000); // Fetch every 5 seconds
-
-    // // Cleanup interval on component unmount
-    // return () => clearInterval(intervalId);
-  }, []);
   const [messages, setMessages] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
@@ -180,6 +146,52 @@ const LiveDetails = props => {
     };
   }, []);
 
+  
+  const fetchCommentData = async () => {
+    try {
+      const endpoint = 'lives/list';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      if (
+        response.status === true &&
+        response.data &&
+        response.data.listData
+      ) {
+        // Extract and map comments from each live item
+        const mappedData = response.data && response.data.listData?.length>0 && response.data.listData.flatMap(live =>
+          live.comments.map(comment => ({
+            comment: comment.comment,
+            user: comment.user.name,
+            liveId: comment.liveId,
+            createdAt: comment.created_at,
+            image: comment.user.full_path_image,
+            userData : comment?.user
+          })),
+        );
+        const data = null;
+      //   response.data && response.data.listData?.length>0 && response.data.listData.map((live)=> {
+      //     return(
+      //       data = live?.likes?.length > 0 && live?.likes?.filter(x=> x?.user?._id === setUserDetails?._id ?
+      //          setLikeStatus("liked"): setLikeStatus(null))
+      //     )
+      //   })
+      // console.log("----------", data);
+        setMapcomment(mappedData);
+      } else {
+        console.error('Unexpected API response structure:', response);
+      }
+    } catch (error) {
+      console.error('Error fetching Live comments:', error);
+    }
+  };
+
+  useEffect(() => {
+
+    if (isFocused) {
+      fetchCommentData();
+    }
+
+  }, [isFocused]);
+
   const setupAudioSDKEngine = async (idd, channel) => {
     try {
       // use the helper function to get permissions
@@ -197,25 +209,20 @@ const LiveDetails = props => {
           HelperFunctions.showToastMsg(
             'Successfully joined the channel ' + channelName,
           );
-          console.log('Host ID?dd>>>>>>>>', Uid, _connection.localUid);
           setIsJoined(true);
         },
         onUserJoined: (_connection, Uid) => {
           HelperFunctions.showToastMsg('Remote user joined with uid ' + Uid);
-          console.log('user joined');
-          console.log('user IDsdsd?>>>>>>>>', Uid);
+        
           setRemoteUid(Uid);
         },
         onUserOffline: (_connection, Uid) => {
-          console.log('user left');
-          console.log('user ID offline?>>>>>>>>', Uid, _connection.localUid);
           HelperFunctions.showToastMsg(
             'Remote user left the channel. uid: ' + Uid,
           );
           setRemoteUid(0);
         },
       });
-      console.log('khgjhghjghjggjh', idd);
       agoraEngine.initialize({
         appId: appId,
         channelProfile: ChannelProfileType.ChannelProfileLiveBroadcasting,
@@ -292,7 +299,6 @@ const LiveDetails = props => {
     const payload = {
       liveId: liveId,
     };
-    console.log('PayLoad', payload);
 
     apiCall('lives/like', 'POST', payload, token)
       .then(response => {
@@ -323,12 +329,18 @@ const LiveDetails = props => {
       liveId: liveId,
       comment: comment,
     };
-    console.log('PayLoad', payload);
-    apiCall('lives/comment', 'POST', payload, token);
+    apiCall('lives/comment', 'POST', payload, token).then((res) => {
+      if (res) {
+        fetchCommentData();
 
+        Keyboard.dismiss();
+        setComment('');
+      }
 
-    Keyboard.dismiss();
-    setComment('');
+    }).catch((err) => {
+
+    })
+
   };
   return (
     <View style={styles.container}>
@@ -348,7 +360,7 @@ const LiveDetails = props => {
           // paddingTop: 45,
           alignItems: 'center',
           shadowColor: '#131313',
-          shadowOffset: {width: 0, height: 35},
+          shadowOffset: { width: 0, height: 35 },
           shadowOpacity: 0.6,
           // shadowRadius: 2,
           elevation: 20,
@@ -359,8 +371,8 @@ const LiveDetails = props => {
         resizeMode="cover">
         <LinearGradient
           colors={['rgba(255,255,255,0.1)', 'rgba(0, 0, 0, 0.35)', '#131313']}
-          start={{x: 0, y: 0}}
-          end={{x: 0, y: 1}}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
           // useAngle={true} angle={-290}
           // angleCenter={{ x: 0.5, y: 0.5 }}
           style={{
@@ -382,7 +394,7 @@ const LiveDetails = props => {
               paddingTop: 10,
             }}>
             <TouchableOpacity
-              onPress={() => {}}
+              onPress={() => { }}
               style={{
                 height: 40,
                 width: 140,
@@ -404,7 +416,7 @@ const LiveDetails = props => {
                   backgroundColor: 'white',
                 }}>
                 <Image
-                  source={{uri: selectedData.imageUrl}}
+                  source={{ uri: selectedData.imageUrl }}
                   style={{
                     height: 38,
                     width: 38,
@@ -414,7 +426,7 @@ const LiveDetails = props => {
                   resizeMode="cover"
                 />
               </View>
-              <View style={{marginHorizontal: 10}}>
+              <View style={{ marginHorizontal: 10 }}>
                 <Text
                   style={{
                     color: '#fff',
@@ -477,7 +489,7 @@ const LiveDetails = props => {
                 overflow: 'hidden',
               }}>
               <Image
-                source={{uri: selectedData.imageUrl}}
+                source={{ uri: selectedData.imageUrl }}
                 style={{
                   height: 140,
                   width: 140,
@@ -549,11 +561,12 @@ const LiveDetails = props => {
       </ImageBackground>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 20}}>
+        contentContainerStyle={{ paddingBottom: 20 }}>
         {mapComment?.map((comment, index) => (
           <Pressable
             key={index}
-            onPress={() => NavigationService.navigate('ChatIndex')}
+            onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: comment?.userData?._id, title: comment?.userData?.name, 
+            date: comment?.userData?.created_at, image: comment?.userData?.full_path_image, details: comment?.comment , time: "12:00"}})}
             style={{
               flexDirection: 'row',
               marginTop: 15,
@@ -562,7 +575,7 @@ const LiveDetails = props => {
             }}>
             <Pressable>
               <Image
-                source={{uri: comment?.image}}
+                source={{ uri: comment?.image }}
                 style={{
                   height: 40,
                   width: 40,
@@ -611,7 +624,7 @@ const LiveDetails = props => {
         {/* <LinkIcon/> */}
         <TextInput
           multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+          style={[styles.input, { minHeight: 40, maxHeight: 100 }]}
           placeholder="Message..."
           value={comment}
           onChangeText={setComment}
@@ -677,13 +690,19 @@ const LiveDetails = props => {
             height: 50,
             width: 50,
             borderRadius: 50,
-            backgroundColor:
-              likeStatus === 'liked' ? 'white' : 'rgba(27, 27, 27, 0.96)',
+            // backgroundColor:
+            //   likeStatus === 'liked' ? 'white' : 'rgba(27, 27, 27, 0.96)',
             alignItems: 'center',
             justifyContent: 'center',
             // marginBottom:10
           }}>
+          {likeStatus === 'liked' ? 
           <RedHeartIcon />
+          : 
+          <DislikeIcon/>
+          }
+          
+          
         </Pressable>
       </View>
       <ReactNativeModal
@@ -730,7 +749,7 @@ const LiveDetails = props => {
             }}
           />
           <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
             <BookmarkIcon />
             <Text
               style={{
@@ -744,7 +763,7 @@ const LiveDetails = props => {
             </Text>
           </View>
           <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
             <ShareIcon />
             <Text
               style={{
@@ -758,7 +777,7 @@ const LiveDetails = props => {
             </Text>
           </View>
           <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
             <SadEmojiIcon />
             <Text
               style={{
@@ -796,7 +815,7 @@ const LiveDetails = props => {
               </Text>
               </View> */}
           <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
+            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 25 }}>
             <ShiledIcon Color={'#fff'} />
             <Text
               style={{
@@ -810,7 +829,7 @@ const LiveDetails = props => {
             </Text>
           </View>
           <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
             <Notification Color={'#fff'} />
             <Text
               style={{
@@ -892,7 +911,7 @@ const LiveDetails = props => {
                 alignItems: 'center',
               }}>
               <Image
-                style={{height: 22, width: 22}}
+                style={{ height: 22, width: 22 }}
                 source={require('../../assets/images/Coin(1).png')}
               />
               <Text
@@ -916,7 +935,7 @@ const LiveDetails = props => {
               alignSelf: 'center',
             }}
             // horizontal
-            renderItem={({item, index}) => {
+            renderItem={({ item, index }) => {
               return (
                 <View
                   key={index}

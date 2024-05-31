@@ -33,9 +33,11 @@ import LinkIcon from '../../assets/icons/LinkIcon';
 import GitftIcon from '../../assets/icons/GiftIcon';
 import ShareIcon from '../../assets/icons/ShareIcon';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
+import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
 import {PermissionsAndroid, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
 import Video from 'react-native-video';
 import {
   ClientRoleType,
@@ -58,6 +60,7 @@ const {width, height} = Dimensions.get('screen');
 
 const VideoLive = props => {
   const route = useRoute();
+  const isFocused = useIsFocused();
   const selectedData = route.params?.item;
   console.log('select Data', selectedData);
   const token = useSelector(state => state.authData.token);
@@ -241,45 +244,40 @@ const VideoLive = props => {
       console.log(e);
     }
   };
-
-  useEffect(() => {
-    const fetchCommentData = async () => {
-      try {
-        const endpoint = 'videos/list';
-        const response = await apiCall(endpoint, 'GET', {}, token);
-        if (
-          response.status === true &&
-          response.data &&
-          response.data.listData
-        ) {
-          // Extract and map comments from each live item
-          const mappedData = response.data.listData.flatMap(live =>
-            live.comments.map(comment => ({
-              comment: comment.comment,
-              user: comment.user.name,
-              videoId: comment.videoId,
-              createdAt: comment.created_at,
-              image: comment.user.full_path_image,
-            })),
-          );
-          setMapcomment(mappedData);
-          console.log('Mapped Video Comments:', mappedData);
-        } else {
-          console.error('Unexpected API response structure:', response);
-        }
-      } catch (error) {
-        console.error('Error fetching Live comments:', error);
+  const fetchCommentData = async () => {
+    try {
+      const endpoint = 'videos/list';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      if (
+        response.status === true &&
+        response.data &&
+        response.data.listData
+      ) {
+        // Extract and map comments from each live item
+        const mappedData = response.data.listData.flatMap(live =>
+          live.comments.map(comment => ({
+            comment: comment.comment,
+            user: comment.user.name,
+            videoId: comment.videoId,
+            createdAt: comment.created_at,
+            image: comment.user.full_path_image,
+            userData: comment.user
+          })),
+        );
+        setMapcomment(mappedData);
+        console.log('Mapped Video Comments:', mappedData);
+      } else {
+        console.error('Unexpected API response structure:', response);
       }
-    };
-
+    } catch (error) {
+      console.error('Error fetching Live comments:', error);
+    }
+  };
+  useEffect(() => {
+    if(isFocused){
     fetchCommentData();
-    const intervalId = setInterval(() => {
-      fetchCommentData();
-    }, 5000); // Fetch every 5 seconds
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
+    }
+  }, [isFocused]);
   const handleLikePress = () => {
     // console.log('Heart icon pressed');
     const videoId = selectedData?._id;
@@ -324,11 +322,16 @@ const VideoLive = props => {
       comment: comment,
     };
     console.log('PayLoad', payload);
-    apiCall('videos/comment', 'POST', payload, token);
+    apiCall('videos/comment', 'POST', payload, token).then((res)=>{
+      if(res){
+      Keyboard.dismiss();
+      fetchCommentData();
+      setComment('');
+      }
+    }).catch((err)=>{
 
-
-    Keyboard.dismiss();
-    setComment('');
+    })
+   
   };
   return (
     <View style={styles.container}>
@@ -547,7 +550,8 @@ const VideoLive = props => {
           return (
             <Pressable
               key={index}
-              // onPress={()=>NavigationService.navigate('ChatIndex')}
+              onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: item?.userData?._id, title: item?.userData?.name, 
+            date: item?.userData?.created_at, image: item?.userData?.full_path_image, details: item?.comment , time: "12:00"}})}
               style={{
                 flexDirection: 'row',
                 // alignItems: 'center',
@@ -692,13 +696,16 @@ const VideoLive = props => {
             height: 50,
             width: 50,
             borderRadius: 50,
-            backgroundColor:
-              likeStatus === 'liked' ? 'white' : 'rgba(27, 27, 27, 0.96)',
             alignItems: 'center',
             justifyContent: 'center',
             // marginBottom:10
           }}>
+          {likeStatus === 'liked' ? 
           <RedHeartIcon />
+          : 
+          <DislikeIcon/>
+          }
+          
         </Pressable>
       </View>
     </View>

@@ -60,14 +60,11 @@ const App = () => {
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
     if (enabled) {
-      console.log('Authorization status:', authStatus);
       const token = await messaging().getToken();
-      console.log('Firebase Token', token);
     }
   }
 
   useEffect(() => {
-    console.log('working');
     requestUserPermission();
     messaging()
       .getInitialNotification()
