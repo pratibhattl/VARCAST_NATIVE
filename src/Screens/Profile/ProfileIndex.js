@@ -50,7 +50,7 @@ const ProfileIndex = () => {
         const endpoint = 'get-user';
         const response = await apiCall(endpoint, 'GET', {}, token);
         const data = response.data;
-        console.log('data', data);
+        console.log('user222', data);
         // const mappedData = data?.map(item => ({
         //   name: item.name,
         //   email: item.email,
@@ -80,6 +80,9 @@ const ProfileIndex = () => {
       console.error('Error sharing:', error.message);
     }
   };
+
+
+
 
   return (
     <View style={styles.container}>
@@ -158,7 +161,7 @@ const ProfileIndex = () => {
                 marginVertical: 10,
               }}>
               <TouchableOpacity
-                onPress={() => NavigationService.navigate('Followers')}>
+                onPress={() => NavigationService.navigate('Followers',userDetails.latest_followers)}>
                 <Text
                   style={{
                     color: '#fff',
@@ -221,7 +224,8 @@ const ProfileIndex = () => {
                   {t('Podcast')}
                 </Text>
               </View>
-              <View>
+
+              <TouchableOpacity  onPress={() => NavigationService.navigate('FollowingUsers',userDetails.latest_followings)}>
                 <Text
                   style={{
                     color: '#fff',
@@ -241,7 +245,7 @@ const ProfileIndex = () => {
                   }}>
                   {t('Following')}
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
             <View
               style={{

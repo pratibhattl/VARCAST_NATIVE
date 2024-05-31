@@ -35,7 +35,7 @@ import CustomHeader from '../../Components/Header/CustomHeader';
 const UserDetails = props => {
   const route = useRoute();
   const {userData} = route.params;
-  console.log(userData.latest_podcasts);
+  console.log('userData123', userData);
   // console.log(userData.name);
   const Tab = createMaterialTopTabNavigator();
   const [loadingState, setLoadingState] = useState(false);
@@ -128,7 +128,12 @@ const UserDetails = props => {
                 marginVertical: 10,
               }}>
               <TouchableOpacity
-                onPress={() => NavigationService.navigate('Followers')}>
+                onPress={() =>
+                  NavigationService.navigate(
+                    'Followers',
+                    userData.latest_followers,
+                  )
+                }>
                 <Text
                   style={{
                     color: '#fff',
@@ -191,7 +196,13 @@ const UserDetails = props => {
                   {t('Podcast')}
                 </Text>
               </View>
-              <View>
+              <TouchableOpacity
+                onPress={() =>
+                  NavigationService.navigate(
+                    'FollowingUsers',
+                    userData.latest_followings,
+                  )
+                }>
                 <Text
                   style={{
                     color: '#fff',
@@ -211,7 +222,7 @@ const UserDetails = props => {
                   }}>
                   {t('Following')}
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
             <View
               style={{
@@ -311,7 +322,7 @@ const UserDetails = props => {
                 </Pressable>
               ),
             }}>
-            {() => <AudioReels users={[userData]} />}
+            {() => <AudioReels userData={userData} />}
           </Tab.Screen>
           <Tab.Screen
             name="VideoReels"
@@ -332,7 +343,7 @@ const UserDetails = props => {
                 </Pressable>
               ),
             }}>
-            {() => <VideoReels users={[userData]} />}
+            {() => <VideoReels userData={userData} />}
           </Tab.Screen>
         </Tab.Navigator>
       </ScrollView>

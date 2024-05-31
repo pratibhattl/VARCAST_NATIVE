@@ -9,81 +9,18 @@ import {Image} from 'react-native';
 import {Pressable} from 'react-native';
 import {Icon} from 'react-native-basic-elements';
 import ThreeDots from '../../assets/icons/ThreeDots';
+import user from '../../assets/images/user.png';
+
 const {width, height} = Dimensions.get('screen');
 
-const Followers = () => {
+const Followers = props => {
   const route = useRoute();
+
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
-  const [allData, setAllData] = useState([
-    {
-      title: 'Video Watched',
-      date: '9 videos • 5 podcasts',
-      time: '• 19:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: '7 videos • 14 podcasts',
-      time: '• 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '31 videos • 12 podcasts',
-      time: '• 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: '15 videos • 14 podcasts',
-      time: '• 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Video Watched',
-      date: '7 videos • 14 podcasts',
-      time: '• 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: '7 videos • 14 podcasts',
-      time: '• 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: '• 14:45',
-      image: require('../../assets/images/image3.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: '7 videos • 14 podcasts',
-      time: '• 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-  ]);
+  const [loadingState, setLoadingState] = useState(false);
+  const [allData, setAllData] = useState(props?.route?.params);
+
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
@@ -99,6 +36,9 @@ const Followers = () => {
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
+        {allData.length === 0 && (
+          <Text style={styles.no_users}>No Followers To Show!</Text>
+        )}
         <KeyboardAwareScrollView>
           {allData.map((res, ind) => {
             return (
@@ -111,7 +51,11 @@ const Followers = () => {
                   marginTop: 15,
                 }}>
                 <Image
-                  source={res?.image}
+                  source={
+                    res.followers.full_path_image
+                      ? res.followers.full_path_image
+                      : require('../../assets/images/image.png')
+                  }
                   style={{
                     height: 45,
                     width: 45,
@@ -137,7 +81,7 @@ const Followers = () => {
                         fontSize: 16,
                         fontFamily: Theme.FontFamily.medium,
                       }}>
-                      {res.title}
+                      {res.followers.name}
                     </Text>
                     <Text
                       style={{
@@ -146,7 +90,7 @@ const Followers = () => {
                         fontFamily: Theme.FontFamily.light,
                         marginTop: 3,
                       }}>
-                      {res.date}{' '}
+                      {res.followers.updated_at}{' '}
                     </Text>
                   </View>
                   <Pressable
@@ -201,5 +145,13 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: 15,
     color: '#fff',
+  },
+  no_users: {
+    textAlign: 'center',
+    fontFamily: Theme.FontFamily.normal,
+    width: '100%',
+    color: '#fff',
+    fontSize: 20,
+    marginTop: 100,
   },
 });
