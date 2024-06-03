@@ -90,7 +90,6 @@ const PodcastLive = props => {
   const [newComment, setNewComment] = useState([]);
 
   const fetchCommentData = async () => {
-    console.log('PARAMS ', id);
     const formData = new FormData();
     formData.append('podcastId', id);
     axios
@@ -666,8 +665,9 @@ const PodcastLive = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
+        {mapComment?.length > 0 &&
         <Pressable
-          onPress={() => NavigationService.navigate('PodcastComment')}
+          onPress={() => NavigationService.navigate('PodcastComment',{mapComment})}
           style={{
             height: 50,
             width: 50,
@@ -680,6 +680,7 @@ const PodcastLive = props => {
           <CommentIcon />
           {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
         </Pressable>
+        }
         <Pressable
           onPress={getAllGift}
           style={{

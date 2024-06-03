@@ -674,6 +674,22 @@ const VideoLive = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
+        {mapComment?.length > 0 &&
+        <Pressable
+          onPress={() => NavigationService.navigate('PodcastComment',{mapComment})}
+          style={{
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            backgroundColor: 'rgba(27, 27, 27, 0.96)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 15,
+          }}>
+          <CommentIcon />
+          {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
+        </Pressable>
+        }
           <Pressable
           onPress={() => setGiftModalState(true)}
           style={{

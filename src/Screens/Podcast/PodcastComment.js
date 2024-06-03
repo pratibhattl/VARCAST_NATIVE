@@ -15,6 +15,7 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import NavigationService from '../../Services/Navigation';
 import Pagination from '@cherry-soft/react-native-basic-pagination';
+import { useRoute } from '@react-navigation/native';
 
 let MockPersonList = _.times(35, i => {
   return {
@@ -28,6 +29,8 @@ let MockPersonList = _.times(35, i => {
 });
 
 const PodcastComment = () => {
+  const route = useRoute();
+
   const [items, setItems] = useState(MockPersonList);
   // const [viewableItems, setViewableItems] = useState([]);
   // const flatListRef = useRef(null);
@@ -37,6 +40,7 @@ const PodcastComment = () => {
   // const onPressItem = useCallback(item => {
   //   console.log('onPressItem:item ', item);
   // }, []);
+
 
   const renderItem = ({item, index}) => (
     <Pressable
@@ -61,7 +65,7 @@ const PodcastComment = () => {
       }}>
       <Pressable>
         <Image
-          source={{uri: item.image}}
+          source={{uri: item?.user?.full_path_image}}
           style={{
             height: 40,
             width: 40,
@@ -89,7 +93,7 @@ const PodcastComment = () => {
               fontSize: 14,
               fontFamily: Theme.FontFamily.medium,
             }}>
-            xyz
+          {item?.user?.name}
           </Text>
           <Text
             style={{
@@ -98,7 +102,7 @@ const PodcastComment = () => {
               fontFamily: Theme.FontFamily.light,
               marginTop: 3,
             }}>
-            abc
+            {item?.comment}
           </Text>
         </View>
       </View>
@@ -156,11 +160,11 @@ const PodcastComment = () => {
 
       <View style={s.container}>
         <FlatList
-          data={items}
+          data={mapComment}
           renderItem={renderItem} // render each item
         />
         <Pagination
-          totalItems={items.length}
+          totalItems={mapComment.length}
           pageSize={15}
           pagesToDisplay={5}
           currentPage={page}

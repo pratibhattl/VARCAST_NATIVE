@@ -657,7 +657,8 @@ const LiveDetails = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
-            <Pressable
+           {mapComment?.length > 0 &&
+        <Pressable
           onPress={() => NavigationService.navigate('PodcastComment',{mapComment})}
           style={{
             height: 50,
@@ -671,6 +672,7 @@ const LiveDetails = props => {
           <CommentIcon />
           {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
         </Pressable>
+        }
         <Pressable
           onPress={() => setModalState(true)}
           style={{
