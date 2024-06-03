@@ -10,13 +10,17 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect,useCallback} from 'react';
 
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import {useRoute} from '@react-navigation/native';
 import {BlurView} from '@react-native-community/blur';
+import {apiCall} from '../../Services/Service';
+import {useSelector} from 'react-redux';
+import AllSourcePath from '../../Constants/PathConfig';
+
 const {width, height} = Dimensions.get('screen');
 
 const MostPlayed = () => {
@@ -25,25 +29,26 @@ const MostPlayed = () => {
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [mostPlayedEpisodes, setMostPlayedEpisodes] = useState([]);
+  const token = useSelector(state => state.authData.token);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL
 
-  useEffect(() => {
-    const fetchMostPlayedData = async () => {
-      try {
-        const response = await fetch(
-          'https://dev2024.co.in/web/varcast/publication-1.json',
-        );
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const jsonData = await response.json();
-        console.log('Fetched data:', jsonData);
-        setMostPlayedEpisodes(jsonData.Publication);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+  const fetchMostPlayedData = useCallback(async () => {
+    try {
+      const endpoint = 'videos/list';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+
+      if (response?.status === true) {
+        
+        setMostPlayedEpisodes(response?.data?.listData);
       }
-    };
-    fetchMostPlayedData();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } 
+  }, [token]);
+
+  useEffect(()=>{
+    fetchMostPlayedData()
+  },[]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: '#131313'}}
@@ -82,7 +87,7 @@ const MostPlayed = () => {
                       <Pressable
                         onPress={() => {
                           // Navigate to Live Detail page
-                          NavigationService.navigate('PodcastIndex', {item});
+                          NavigationService.navigate('VideoLive', {id: item?._id});
                         }}
                         style={{
                           width: 200,
@@ -93,7 +98,7 @@ const MostPlayed = () => {
                           backgroundColor: 'transparent',
                         }}>
                         <Image
-                          source={{uri: item.image}}
+                          source={{uri: imageUrl+item.image}}
                           style={{
                             width: '100%',
                             height: '100%',

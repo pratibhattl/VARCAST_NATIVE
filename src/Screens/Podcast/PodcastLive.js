@@ -64,28 +64,27 @@ import {
   AudienceLatencyLevelType,
 } from 'react-native-agora';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
-import CommentIcon from '../../assets/icons/CommentIcon';
+import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
+import axios from 'axios';
 
 const {width, height} = Dimensions.get('screen');
 
 const PodcastLive = props => {
   const route = useRoute();
   const isFocused = useIsFocused();
-  const selectedData = route.params?.item;
+  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
+const id = route.params?.id
   const token = useSelector(state => state.authData.token);
-  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-  const [likeStatus, setLikeStatus] = useState(null);
-
+  const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
+  const [selectedData,setSelectedData] = useState({});
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
-
   const [GiftData, setGiftData] = useState([
     {gift: <BulbIcon />},
     {gift: <BoeIcon />},
@@ -100,29 +99,32 @@ const PodcastLive = props => {
   const [newComment, setNewComment] = useState([]);
 
   const fetchCommentData = async () => {
-    try {
-      const endpoint = 'podcast/list';
-      const response = await apiCall(endpoint, 'GET', {}, token);
-      if (response.status === true && response.data && response.data.listData) {
-        // Extract and map comments from each live item
-        const mappedData = response.data.listData.flatMap(live =>
-          live.comments.map(comment => ({
-            comment: comment.comment,
-            user: comment.user.name,
-            liveId: comment.liveId,
-            createdAt: comment.created_at,
-            image: comment.user.full_path_image,
-            userData: comment.user,
-          })),
-        );
-        setMapcomment(mappedData);
-        console.log('Mapped Pdocast Comments:', mappedData);
-      } else {
-        console.error('Unexpected API response structure:', response);
-      }
-    } catch (error) {
+    console.log("PARAMS ", id);
+    const formData = new FormData();
+    formData.append('podcastId', id);
+    axios
+      .post(`${baseUrl}podcast/details`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((response)=>{
+        
+        if (
+          response?.data?.status === true) {
+          // Extract and map comments from each live item
+          const mappedData = response?.data?.data && response?.data?.data?.latestComments;
+          const like = response?.data?.data?.isLiked == true ? true: false
+          setSelectedData(response?.data?.data)
+          setLikeStatus(like)
+          setMapcomment(mappedData);
+        }
+        else {
+          console.error('Unexpected API response structure:', response);
+        }
+      }).catch ((error)=> {
       console.error('Error fetching Live comments:', error);
-    }
+    })
   };
 
   useEffect(() => {
@@ -198,7 +200,6 @@ const PodcastLive = props => {
           HelperFunctions.showToastMsg(
             'Successfully joined the channel ' + channelName,
           );
-          console.log('Host ID?dd>>>>>>>>', Uid, _connection.localUid);
           setIsJoined(true);
         },
         onUserJoined: (_connection, Uid) => {
@@ -216,7 +217,6 @@ const PodcastLive = props => {
           setRemoteUid(0);
         },
       });
-
       agoraEngine.initialize({
         appId: appId,
         channelProfile: ChannelProfileType.ChannelProfileLiveBroadcasting,
@@ -282,7 +282,7 @@ const PodcastLive = props => {
 
   // Function to handle the press event of the heart icon
   const handleLikePress = () => {
-    const podcastId = selectedData?._id;
+    const podcastId = id;
     if (!podcastId) {
       console.error('Podcast ID is missing');
       return;
@@ -295,11 +295,11 @@ const PodcastLive = props => {
       .then(response => {
         // console.log('Message', response.message);
         if (response.message === 'Liked') {
-          setLikeStatus('liked');
+          setLikeStatus(true);
           // console.log('Podcast liked successfully');
           HelperFunctions.showToastMsg('Podcast liked');
         } else {
-          setLikeStatus(null);
+          setLikeStatus(false);
           // console.log('Podcast disliked successfully');
           HelperFunctions.showToastMsg('Podcast Disliked');
         }
@@ -311,7 +311,7 @@ const PodcastLive = props => {
 
   // Function to handle the Comment
   const sendComment = () => {
-    const podcastId = selectedData?._id;
+    const podcastId = id;
     if (!podcastId) {
       console.error('Podcast ID is missing');
       return;
@@ -416,7 +416,11 @@ const PodcastLive = props => {
                   resizeMode="cover"
                 />
               </View>
+<<<<<<< HEAD
               <View style={{marginHorizontal: 10}}>
+=======
+              {/* <View style={{ marginHorizontal: 10 }}>
+>>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
                 <Text
                   style={{
                     color: '#fff',
@@ -435,7 +439,7 @@ const PodcastLive = props => {
                   }}>
                   {selectedData.views}
                 </Text>
-              </View>
+              </View> */}
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -555,6 +559,7 @@ const PodcastLive = props => {
         {mapComment?.map((comment, index) => (
           <Pressable
             key={index}
+<<<<<<< HEAD
             onPress={() =>
               NavigationService.navigate('ChatRoom', {
                 data: {
@@ -567,6 +572,10 @@ const PodcastLive = props => {
                 },
               })
             }
+=======
+            onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: comment?.user?._id, title: comment?.user?.name, 
+            date: comment?.user?.created_at, image: comment?.user?.full_path_image, details: comment?.comment , time: "12:00"}})}
+>>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
             style={{
               flexDirection: 'row',
               marginTop: 15,
@@ -575,7 +584,11 @@ const PodcastLive = props => {
             }}>
             <Pressable>
               <Image
+<<<<<<< HEAD
                 source={{uri: comment?.image}}
+=======
+                source={{ uri: comment?.user?.full_path_image }}
+>>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
                 style={{
                   height: 40,
                   width: 40,
@@ -612,7 +625,7 @@ const PodcastLive = props => {
                     fontFamily: Theme.FontFamily.light,
                     marginTop: 3,
                   }}>
-                  {comment.user}{' '}
+                  {comment.user?.name}{' '}
                 </Text>
               </View>
             </View>
@@ -708,7 +721,16 @@ const PodcastLive = props => {
             justifyContent: 'center',
             // marginBottom:10
           }}>
+<<<<<<< HEAD
           {likeStatus === 'liked' ? <RedHeartIcon /> : <DislikeIcon />}
+=======
+          {likeStatus === true ? 
+          <RedHeartIcon />
+          : 
+          <DislikeIcon/>
+          }
+          
+>>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
         </Pressable>
       </View>
       <ReactNativeModal

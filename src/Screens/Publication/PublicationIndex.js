@@ -130,7 +130,6 @@ const PublicationIndex = props => {
         },
       })
       .then(response => {
-        console.log('response', response);
         if (response?.status == 'true') {
           changeImagee(url);
           // let image = `${AllSourcePath.API_BASE_URL_DEV}upload`
@@ -167,7 +166,7 @@ const PublicationIndex = props => {
       if (pickerResult.cancelled) {
         return;
       }
-      // console.log("Selected images", pickerResult.path);
+
       const result = await PESDK.openEditor(pickerResult.path);
       // ImagePicker.openPicker({
       //     width: 300,
@@ -271,12 +270,6 @@ const PublicationIndex = props => {
       if (result != null) {
         // The user exported a new video successfully and the newly generated video is located at `result.video`.
 
-        console.log('videdoready', result.video, {
-          ...result,
-          path: result.video,
-          mime: 'video/mp4',
-          modificationDate: Date.now(),
-        });
         NavigationService.navigate('Publication02', {
           reelDetails: {
             ...result,
@@ -287,11 +280,10 @@ const PublicationIndex = props => {
         });
       } else {
         // The user tapped on the cancel button within the editor.
-        console.log('ddsffs', result);
+
         return;
       }
     } catch (error) {
-      // There was an error generating the video.
       console.log(error);
       // setRecoil(loadingState, true);
     }
@@ -370,12 +362,7 @@ const PublicationIndex = props => {
       const result = await VESDK.openEditor(pickerResult.path, configuration);
       if (result != null) {
         // The user exported a new video successfully and the newly generated video is located at `result.video`.
-        console.log('videdoready', result.video, {
-          ...result,
-          path: result.video,
-          mime: 'video/mp4',
-          modificationDate: Date.now(),
-        });
+
         NavigationService.navigate('Publication02', {
           reelDetails: {
             ...result,
@@ -404,7 +391,6 @@ const PublicationIndex = props => {
     };
     apiCall('api/all-music', data, '')
       .then(response => {
-        // console.log('response',response)
         if (response?.status == 'success') {
           setMusiclist(response?.data);
           setLoader(false);
@@ -431,22 +417,16 @@ const PublicationIndex = props => {
       const pickedFile = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-      console.log('pickedFile', pickedFile);
 
       pickedFile.type === 'audio/mpeg'
         ? setAudio(pickedFile)
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
-        console.log("START")
         // const realPath = await RNFetchBlob.fs.contentUriToPath(pickedFile.uri);
         // console.log('img', file://${realPath});
 
-      
-
-      await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
-          console.log('JHUGHGGH');
-          console.log('base64', data);
+        await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
           setImgUrl(data);
         });
       }
@@ -454,7 +434,6 @@ const PublicationIndex = props => {
       if (DocumentPicker.isCancel(err)) {
         console.log('err', err);
       } else {
-        console.log('error', error);
         throw err;
       }
     }
@@ -472,7 +451,7 @@ const PublicationIndex = props => {
     formData.append('overview', overView);
     formData.append('image', pickedImg);
     formData.append('audio', audio);
-    console.log(formData);
+
     setLoader(true);
 
     try {
@@ -490,7 +469,7 @@ const PublicationIndex = props => {
       NavigationService.navigate('ProfileIndex');
       return data;
     } catch (error) {
-      console.log('error', error);
+      
       HelperFunctions.showToastMsg(error?.message);
       setLoader(false);
     }
@@ -509,11 +488,8 @@ const PublicationIndex = props => {
     // console.log('Image.resolveAssetSource(source).uri',URL.createObjectURL('https://pagalnew.com/download128/45972'))
   }, []);
 
-  console.log('imgUrl', imgUrl);
-
   return (
     <View style={{flex: 1}}>
-      {/* {console.log('sdsdsdsdsd>>>>>>',allImage)} */}
       {cat == 'Publication' ? (
         <ScreenLayout
           headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
@@ -613,7 +589,10 @@ const PublicationIndex = props => {
                     </View>
                   );
                 }}
-                ListHeaderComponentStyle={{ borderBottomColor: 'red', borderBottomWidth: 2 }}
+                ListHeaderComponentStyle={{
+                  borderBottomColor: 'red',
+                  borderBottomWidth: 2,
+                }}
               />
             </View>
           </View>
@@ -671,7 +650,7 @@ const PublicationIndex = props => {
               {pickedImg?.uri && (
                 <Image
                   source={{uri: `data:image/jpeg;base64,${imgUrl}`}}
-                  resizeMode='cover'
+                  resizeMode="cover"
                 />
               )}
 
@@ -786,7 +765,6 @@ const PublicationIndex = props => {
           </View>
         </ScreenLayout>
       )}
-
       {cat == 'Live' ? (
         <Pressable
           style={{
@@ -897,7 +875,6 @@ const PublicationIndex = props => {
           </Pressable>
         </Pressable>
       ) : null}
-
       <Pressable
         style={{
           borderRadius: 100,

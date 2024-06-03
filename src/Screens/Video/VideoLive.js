@@ -13,20 +13,20 @@ import {
   Keyboard,
   Switch,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
-import {ImageBackground} from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import { ImageBackground } from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
-import {Image} from 'react-native';
+import { Image } from 'react-native';
 import Theme from '../../Constants/Theme';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
-import {BlurView} from '@react-native-community/blur';
+import { BlurView } from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import DoubleTick from '../../assets/icons/DoubleTick';
 import SendIcon from '../../assets/icons/SendIcon';
 import LinkIcon from '../../assets/icons/LinkIcon';
@@ -35,8 +35,7 @@ import ShareIcon from '../../assets/icons/ShareIcon';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
-import {useSelector} from 'react-redux';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import Video from 'react-native-video';
 import {
@@ -54,24 +53,29 @@ import EyeOpen from '../../assets/icons/EyeOpen';
 import HelperFunctions from '../../Constants/HelperFunctions';
 import MicroPhoneIcon from '../../assets/icons/MicrophoneIcon';
 import PauseIcon from '../../assets/icons/PauseIcon';
-import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
-import {apiCall} from '../../Services/Service';
-const {width, height} = Dimensions.get('screen');
+import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
+import { apiCall } from '../../Services/Service';
+import axios from 'axios';
+import { useSelector } from 'react-redux';
+import AllSourcePath from '../../Constants/PathConfig';
+const { width, height } = Dimensions.get('screen');
 
 const VideoLive = props => {
   const route = useRoute();
+  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
+  const imageURL = AllSourcePath?.IMAGE_BASE_URL
+  let id = route.params?.id;
   const isFocused = useIsFocused();
-  const selectedData = route.params?.item;
-  console.log('select Data', selectedData);
   const token = useSelector(state => state.authData.token);
-  const [likeStatus, setLikeStatus] = useState(null);
-  const {width, height} = Dimensions.get('window');
+  const [likeStatus, setLikeStatus] = useState(false);
+  const { width, height } = Dimensions.get('window');
+  const [selectedData, setSelectedData] = useState({})
+
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [messages, setMessages] = useState('');
   const [mapComment, setMapcomment] = useState([]);
-  console.log('Comment', mapComment);
   const [comment, setComment] = useState('');
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
@@ -245,42 +249,43 @@ const VideoLive = props => {
     }
   };
   const fetchCommentData = async () => {
-    try {
-      const endpoint = 'videos/list';
-      const response = await apiCall(endpoint, 'GET', {}, token);
-      if (
-        response.status === true &&
-        response.data &&
-        response.data.listData
-      ) {
-        // Extract and map comments from each live item
-        const mappedData = response.data.listData.flatMap(live =>
-          live.comments.map(comment => ({
-            comment: comment.comment,
-            user: comment.user.name,
-            videoId: comment.videoId,
-            createdAt: comment.created_at,
-            image: comment.user.full_path_image,
-            userData: comment.user
-          })),
-        );
-        setMapcomment(mappedData);
-        console.log('Mapped Video Comments:', mappedData);
-      } else {
-        console.error('Unexpected API response structure:', response);
-      }
-    } catch (error) {
-      console.error('Error fetching Live comments:', error);
-    }
+
+    console.log("PARAMS", id);
+    const formData = new FormData();
+    formData.append('videoId', id);
+    axios
+      .post(`${baseUrl}videos/details`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((response) => {
+        console.log("RESPONSE", response?.data?.data);
+        if (response?.data.status === true) {
+          // Extract and map comments from each live item
+          const mappedData = response?.data?.data && response?.data?.data?.latestComments ?.length > 0 &&
+           response?.data?.data?.latestComments;
+          const like = response?.data?.data?.isLiked == true ? true : false
+          setSelectedData(response?.data?.data)
+          setLikeStatus(like)
+          console.log("mappedDatamappedDatamappedData", mappedData);
+          setMapcomment(mappedData);
+        } else {
+          console.error('Unexpected API response structure:', response);
+        }
+      }).
+      catch((error) => {
+        console.error('Error fetching Live comments:', error);
+      })
   };
   useEffect(() => {
-    if(isFocused){
-    fetchCommentData();
+    if (isFocused) {
+      fetchCommentData();
     }
   }, [isFocused]);
   const handleLikePress = () => {
     // console.log('Heart icon pressed');
-    const videoId = selectedData?._id;
+    const videoId = id;
     // console.log('Hart', podcastId);
     if (!videoId) {
       console.error('Podcast ID is missing');
@@ -296,11 +301,11 @@ const VideoLive = props => {
       .then(response => {
         console.log('Message', response.message);
         if (response.message === 'Liked') {
-          setLikeStatus('liked');
+          setLikeStatus(true);
           console.log('Video liked successfully');
           HelperFunctions.showToastMsg('Video liked');
         } else {
-          setLikeStatus(null);
+          setLikeStatus(false);
           console.log('Video disliked successfully');
           HelperFunctions.showToastMsg('Video Disliked');
         }
@@ -312,7 +317,7 @@ const VideoLive = props => {
 
   // Function to handle the Comment
   const sendComment = () => {
-    const videoId = selectedData?._id;
+    const videoId = id;
     if (!videoId) {
       console.error('Podcast ID is missing');
       return;
@@ -322,16 +327,16 @@ const VideoLive = props => {
       comment: comment,
     };
     console.log('PayLoad', payload);
-    apiCall('videos/comment', 'POST', payload, token).then((res)=>{
-      if(res){
-      Keyboard.dismiss();
-      fetchCommentData();
-      setComment('');
+    apiCall('videos/comment', 'POST', payload, token).then((res) => {
+      if (res) {
+        Keyboard.dismiss();
+        fetchCommentData();
+        setComment('');
       }
-    }).catch((err)=>{
+    }).catch((err) => {
 
     })
-   
+
   };
   return (
     <View style={styles.container}>
@@ -380,7 +385,7 @@ const VideoLive = props => {
           contentContainerStyle={styles.scrollContainer}>
           {isJoined && props.route.params.host ? (
             <React.Fragment key={0}>
-              <RtcSurfaceView canvas={{uid: 0}} style={styles.videoView} />
+              <RtcSurfaceView canvas={{ uid: 0 }} style={styles.videoView} />
               <Text>Local user uid: {uid}</Text>
             </React.Fragment>
           ) : (
@@ -389,7 +394,7 @@ const VideoLive = props => {
           {isJoined && props.route.params.host != true && remoteUid !== 0 ? (
             <React.Fragment key={remoteUid}>
               <RtcSurfaceView
-                canvas={{uid: remoteUid}}
+                canvas={{ uid: remoteUid }}
                 style={styles.videoView}
               />
               <Text>Remote user uid: {remoteUid}</Text>
@@ -419,7 +424,7 @@ const VideoLive = props => {
           top: 50,
         }}>
         <TouchableOpacity
-          onPress={() => {}}
+          onPress={() => { }}
           style={{
             height: 40,
             width: 140,
@@ -431,9 +436,9 @@ const VideoLive = props => {
             flexDirection: 'row',
             paddingHorizontal: 2,
           }}>
-          <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
-              source={{uri: selectedData?.image}} // Assuming 'image' is the key for the image URL in your selectedData object
+              source={{ uri: imageURL + selectedData?.image }} // Assuming 'image' is the key for the image URL in your selectedData object
               style={{
                 height: 38,
                 width: 38,
@@ -442,7 +447,7 @@ const VideoLive = props => {
               }}
               resizeMode="cover"
             />
-            <View style={{marginHorizontal: 10}}>
+            {/* <View style={{marginHorizontal: 10}}>
               <Text
                 style={{
                   color: '#fff',
@@ -450,7 +455,6 @@ const VideoLive = props => {
                   fontFamily: Theme.FontFamily.normal,
                 }}>
                 {selectedData?.created_by_name}{' '}
-                {/* Assuming 'created_by_name' is the key for the name in your selectedData object */}
               </Text>
               <Text
                 style={{
@@ -461,9 +465,8 @@ const VideoLive = props => {
                   marginTop: 1,
                 }}>
                 {selectedData?.views} views{' '}
-                {/* Assuming 'views' is the key for the views count in your selectedData object */}
               </Text>
-            </View>
+            </View> */}
           </View>
         </TouchableOpacity>
         {isJoined && props.route.params.host ? (
@@ -545,13 +548,17 @@ const VideoLive = props => {
           width: width,
           height: height / 2.2,
         }}
-        renderItem={({item, index}) => {
+        renderItem={({ item, index }) => {
           // Destructure item and index directly
           return (
             <Pressable
               key={index}
-              onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: item?.userData?._id, title: item?.userData?.name, 
-            date: item?.userData?.created_at, image: item?.userData?.full_path_image, details: item?.comment , time: "12:00"}})}
+              onPress={() => NavigationService.navigate('ChatRoom', {
+                data: {
+                  id: item?.user?._id, title: item?.user?.name,
+                  date: item?.user?.created_at, image: item?.user?.full_path_image, details: item?.comment, time: "12:00"
+                }
+              })}
               style={{
                 flexDirection: 'row',
                 // alignItems: 'center',
@@ -563,7 +570,7 @@ const VideoLive = props => {
               }}>
               <Pressable>
                 <Image
-                  source={{uri: item?.image}}
+                  source={{ uri: item?.user?.full_path_image }}
                   style={{
                     height: 40,
                     width: 40,
@@ -591,7 +598,7 @@ const VideoLive = props => {
                       fontSize: 14,
                       fontFamily: Theme.FontFamily.medium,
                     }}>
-                    {item.comment}
+                    {item?.comment}
                   </Text>
                   <Text
                     style={{
@@ -600,7 +607,7 @@ const VideoLive = props => {
                       fontFamily: Theme.FontFamily.normal,
                       marginTop: 3,
                     }}>
-                    {item.user}{' '}
+                    {item?.user?.name}{' '}
                   </Text>
                 </View>
                 {/* <Pressable
@@ -632,7 +639,7 @@ const VideoLive = props => {
         {/* <LinkIcon/> */}
         <TextInput
           multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+          style={[styles.input, { minHeight: 40, maxHeight: 100 }]}
           placeholder="Message..."
           value={comment}
           onChangeText={setComment}
@@ -700,12 +707,12 @@ const VideoLive = props => {
             justifyContent: 'center',
             // marginBottom:10
           }}>
-          {likeStatus === 'liked' ? 
-          <RedHeartIcon />
-          : 
-          <DislikeIcon/>
+          {likeStatus === true ?
+            <RedHeartIcon />
+            :
+            <DislikeIcon />
           }
-          
+
         </Pressable>
       </View>
     </View>
@@ -771,13 +778,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#0055cc',
     margin: 5,
   },
-  main: {flex: 1},
-  scroll: {flex: 1, backgroundColor: '#131313', width: '100%', height: '100%'},
-  scrollContainer: {alignItems: 'center', height: '100%'},
-  videoView: {width: '100%', height: '90%'},
-  btnContainer: {flexDirection: 'row', justifyContent: 'center', height: 50},
-  head: {fontSize: 20},
-  info: {backgroundColor: '#ffffe0', paddingHorizontal: 8, color: '#0000ff'},
+  main: { flex: 1 },
+  scroll: { flex: 1, backgroundColor: '#131313', width: '100%', height: '100%' },
+  scrollContainer: { alignItems: 'center', height: '100%' },
+  videoView: { width: '100%', height: '90%' },
+  btnContainer: { flexDirection: 'row', justifyContent: 'center', height: 50 },
+  head: { fontSize: 20 },
+  info: { backgroundColor: '#ffffe0', paddingHorizontal: 8, color: '#0000ff' },
 });
 
 {

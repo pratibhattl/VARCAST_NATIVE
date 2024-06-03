@@ -40,6 +40,7 @@ const LiveEpisode = () => {
           slug: item.slug,
           imageUrl: item.imageUrl,
           videoUrl: item.videoUrl,
+          id: item?._id
         }));
         setLiveData(mappedData);
         console.log('Liveresponse', mappedData);
@@ -76,9 +77,9 @@ const LiveEpisode = () => {
           renderItem={({item, title}) => {
             return (
               <Pressable
-                onPress={() =>
-                  NavigationService.navigate('PodcastLive', {item})
-                }
+              onPress={() =>
+                NavigationService.navigate('LiveDetails', {id:item?.id})
+              }
                 key={title}
                 style={{
                   width: '46%',
