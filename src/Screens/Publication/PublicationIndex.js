@@ -73,6 +73,8 @@ const PublicationIndex = props => {
   const licenseAndroid = require('../../assets/vesdk_license/vesdk_license.android.json');
   const licenseIos = require('../../assets/vesdk_license/vesdk_license.ios.json');
 
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+
   const getPermission = async () => {
     if (Platform.OS === 'android') {
       await PermissionsAndroid.requestMultiple([
@@ -442,7 +444,7 @@ const PublicationIndex = props => {
   const tokenData = useSelector(state => state.authData.token);
 
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
-  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  
 
   const fileSubmit = async () => {
     let formData = new FormData();

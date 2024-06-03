@@ -51,7 +51,7 @@ import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
 import {useIsFocused} from '@react-navigation/native';
-import Comment from '../../assets/images/chat-bubble.png'
+import CommentIcon from '../../assets/icons/CommentIcon';
 
 // import {toast} from 'react-toastify';
 import {
@@ -64,7 +64,7 @@ import {
   AudienceLatencyLevelType,
 } from 'react-native-agora';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
+import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
 import axios from 'axios';
 
 const {width, height} = Dimensions.get('screen');
@@ -72,8 +72,9 @@ const {width, height} = Dimensions.get('screen');
 const PodcastLive = props => {
   const route = useRoute();
   const isFocused = useIsFocused();
-  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
-const id = route.params?.id
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const id = route.params?.id;
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
@@ -81,7 +82,7 @@ const id = route.params?.id
   const [loadingState, changeloadingState] = useState(false);
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
-  const [selectedData,setSelectedData] = useState({});
+  const [selectedData, setSelectedData] = useState({});
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -99,7 +100,7 @@ const id = route.params?.id
   const [newComment, setNewComment] = useState([]);
 
   const fetchCommentData = async () => {
-    console.log("PARAMS ", id);
+    console.log('PARAMS ', id);
     const formData = new FormData();
     formData.append('podcastId', id);
     axios
@@ -108,23 +109,23 @@ const id = route.params?.id
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
-      }).then((response)=>{
-        
-        if (
-          response?.data?.status === true) {
+      })
+      .then(response => {
+        if (response?.data?.status === true) {
           // Extract and map comments from each live item
-          const mappedData = response?.data?.data && response?.data?.data?.latestComments;
-          const like = response?.data?.data?.isLiked == true ? true: false
-          setSelectedData(response?.data?.data)
-          setLikeStatus(like)
+          const mappedData =
+            response?.data?.data && response?.data?.data?.latestComments;
+          const like = response?.data?.data?.isLiked == true ? true : false;
+          setSelectedData(response?.data?.data);
+          setLikeStatus(like);
           setMapcomment(mappedData);
-        }
-        else {
+        } else {
           console.error('Unexpected API response structure:', response);
         }
-      }).catch ((error)=> {
-      console.error('Error fetching Live comments:', error);
-    })
+      })
+      .catch(error => {
+        console.error('Error fetching Live comments:', error);
+      });
   };
 
   useEffect(() => {
@@ -416,11 +417,7 @@ const id = route.params?.id
                   resizeMode="cover"
                 />
               </View>
-<<<<<<< HEAD
-              <View style={{marginHorizontal: 10}}>
-=======
               {/* <View style={{ marginHorizontal: 10 }}>
->>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
                 <Text
                   style={{
                     color: '#fff',
@@ -559,23 +556,18 @@ const id = route.params?.id
         {mapComment?.map((comment, index) => (
           <Pressable
             key={index}
-<<<<<<< HEAD
             onPress={() =>
               NavigationService.navigate('ChatRoom', {
                 data: {
-                  id: comment?.userData?._id,
-                  title: comment?.userData?.name,
-                  date: comment?.userData?.created_at,
-                  image: comment?.userData?.full_path_image,
+                  id: comment?.user?._id,
+                  title: comment?.user?.name,
+                  date: comment?.user?.created_at,
+                  image: comment?.user?.full_path_image,
                   details: comment?.comment,
                   time: '12:00',
                 },
               })
             }
-=======
-            onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: comment?.user?._id, title: comment?.user?.name, 
-            date: comment?.user?.created_at, image: comment?.user?.full_path_image, details: comment?.comment , time: "12:00"}})}
->>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
             style={{
               flexDirection: 'row',
               marginTop: 15,
@@ -584,11 +576,7 @@ const id = route.params?.id
             }}>
             <Pressable>
               <Image
-<<<<<<< HEAD
-                source={{uri: comment?.image}}
-=======
-                source={{ uri: comment?.user?.full_path_image }}
->>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
+                source={{uri: comment?.user?.full_path_image}}
                 style={{
                   height: 40,
                   width: 40,
@@ -682,7 +670,7 @@ const id = route.params?.id
             justifyContent: 'center',
             marginBottom: 15,
           }}>
-            <CommentIcon/>
+          <CommentIcon />
           {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
         </Pressable>
         <Pressable
@@ -721,16 +709,7 @@ const id = route.params?.id
             justifyContent: 'center',
             // marginBottom:10
           }}>
-<<<<<<< HEAD
-          {likeStatus === 'liked' ? <RedHeartIcon /> : <DislikeIcon />}
-=======
-          {likeStatus === true ? 
-          <RedHeartIcon />
-          : 
-          <DislikeIcon/>
-          }
-          
->>>>>>> 38340fa04a243bb611f5eb3f5d28a9e3c8f16bbe
+          {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
       <ReactNativeModal
