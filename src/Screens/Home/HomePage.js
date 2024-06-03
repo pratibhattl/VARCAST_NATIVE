@@ -37,62 +37,20 @@ const HomePage = props => {
   const [loadingState, changeloadingState] = useState(false);
   const [cat, setCat] = useState(0);
   const [Loder, setLoader] = useState(false);
-  const [liveData, setLiveData] = useState([]);
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
-  console.log('MostPlay', mostPlayedData);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [userData, setUserData] = useState([]);
   const [ourpickData, setourpickData] = useState([]);
+  
+  const [latestPodCast,setLatestPodCast] = useState([])
+  const [liveData, setLiveData] = useState([]);
+  const [latestFollowers,setLatestFollowers] = useState([])
+
   const {t} = useTranslation();
   const navigation = useNavigation();
   const token = useSelector(state => state.authData.token);
-
-  //Fecthing Live Section Data
-  const fetchData = async () => {
-    try {
-      const endpoint = 'lives/list';
-      const response = await apiCall(endpoint, 'GET', {}, token);
-      const data = response.data;
-      const mappedData = data.listData.map(item => ({
-        title: item.title,
-        slug: item.slug,
-        imageUrl: item.imageUrl,
-        videoUrl: item.videoUrl,
-        _id: item._id,
-      }));
-      setLiveData(mappedData);
-      // console.log('Liveresponse', mappedData.comments);
-    } catch (error) {
-      console.error('Error fetching Live :', error);
-    }
-  };
-
-  //Fetch Following User Data
-  const fetchUserData = async () => {
-    try {
-      const endpoint = 'follow/followings';
-      const response = await apiCall(endpoint, 'GET', {}, token);
-
-      // console.log('Raw response:', response); // Log the raw response
-
-      if (response?.status === true) {
-        const usermappedData =
-          response?.data?.length > 0 &&
-          response?.data?.map(item => ({
-            name: item.followings.name,
-            email: item.followings.email,
-            imageUrl: item.followings.full_path_image,
-            userId: item.followings._id,
-          }));
-        setUserData(usermappedData);
-        // console.log('UserMapData', userData);
-      }
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
 
   // Fetching Popular Episode
   const fetchPopularEpisodes = async () => {
@@ -111,36 +69,37 @@ const HomePage = props => {
   const goToUserDetails = () => {
     navigation.navigate('UserDetails', {userData: userData});
   };
+
+
   //Fetching HomePage Data
   const fetchHomePageData = async () => {
     try {
       const endpoint = 'home/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       if (response?.status === true) {
+        const usermappedData =
+        response?.data?.latest_followings?.length > 0 &&
+        response?.data?.latest_followings?.map(item => ({
+          name: item.followings.name,
+          email: item.followings.email,
+          imageUrl: item.followings.full_path_image,
+          userId: item.followings._id,
+        }));
+      setUserData(usermappedData);
+      // console.log('UserMapData', userData);
+    
         setCategorylist(response?.data.categories || []);
         setMostPlayedData(response?.data?.latest_videos);
-        // console.log('MostPlayed', response?.data.latest_podcasts);
+        setLatestPodCast(response?.data?.latest_podcasts);
+        setLiveData(response?.data?.latest_lives);
+        // setLatestFollowings(response?.data?.latest_followings);
+        setLatestFollowers(response?.data?.latest_followers);
+
       }
     } catch (error) {
       HelperFunctions.showToastMsg(error?.message);
     }
   };
-  // //Fetching Most Played Data
-  // const fetchMostPlayedData = async () => {
-  //   try {
-  //     const response = await fetch(
-  //       'https://dev2024.co.in/web/varcast/publication-1.json',
-  //     );
-  //     if (!response.ok) {
-  //       throw new Error('Failed to fetch data');
-  //     }
-  //     const jsonData = await response.json();
-  //     // console.log('Fetched data:', jsonData);
-  //     setMostPlayedData(jsonData.Publication);
-  //   } catch (error) {
-  //     console.error('Error fetching data:', error);
-  //   }
-  // };
 
   //Fetch Following Our Picks Data
   const fetchOurPicksData = () => {
@@ -159,11 +118,8 @@ const HomePage = props => {
 
   useEffect(() => {
     if (isFocused) {
-    fetchUserData();
     fetchHomePageData();
-    fetchData();
     fetchPopularEpisodes();
-    // fetchMostPlayedData();
     fetchOurPicksData();
     }
   }, [isFocused]);
@@ -216,7 +172,7 @@ const HomePage = props => {
             return (
               <Pressable
                 onPress={() =>
-                  NavigationService.navigate('LiveDetails', {item})
+                  NavigationService.navigate('LiveDetails', {id:item?._id})
                 }
                 style={{
                   width: 335,
@@ -461,7 +417,7 @@ const HomePage = props => {
             );
           }}
         />
-        <FlatList
+        {/* <FlatList
           data={[1, 2, 3, 4]}
           showsHorizontalScrollIndicator={false}
           horizontal
@@ -542,8 +498,9 @@ const HomePage = props => {
               </View>
             );
           }}
-        />
+        /> */}
         <View
+       
           style={{
             paddingHorizontal: 20,
             flexDirection: 'row',
@@ -552,14 +509,16 @@ const HomePage = props => {
             marginTop: 25,
           }}>
           <Text
+           
             style={{
               color: '#fff',
               fontSize: 19,
               fontFamily: Theme.FontFamily.semiBold,
             }}>
-            {t('New Episodes')}
+            {t('Popular Episodes')}
           </Text>
           <Text
+           onPress={() => NavigationService.navigate('PopularEpisode')}
             style={{
               color: 'rgba(255, 255, 255, 0.54)',
               fontSize: 14,
@@ -570,17 +529,26 @@ const HomePage = props => {
           </Text>
         </View>
         <FlatList
-          data={[
-            'Davon Lane',
-            'Cristin Watson',
-            'Davon Lane',
-            'Cristin Watson',
-          ]}
+          data={latestPodCast}
           showsHorizontalScrollIndicator={false}
           horizontal
           contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
           renderItem={({item, index}) => {
             return (
+              <Pressable
+              onPress={() =>
+                NavigationService.navigate('PodcastLive', {id:item?._id})
+              }
+              style={{
+                width: 335,
+                height: 175,
+                borderRadius: 15,
+                marginRight: 20,
+                borderTopRightRadius: 0,
+                borderTopLeftRadius: 0,
+                overflow: 'hidden',
+                backgroundColor: 'transparent',
+              }}>
               <View
                 style={{
                   width: 128,
@@ -593,12 +561,14 @@ const HomePage = props => {
 
                   backgroundColor: 'transparent',
                 }}>
+                 
                 <Image
-                  source={
-                    index % 2 == 0
-                      ? require('../../assets/images/Rectangle184.png')
-                      : require('../../assets/images/Rectangle185.png')
-                  }
+                source={{uri: imageUrl+item.image}}
+                  // source={
+                  //   index % 2 == 0
+                  //     ? require('../../assets/images/Rectangle184.png')
+                  //     : require('../../assets/images/Rectangle185.png')
+                  // }
                   style={{
                     width: 128,
                     height: 110,
@@ -640,15 +610,16 @@ const HomePage = props => {
                         marginHorizontal: 5,
                         // textAlign:'center'
                       }}>
-                      {item}
+                      {item?.title}
                     </Text>
                   </View>
                 </View>
               </View>
+              </Pressable>
             );
           }}
         />
-        <View
+        {/* <View
           style={{
             paddingHorizontal: 20,
             flexDirection: 'row',
@@ -742,7 +713,7 @@ const HomePage = props => {
               </View>
             </Pressable>
           )}
-        />
+        /> */}
         <View
           style={{
             paddingHorizontal: 20,
@@ -780,7 +751,7 @@ const HomePage = props => {
               <Pressable
                 onPress={() => {
                   // Navigate to Live Detail page
-                  NavigationService.navigate('PodcastIndex', {item});
+                  NavigationService.navigate('VideoLive', {id: item._id});
                 }}
                 style={{
                   width: 200,
@@ -791,7 +762,7 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={{uri: `${item.image}`}}
+                  source={{uri: `${imageUrl+item.image}`}}
                   style={{
                     width: '100%',
                     height: '100%',
@@ -831,7 +802,7 @@ const HomePage = props => {
           />
         </View>
 
-        <View
+        {/* <View
           style={{
             paddingHorizontal: 20,
             flexDirection: 'row',
@@ -862,7 +833,7 @@ const HomePage = props => {
           <TouchableOpacity onPress={goToUserDetails}>
             {userData && (
               <FlatList
-                data={[userData]}
+                data={userData}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
@@ -921,7 +892,7 @@ const HomePage = props => {
               />
             )}
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     </ScreenLayout>
   );

@@ -9,37 +9,46 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
-
+import React, {useState, useEffect, useCallback} from 'react';
+import AllSourcePath from '../../Constants/PathConfig';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import {useRoute} from '@react-navigation/native';
 import {BlurView} from '@react-native-community/blur';
+import {apiCall} from '../../Services/Service';
+import {useSelector} from 'react-redux';
+
 const {width, height} = Dimensions.get('screen');
 
 const PopularEpisode = () => {
   const route = useRoute();
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [popularEpisodes, setPopularEpisodes] = useState([]);
+  const token = useSelector(state => state.authData.token);
 
-  useEffect(() => {
-    const fetchPopularEpisodes = async () => {
-      try {
-        const response = await fetch(
-          'https://dev2024.co.in/web/varcast/popular_episodes-1.json',
-        );
-        const data = await response.json();
-        console.log(data);
-        setPopularEpisodes(data.popular_episodes);
-      } catch (error) {
-        console.error('Error fetching data:', error);
+
+  const fetchEpisodeData = useCallback(async () => {
+    try {
+      const endpoint = 'podcast/list';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+
+      if (response?.status === true) {
+        
+        setPopularEpisodes(response?.data?.listData);
       }
-    };
-    fetchPopularEpisodes();
-  }, []);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    } 
+  }, [token]);
+
+  useEffect(()=>{
+    fetchEpisodeData()
+  },[]);
+
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: '#131313'}}
@@ -59,6 +68,7 @@ const PopularEpisode = () => {
         />
 
         <FlatList
+        
           data={popularEpisodes}
           keyExtractor={item => item.title}
           showsHorizontalScrollIndicator={false}
@@ -67,7 +77,22 @@ const PopularEpisode = () => {
           contentContainerStyle={{marginHorizontal: 20, paddingBottom: 20}}
           renderItem={({item, index}) => {
             return (
+              <Pressable
+              onPress={() =>
+                NavigationService.navigate('PodcastLive', {id:item?._id})
+              }
+              style={{
+                width: 335,
+                height: 175,
+                borderRadius: 15,
+                marginRight: 20,
+                borderTopRightRadius: 0,
+                borderTopLeftRadius: 0,
+                overflow: 'hidden',
+                backgroundColor: 'transparent',
+              }}>
               <View
+              
                 style={{
                   width: '46%',
                   height: 165,
@@ -81,7 +106,7 @@ const PopularEpisode = () => {
                   marginTop: 20,
                 }}>
                 <Image
-                  source={{uri: item.image}}
+                  source={{uri: imageUrl+item.image}}
                   style={{
                     width: 200,
                     height: 180,
@@ -137,6 +162,7 @@ const PopularEpisode = () => {
                   </View>
                 </BlurView>
               </View>
+              </Pressable>
             );
           }}
         />

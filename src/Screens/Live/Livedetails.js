@@ -52,6 +52,8 @@ import { apiCall } from '../../Services/Service';
 import { useIsFocused } from '@react-navigation/native';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import { setUserDetails } from '../../Store/Reducers/AuthReducer';
+import axios from 'axios';
+import AllSourcePath from '../../Constants/PathConfig';
 // import {toast} from 'react-toastify';
 import {
   ClientRoleType,
@@ -70,9 +72,10 @@ const { width, height } = Dimensions.get('screen');
 const LiveDetails = props => {
   const route = useRoute();
   const isFocused = useIsFocused();
-  const selectedData = route.params?.item;
+  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
+  let id = route.params?.id;
   const token = useSelector(state => state.authData.token);
-  const [likeStatus, setLikeStatus] = useState(null);
+  const [likeStatus, setLikeStatus] = useState(false);
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [message, setMessage] = useState('');
@@ -81,8 +84,8 @@ const LiveDetails = props => {
   // console.log('Comment', mapComment);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
+  const [selectedData, setSelectedData] = useState({})
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
-
   const [GiftData, setGiftData] = useState([
     { gift: <BulbIcon /> },
     { gift: <BoeIcon /> },
@@ -146,43 +149,32 @@ const LiveDetails = props => {
     };
   }, []);
 
-  
   const fetchCommentData = async () => {
-    try {
-      const endpoint = 'lives/list';
-      const response = await apiCall(endpoint, 'GET', {}, token);
-      if (
-        response.status === true &&
-        response.data &&
-        response.data.listData
-      ) {
-        // Extract and map comments from each live item
-        const mappedData = response.data && response.data.listData?.length>0 && response.data.listData.flatMap(live =>
-          live.comments.map(comment => ({
-            comment: comment.comment,
-            user: comment.user.name,
-            liveId: comment.liveId,
-            createdAt: comment.created_at,
-            image: comment.user.full_path_image,
-            userData : comment?.user
-          })),
-        );
-        const data = null;
-      //   response.data && response.data.listData?.length>0 && response.data.listData.map((live)=> {
-      //     return(
-      //       data = live?.likes?.length > 0 && live?.likes?.filter(x=> x?.user?._id === setUserDetails?._id ?
-      //          setLikeStatus("liked"): setLikeStatus(null))
-      //     )
-      //   })
-      // console.log("----------", data);
-        setMapcomment(mappedData);
-      } else {
-        console.error('Unexpected API response structure:', response);
-      }
-    } catch (error) {
-      console.error('Error fetching Live comments:', error);
-    }
+  
+    const formData = new FormData();
+    formData.append('liveId', id);
+    axios
+      .post(`${baseUrl}lives/details`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      }).then((response) => {
+        if (response?.data.status === true) {
+          // Extract and map comments from each live item
+          const mappedData = response?.data?.data && response?.data?.data?.latestComments;
+          const like = response?.data?.data?.isLiked == true ? true : false
+          setSelectedData(response?.data?.data)
+          setLikeStatus(like)
+          setMapcomment(mappedData);
+        } else {
+          console.error('Unexpected API response structure:', response);
+        }
+      }). catch((error) => {
+        console.error('Error fetching Live comments:', error);
+      })
   };
+
 
   useEffect(() => {
 
@@ -213,7 +205,7 @@ const LiveDetails = props => {
         },
         onUserJoined: (_connection, Uid) => {
           HelperFunctions.showToastMsg('Remote user joined with uid ' + Uid);
-        
+
           setRemoteUid(Uid);
         },
         onUserOffline: (_connection, Uid) => {
@@ -289,7 +281,7 @@ const LiveDetails = props => {
   // Function to handle the press event of the heart icon
   const handleLikePress = () => {
     // console.log('Heart icon pressed');
-    const liveId = selectedData?._id;
+    const liveId = id;
     // console.log('Hart', podcastId);
     if (!liveId) {
       console.error('Podcast ID is missing');
@@ -305,11 +297,11 @@ const LiveDetails = props => {
         console.log('Message', response.message);
         if (response.message === 'Liked') {
           console.log('Live liked successfully');
-          setLikeStatus('liked');
+          setLikeStatus(true);
           HelperFunctions.showToastMsg('Live Session liked');
         } else {
           console.log('Live disliked successfully');
-          setLikeStatus(null);
+          setLikeStatus(false);
           HelperFunctions.showToastMsg('Live Session Disliked');
         }
       })
@@ -320,7 +312,7 @@ const LiveDetails = props => {
 
   // Function to handle the Comment
   const sendComment = () => {
-    const liveId = selectedData?._id;
+    const liveId = id;
     if (!liveId) {
       console.error('Podcast ID is missing');
       return;
@@ -416,7 +408,7 @@ const LiveDetails = props => {
                   backgroundColor: 'white',
                 }}>
                 <Image
-                  source={{ uri: selectedData.imageUrl }}
+                  source={{ uri: selectedData?.imageUrl }}
                   style={{
                     height: 38,
                     width: 38,
@@ -427,15 +419,15 @@ const LiveDetails = props => {
                 />
               </View>
               <View style={{ marginHorizontal: 10 }}>
-                <Text
+                {/* <Text
                   style={{
                     color: '#fff',
                     fontSize: 14,
                     fontFamily: Theme.FontFamily.normal,
                   }}>
                   {selectedData.created_by_name}
-                </Text>
-                <Text
+                </Text> */}
+                {/* <Text
                   style={{
                     color: 'rgba(255, 255, 255, 0.54)',
                     fontSize: 13,
@@ -444,7 +436,7 @@ const LiveDetails = props => {
                     marginTop: 1,
                   }}>
                   {selectedData.views}
-                </Text>
+                </Text> */}
               </View>
             </TouchableOpacity>
             <TouchableOpacity
@@ -489,7 +481,7 @@ const LiveDetails = props => {
                 overflow: 'hidden',
               }}>
               <Image
-                source={{ uri: selectedData.imageUrl }}
+                source={{ uri: selectedData?.imageUrl }}
                 style={{
                   height: 140,
                   width: 140,
@@ -545,7 +537,7 @@ const LiveDetails = props => {
                 }}>
                 {selectedData.title}
               </Text>
-              <Text
+              {/* <Text
                 style={{
                   color: 'rgba(255, 255, 255, 0.54)',
                   fontSize: 17,
@@ -554,7 +546,7 @@ const LiveDetails = props => {
                   marginTop: 5,
                 }}>
                 {selectedData.hosted_by}
-              </Text>
+              </Text> */}
             </>
           </View>
         </LinearGradient>
@@ -565,8 +557,12 @@ const LiveDetails = props => {
         {mapComment?.map((comment, index) => (
           <Pressable
             key={index}
-            onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: comment?.userData?._id, title: comment?.userData?.name, 
-            date: comment?.userData?.created_at, image: comment?.userData?.full_path_image, details: comment?.comment , time: "12:00"}})}
+            onPress={() => NavigationService.navigate('ChatRoom', {
+              data: {
+                id: comment?.user?._id, title: comment?.user?.name,
+                date: comment?.user?.created_at, image: comment?.user?.full_path_image, details: comment?.comment, time: "12:00"
+              }
+            })}
             style={{
               flexDirection: 'row',
               marginTop: 15,
@@ -575,7 +571,7 @@ const LiveDetails = props => {
             }}>
             <Pressable>
               <Image
-                source={{ uri: comment?.image }}
+                source={{ uri: comment?.user?.full_path_image }}
                 style={{
                   height: 40,
                   width: 40,
@@ -612,7 +608,7 @@ const LiveDetails = props => {
                     fontFamily: Theme.FontFamily.light,
                     marginTop: 3,
                   }}>
-                  {comment.user}{' '}
+                  {comment.user?.name}{' '}
                 </Text>
               </View>
             </View>
@@ -690,19 +686,17 @@ const LiveDetails = props => {
             height: 50,
             width: 50,
             borderRadius: 50,
-            // backgroundColor:
-            //   likeStatus === 'liked' ? 'white' : 'rgba(27, 27, 27, 0.96)',
             alignItems: 'center',
             justifyContent: 'center',
             // marginBottom:10
           }}>
-          {likeStatus === 'liked' ? 
-          <RedHeartIcon />
-          : 
-          <DislikeIcon/>
+          {likeStatus === true ?
+            <RedHeartIcon />
+            :
+            <DislikeIcon />
           }
-          
-          
+
+
         </Pressable>
       </View>
       <ReactNativeModal
