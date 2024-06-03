@@ -31,7 +31,7 @@ const PodcastComment = () => {
   const [items, setItems] = useState(MockPersonList);
   // const [viewableItems, setViewableItems] = useState([]);
   // const flatListRef = useRef(null);
-
+  const mapComment = route.params?.mapComment;
   const [page, setPage] = useState(1);
 
   // const onPressItem = useCallback(item => {

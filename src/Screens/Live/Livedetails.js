@@ -54,6 +54,7 @@ import DislikeIcon from '../../assets/icons/DislikeIcon';
 import { setUserDetails } from '../../Store/Reducers/AuthReducer';
 import axios from 'axios';
 import AllSourcePath from '../../Constants/PathConfig';
+import CommentIcon from '../../assets/icons/CommentIcon';
 // import {toast} from 'react-toastify';
 import {
   ClientRoleType,
@@ -654,6 +655,20 @@ const LiveDetails = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
+            <Pressable
+          onPress={() => NavigationService.navigate('PodcastComment',{mapComment})}
+          style={{
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            backgroundColor: 'rgba(27, 27, 27, 0.96)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 15,
+          }}>
+          <CommentIcon />
+          {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
+        </Pressable>
         <Pressable
           onPress={() => setGiftModalState(true)}
           style={{

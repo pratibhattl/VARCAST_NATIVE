@@ -58,6 +58,7 @@ import { apiCall } from '../../Services/Service';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
+import CommentIcon from '../../assets/icons/CommentIcon';
 const { width, height } = Dimensions.get('screen');
 
 const VideoLive = props => {
@@ -673,6 +674,19 @@ const VideoLive = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
+          <Pressable
+          onPress={() => setGiftModalState(true)}
+          style={{
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            backgroundColor: 'rgba(27, 27, 27, 0.96)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 15,
+          }}>
+          <GitftIcon />
+        </Pressable>
         <Pressable
           style={{
             height: 50,
