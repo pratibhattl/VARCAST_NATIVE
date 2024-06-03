@@ -44,6 +44,9 @@ import UploadScreen from '../Screens/Upload/UploadScreen';
 import LiveDetails from '../Screens/Live/Livedetails';
 import ChatRoom from '../Screens/Chat/ChatRoom';
 import FollowingUsers from '../Screens/Profile/FollowingUsers'
+import PodcastComment from '../Screens/Podcast/PodcastComment';
+
+
 const Stack = createNativeStackNavigator();
 
 function MainNavigation() {
@@ -183,6 +186,11 @@ function MainNavigation() {
         name="PodcastIndex"
         options={{headerShown: false}}
         component={PodcastIndex}
+      />
+      <Stack.Screen
+        name="PodcastComment"
+        options={{headerShown: false}}
+        component={PodcastComment}
       />
       <Stack.Screen
         name="ReelVideoIndex"

@@ -10,20 +10,20 @@ import {
   TextInput,
   Keyboard,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import { useRoute } from '@react-navigation/native';
-import { ImageBackground } from 'react-native';
+import {useRoute} from '@react-navigation/native';
+import {ImageBackground} from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
-import { Image } from 'react-native';
+import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
-import { BlurView } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DoubleTick from '../../assets/icons/DoubleTick';
 import SendIcon from '../../assets/icons/SendIcon';
 import LinkIcon from '../../assets/icons/LinkIcon';
@@ -46,11 +46,13 @@ import BatchIcon from '../../assets/icons/BatchIcon';
 import RocketIcon from '../../assets/icons/RocketIcon';
 import DiamondIcon from '../../assets/icons/DiamondIcon';
 import CrownIcon from '../../assets/icons/CrownIcon';
-import { PermissionsAndroid, Platform } from 'react-native';
-import { useSelector } from 'react-redux';
-import { apiCall } from '../../Services/Service';
+import {PermissionsAndroid, Platform} from 'react-native';
+import {useSelector} from 'react-redux';
+import {apiCall} from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
+import CommentIcon from '../../assets/icons/CommentIcon';
+
 // import {toast} from 'react-toastify';
 import {
   ClientRoleType,
@@ -62,16 +64,17 @@ import {
   AudienceLatencyLevelType,
 } from 'react-native-agora';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
+import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
 import axios from 'axios';
 
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
 const PodcastLive = props => {
   const route = useRoute();
   const isFocused = useIsFocused();
-  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
-const id = route.params?.id
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const id = route.params?.id;
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
@@ -79,26 +82,25 @@ const id = route.params?.id
   const [loadingState, changeloadingState] = useState(false);
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
-  const [selectedData,setSelectedData] = useState({});
+  const [selectedData, setSelectedData] = useState({});
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
-  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
   const [GiftData, setGiftData] = useState([
-    { gift: <BulbIcon /> },
-    { gift: <BoeIcon /> },
-    { gift: <BlastIcon /> },
-    { gift: <RoseIcon /> },
-    { gift: <BatchIcon /> },
-    { gift: <RocketIcon /> },
-    { gift: <DiamondIcon /> },
-    { gift: <CrownIcon /> },
+    {gift: <BulbIcon />},
+    {gift: <BoeIcon />},
+    {gift: <BlastIcon />},
+    {gift: <RoseIcon />},
+    {gift: <BatchIcon />},
+    {gift: <RocketIcon />},
+    {gift: <DiamondIcon />},
+    {gift: <CrownIcon />},
     // {gift:<BulbIcon/>},
   ]);
   const [newComment, setNewComment] = useState([]);
 
   const fetchCommentData = async () => {
-    console.log("PARAMS ", id);
+    console.log('PARAMS ', id);
     const formData = new FormData();
     formData.append('podcastId', id);
     axios
@@ -107,23 +109,23 @@ const id = route.params?.id
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
         },
-      }).then((response)=>{
-        
-        if (
-          response?.data?.status === true) {
+      })
+      .then(response => {
+        if (response?.data?.status === true) {
           // Extract and map comments from each live item
-          const mappedData = response?.data?.data && response?.data?.data?.latestComments;
-          const like = response?.data?.data?.isLiked == true ? true: false
-          setSelectedData(response?.data?.data)
-          setLikeStatus(like)
+          const mappedData =
+            response?.data?.data && response?.data?.data?.latestComments;
+          const like = response?.data?.data?.isLiked == true ? true : false;
+          setSelectedData(response?.data?.data);
+          setLikeStatus(like);
           setMapcomment(mappedData);
-        }
-        else {
+        } else {
           console.error('Unexpected API response structure:', response);
         }
-      }).catch ((error)=> {
-      console.error('Error fetching Live comments:', error);
-    })
+      })
+      .catch(error => {
+        console.error('Error fetching Live comments:', error);
+      });
   };
 
   useEffect(() => {
@@ -289,7 +291,7 @@ const id = route.params?.id
     const payload = {
       podcastId: podcastId,
     };
-   
+
     apiCall('podcast/like', 'POST', payload, token)
       .then(response => {
         // console.log('Message', response.message);
@@ -320,17 +322,15 @@ const id = route.params?.id
       comment: comment,
     };
     console.log('PayLoad', payload);
-    apiCall('podcast/comment', 'POST', payload, token).then((res) => {
-      if (res) {
-
-        Keyboard.dismiss();
-        setComment('');
-        fetchCommentData();
-      }
-    }).catch((err) => {
-
-    })
-
+    apiCall('podcast/comment', 'POST', payload, token)
+      .then(res => {
+        if (res) {
+          Keyboard.dismiss();
+          setComment('');
+          fetchCommentData();
+        }
+      })
+      .catch(err => {});
   };
 
   return (
@@ -351,7 +351,7 @@ const id = route.params?.id
           // paddingTop: 45,
           alignItems: 'center',
           shadowColor: '#131313',
-          shadowOffset: { width: 0, height: 35 },
+          shadowOffset: {width: 0, height: 35},
           shadowOpacity: 0.6,
           // shadowRadius: 2,
           elevation: 20,
@@ -362,8 +362,8 @@ const id = route.params?.id
         resizeMode="cover">
         <LinearGradient
           colors={['rgba(255,255,255,0.1)', 'rgba(0, 0, 0, 0.35)', '#131313']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
+          start={{x: 0, y: 0}}
+          end={{x: 0, y: 1}}
           // useAngle={true} angle={-290}
           // angleCenter={{ x: 0.5, y: 0.5 }}
           style={{
@@ -385,7 +385,7 @@ const id = route.params?.id
               paddingTop: 10,
             }}>
             <TouchableOpacity
-              onPress={() => { }}
+              onPress={() => {}}
               style={{
                 height: 40,
                 width: 140,
@@ -407,7 +407,7 @@ const id = route.params?.id
                   backgroundColor: 'red',
                 }}>
                 <Image
-                  source={{ uri: `${imageUrl}${selectedData?.image}` }}
+                  source={{uri: `${imageUrl}${selectedData?.image}`}}
                   style={{
                     height: 38,
                     width: 38,
@@ -480,7 +480,7 @@ const id = route.params?.id
                 overflow: 'hidden',
               }}>
               <Image
-                source={{ uri: `${imageUrl}${selectedData?.image}` }}
+                source={{uri: `${imageUrl}${selectedData?.image}`}}
                 style={{
                   height: 140,
                   width: 140,
@@ -552,12 +552,22 @@ const id = route.params?.id
       </ImageBackground>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}>
+        contentContainerStyle={{paddingBottom: 20}}>
         {mapComment?.map((comment, index) => (
           <Pressable
             key={index}
-            onPress={() => NavigationService.navigate('ChatRoom' , {data: {id: comment?.user?._id, title: comment?.user?.name, 
-            date: comment?.user?.created_at, image: comment?.user?.full_path_image, details: comment?.comment , time: "12:00"}})}
+            onPress={() =>
+              NavigationService.navigate('ChatRoom', {
+                data: {
+                  id: comment?.user?._id,
+                  title: comment?.user?.name,
+                  date: comment?.user?.created_at,
+                  image: comment?.user?.full_path_image,
+                  details: comment?.comment,
+                  time: '12:00',
+                },
+              })
+            }
             style={{
               flexDirection: 'row',
               marginTop: 15,
@@ -566,7 +576,7 @@ const id = route.params?.id
             }}>
             <Pressable>
               <Image
-                source={{ uri: comment?.user?.full_path_image }}
+                source={{uri: comment?.user?.full_path_image}}
                 style={{
                   height: 40,
                   width: 40,
@@ -615,7 +625,7 @@ const id = route.params?.id
         {/* <LinkIcon/> */}
         <TextInput
           multiline={true}
-          style={[styles.input, { minHeight: 40, maxHeight: 100 }]}
+          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
           placeholder="Message..."
           value={comment}
           onChangeText={setComment}
@@ -649,6 +659,20 @@ const id = route.params?.id
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
+        <Pressable
+          onPress={() => NavigationService.navigate('PodcastComment')}
+          style={{
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            backgroundColor: 'rgba(27, 27, 27, 0.96)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 15,
+          }}>
+          <CommentIcon />
+          {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
+        </Pressable>
         <Pressable
           onPress={() => setGiftModalState(true)}
           style={{
@@ -685,12 +709,7 @@ const id = route.params?.id
             justifyContent: 'center',
             // marginBottom:10
           }}>
-          {likeStatus === true ? 
-          <RedHeartIcon />
-          : 
-          <DislikeIcon/>
-          }
-          
+          {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
       <ReactNativeModal
@@ -737,7 +756,7 @@ const id = route.params?.id
             }}
           />
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
             <BookmarkIcon />
             <Text
               style={{
@@ -751,7 +770,7 @@ const id = route.params?.id
             </Text>
           </View>
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <ShareIcon />
             <Text
               style={{
@@ -765,7 +784,7 @@ const id = route.params?.id
             </Text>
           </View>
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <SadEmojiIcon />
             <Text
               style={{
@@ -803,7 +822,7 @@ const id = route.params?.id
             </Text>
             </View> */}
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 25 }}>
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
             <ShiledIcon Color={'#fff'} />
             <Text
               style={{
@@ -817,7 +836,7 @@ const id = route.params?.id
             </Text>
           </View>
           <View
-            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 20 }}>
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
             <Notification Color={'#fff'} />
             <Text
               style={{
@@ -899,7 +918,7 @@ const id = route.params?.id
                 alignItems: 'center',
               }}>
               <Image
-                style={{ height: 22, width: 22 }}
+                style={{height: 22, width: 22}}
                 source={require('../../assets/images/Coin(1).png')}
               />
               <Text
@@ -923,7 +942,7 @@ const id = route.params?.id
               alignSelf: 'center',
             }}
             // horizontal
-            renderItem={({ item, index }) => {
+            renderItem={({item, index}) => {
               return (
                 <View
                   key={index}
