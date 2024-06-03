@@ -978,6 +978,7 @@ const PodcastLive = props => {
                       marginTop: 5,
                     }}>
                     {item.coin_value}
+                    
                   </Text>
                 </View>
               );
