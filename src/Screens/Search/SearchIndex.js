@@ -202,11 +202,11 @@ const SearchIndex = props => {
                 <Pressable
                   onPress={() => {
                     if (cat === 0) {
-                      NavigationService.navigate('LiveDetails', {item});
+                      NavigationService.navigate('LiveDetails', {id: item?._id});
                     } else if (cat === 1) {
-                      NavigationService.navigate('PodcastLive', {item});
+                      NavigationService.navigate('PodcastLive', {id: item?._id});
                     } else if (cat === 2) {
-                      NavigationService.navigate('VideoLive', {item});
+                      NavigationService.navigate('VideoLive', {id: item?._id});
                     }
                   }}
                   style={{
