@@ -86,17 +86,7 @@ const PodcastLive = props => {
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
-  const [GiftData, setGiftData] = useState([
-    {gift: <BulbIcon />},
-    {gift: <BoeIcon />},
-    {gift: <BlastIcon />},
-    {gift: <RoseIcon />},
-    {gift: <BatchIcon />},
-    {gift: <RocketIcon />},
-    {gift: <DiamondIcon />},
-    {gift: <CrownIcon />},
-    // {gift:<BulbIcon/>},
-  ]);
+  const [GiftData, setGiftData] = useState();
   const [newComment, setNewComment] = useState([]);
 
   const fetchCommentData = async () => {
@@ -141,6 +131,7 @@ const PodcastLive = props => {
   const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
   const [messagee, setMessagee] = useState(''); // Message to the user
   const [podcasts, setPodcasts] = useState([]);
+  const [totalCoins,setTotalCoins]=useState()
 
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
@@ -278,6 +269,22 @@ const PodcastLive = props => {
       HelperFunctions.showToastMsg('You left the channel');
     } catch (e) {
       console.log(e);
+    }
+  };
+
+  //-----------------------------------------------------------------------------------------------------------//
+
+  /*** GET GIFT DATA ***/
+
+  const getAllGift = async () => {
+    try {
+      const data = await apiCall('gift/index', 'GET', null, token);
+      console.log('data', data);
+      setTotalCoins(data?.data?.total)
+      setGiftData(data?.data?.listData);
+      setGiftModalState(true);
+    } catch (error) {
+      console.error('Error fetching data:', error);
     }
   };
 
@@ -674,7 +681,7 @@ const PodcastLive = props => {
           {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
         </Pressable>
         <Pressable
-          onPress={() => setGiftModalState(true)}
+          onPress={getAllGift}
           style={{
             height: 50,
             width: 50,
@@ -929,7 +936,7 @@ const PodcastLive = props => {
                   marginLeft: 5,
                   // marginLeft:15,
                 }}>
-                10 Coins
+                {totalCoins}
               </Text>
             </View>
           </View>
@@ -943,6 +950,7 @@ const PodcastLive = props => {
             }}
             // horizontal
             renderItem={({item, index}) => {
+              console.log('item', item);
               return (
                 <View
                   key={index}
@@ -954,7 +962,14 @@ const PodcastLive = props => {
                     marginVertical: 5,
                     marginBottom: 20,
                   }}>
-                  {item.gift}
+                  <Image
+                    source={{uri: `${imageUrl}${item.icon_image}`}}
+                    style={{
+                      height: 30,
+                      width: 30,
+                    }}
+                    resizeMode="cover"
+                  />
                   <Text
                     style={{
                       color: '#fff',
@@ -962,7 +977,8 @@ const PodcastLive = props => {
                       fontFamily: Theme.FontFamily.normal,
                       marginTop: 5,
                     }}>
-                    12
+                    {item.coin_value}
+                    
                   </Text>
                 </View>
               );

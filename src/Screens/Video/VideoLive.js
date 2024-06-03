@@ -698,7 +698,7 @@ const VideoLive = props => {
             marginBottom: 15,
           }}>
           <GitftIcon />
-        </Pressable>
+        </Pressable> 
         <Pressable
           style={{
             height: 50,
