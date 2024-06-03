@@ -23,7 +23,7 @@ const ChatRoom = () => {
   const route = useRoute();
   const {userDetails} = useSelector(state => state.authData);
 
-  console.log('user', userDetails);
+  // console.log('user', userDetails);
   console.log('route',route)
 
   const [messages, setMessages] = useState([]);
@@ -36,6 +36,14 @@ const ChatRoom = () => {
       </View>
     );
   };
+
+  const renderActions = useCallback(() => {
+    return (
+      <TouchableOpacity style={styles.clip}>
+        <Image source={require('../../assets/images/Vector.png')} />
+      </TouchableOpacity>
+    );
+  }, []);
 
   useEffect(() => {
     const subscriber = firestore()
@@ -88,13 +96,7 @@ const ChatRoom = () => {
       .add(myMessage);
   }, []);
 
-  const renderActions = useCallback(() => {
-    return (
-      <TouchableOpacity style={styles.clip}>
-        <Image source={require('../../assets/images/Vector.png')} />
-      </TouchableOpacity>
-    );
-  }, []);
+ 
 
   return (
     <SafeAreaProvider>
