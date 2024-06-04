@@ -34,7 +34,7 @@ const PodcastIndex = () => {
   const {t} = useTranslation();
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const token = useSelector(state => state.authData.token);
-  // console.log('userData:', podcastData);
+ 
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);

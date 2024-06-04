@@ -67,6 +67,8 @@ import {
 } from 'react-native-agora';
 import HelperFunctions from '../../Constants/HelperFunctions';
 import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
+import firestore from '@react-native-firebase/firestore';
+import {err} from 'react-native-svg/lib/typescript/xml';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -75,7 +77,7 @@ const LiveDetails = props => {
   const isFocused = useIsFocused();
   const baseUrl = AllSourcePath?.API_BASE_URL_DEV;
   let id = route.params?.id;
-  const token = useSelector(state => state.authData.token);
+  const user = useSelector(state => state.authData);
   const [likeStatus, setLikeStatus] = useState(false);
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -99,7 +101,7 @@ const LiveDetails = props => {
     // {gift:<BulbIcon/>},
   ]);
 
-  const [messages, setMessages] = useState('');
+  const [newComments, setNewComments] = useState([]);
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
   const [isHost, setIsHos] = useState(true); // Client role
@@ -109,7 +111,7 @@ const LiveDetails = props => {
 
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
-  // const token =
+  // const user.token =
   //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   const uid = 0;
   function showMessage(msg) {
@@ -139,9 +141,9 @@ const LiveDetails = props => {
     setupAudioSDKEngine(appId, channelName);
     setTimeout(() => {
       if (props?.route?.params?.host) {
-        joinHost(channelName, token);
+        joinHost(channelName, user.token);
       } else {
-        joinAudience(channelName, token);
+        joinAudience(channelName, user.token);
       }
     }, 300);
     return () => {
@@ -156,7 +158,7 @@ const LiveDetails = props => {
       .post(`${baseUrl}lives/details`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${user.token}`,
         },
       })
       .then(response => {
@@ -238,7 +240,7 @@ const LiveDetails = props => {
       // channeloptions.audienceLatencyLevel =
       // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
       agoraEngine.updateChannelMediaOptions(channeloptions);
-      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(user.token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleAudience,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -256,7 +258,7 @@ const LiveDetails = props => {
       agoraEngineRef.current?.setChannelProfile(
         ChannelProfileType.ChannelProfileLiveBroadcasting,
       );
-      agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+      agoraEngineRef.current?.joinChannel(user.token, channelName, uid, {
         clientRoleType: ClientRoleType.ClientRoleBroadcaster,
       });
       HelperFunctions.showToastMsg('Joined Successfully');
@@ -291,7 +293,7 @@ const LiveDetails = props => {
       liveId: liveId,
     };
 
-    apiCall('lives/like', 'POST', payload, token)
+    apiCall('lives/like', 'POST', payload, user.token)
       .then(response => {
         console.log('Message', response.message);
         if (response.message === 'Liked') {
@@ -310,7 +312,8 @@ const LiveDetails = props => {
   };
 
   // Function to handle the Comment
-  const sendComment = () => {
+
+  const sendComment = async () => {
     const liveId = id;
     if (!liveId) {
       console.error('Podcast ID is missing');
@@ -320,17 +323,58 @@ const LiveDetails = props => {
       liveId: liveId,
       comment: comment,
     };
-    apiCall('lives/comment', 'POST', payload, token)
-      .then(res => {
-        if (res) {
-          fetchCommentData();
 
-          Keyboard.dismiss();
-          setComment('');
-        }
-      })
-      .catch(err => {});
+    const newComment = {
+      comment,
+      name: user.userDetails.name,
+      avatar: user.userDetails.full_path_image,
+      timestamp: firestore.FieldValue.serverTimestamp(),
+    };
+    try {
+      apiCall('lives/comment', 'POST', payload, user.token)
+        .then(res => {
+          if (res) {
+            fetchCommentData();
+
+            Keyboard.dismiss();
+            setComment('');
+          }
+        })
+        .catch(err => {});
+
+// Post comments to firebase
+
+      await firestore()
+        .collection('live')
+        .doc(id)
+        .collection('comments')
+        .add(newComment);
+
+      // setNewComments(prev => [...prev, newComment]);
+    } catch (error) {
+      console.error('Error while sending comment :', error);
+    }
   };
+
+// Get comments from firebase
+
+  useEffect(() => {
+    const unsubscribe = firestore()
+      .collection('live')
+      .doc(id)
+      .collection('comments')
+      .orderBy('timestamp')
+      .onSnapshot(snapshot => {
+        const allComments = snapshot.docs.map(item => {
+          return {id: item.id, ...item._data};
+        });
+
+        setNewComments(allComments);
+      });
+
+    return () => unsubscribe();
+  }, [id]);
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -551,16 +595,16 @@ const LiveDetails = props => {
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
-        {mapComment?.map((comment, index) => (
+        {newComments?.map((comment, index) => (
           <Pressable
             key={index}
             onPress={() =>
               NavigationService.navigate('ChatRoom', {
                 data: {
-                  id: comment?.user?._id,
-                  title: comment?.user?.name,
-                  date: comment?.user?.created_at,
-                  image: comment?.user?.full_path_image,
+                  id: comment?.id,
+                  title: comment?.name,
+                  date: JSON.stringify(comment?.timestamp),
+                  image: comment?.avatar,
                   details: comment?.comment,
                   time: '12:00',
                 },
@@ -574,7 +618,7 @@ const LiveDetails = props => {
             }}>
             <Pressable>
               <Image
-                source={{uri: comment?.user?.full_path_image}}
+                source={{uri: comment?.avatar}}
                 style={{
                   height: 40,
                   width: 40,
@@ -611,7 +655,7 @@ const LiveDetails = props => {
                     fontFamily: Theme.FontFamily.light,
                     marginTop: 3,
                   }}>
-                  {comment.user?.name}{' '}
+                  {comment.name}{' '}
                 </Text>
               </View>
             </View>
@@ -657,22 +701,24 @@ const LiveDetails = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
-           {mapComment?.length > 0 &&
-        <Pressable
-          onPress={() => NavigationService.navigate('PodcastComment',{mapComment})}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.96)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <CommentIcon />
-          {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
-        </Pressable>
-        }
+        {mapComment?.length > 0 && (
+          <Pressable
+            onPress={() =>
+              NavigationService.navigate('PodcastComment', {mapComment})
+            }
+            style={{
+              height: 50,
+              width: 50,
+              borderRadius: 50,
+              backgroundColor: 'rgba(27, 27, 27, 0.96)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 15,
+            }}>
+            <CommentIcon />
+            {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
+          </Pressable>
+        )}
         <Pressable
           onPress={() => setModalState(true)}
           style={{

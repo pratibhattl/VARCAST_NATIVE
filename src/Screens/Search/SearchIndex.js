@@ -204,7 +204,7 @@ const SearchIndex = props => {
                     if (cat === 0) {
                       NavigationService.navigate('LiveDetails', {id: item?._id});
                     } else if (cat === 1) {
-                      NavigationService.navigate('PodcastLive', {id: item?._id});
+                      NavigationService.navigate('PodcastLive', item);
                     } else if (cat === 2) {
                       NavigationService.navigate('VideoLive', {id: item?._id});
                     }
