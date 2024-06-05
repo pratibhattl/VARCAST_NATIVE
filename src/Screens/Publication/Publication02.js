@@ -25,7 +25,7 @@ import {PERMISSIONS, requestMultiple} from 'react-native-permissions';
 import ImagePicker from 'react-native-image-crop-picker';
 import EditProfileIcon from '../../assets/icons/EditProfileIcon';
 import {AutocompleteDropdown} from 'react-native-autocomplete-dropdown';
-import {postApi} from '../../Services/Service';
+import {apiCall, postApi} from '../../Services/Service';
 import HelperFunctions from '../../Constants/HelperFunctions';
 import {useSelector} from 'react-redux';
 import axios from 'axios';
@@ -39,7 +39,7 @@ const Publication02 = props => {
   );
 
   // Access the customProp passed from the source screen
-  const {reelDetails} = props.route.params;
+  // const {reelDetails} = props.route.params;
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [Title, setTitle] = useState('');
@@ -68,7 +68,7 @@ const Publication02 = props => {
       page: null,
     };
 
-    postApi('api/all-category', data, '')
+    apiCall('api/all-category', data, '')
       .then(response => {
         // console.log('response',response)
         if (response?.status == 'success') {
@@ -96,7 +96,7 @@ const Publication02 = props => {
       limit: 100,
     };
 
-    postApi('api/list-follower-user', data, token)
+    apiCall('api/list-follower-user', data, token)
       .then(response => {
         console.log('fetchFollowers', response);
         if (response?.status == 'success') {
@@ -253,7 +253,7 @@ const Publication02 = props => {
       form.append('description', Description);
       form.append('status', 'A');
 
-      postApi('api/create-shorts', form, token, 'multipart/form-data')
+      apiCall('api/create-shorts', form, token, 'multipart/form-data')
         .then(response => {
           // console.log('response',response)
           if (response?.status == 'success') {
@@ -294,7 +294,7 @@ const Publication02 = props => {
       <Pressable
         onPress={() => dropdownController.current.toggle()}
         style={{...styles.container}}>
-        {console.log('reelDetailse>>>>>>>>>>>>', reelDetails)}
+        {/* {console.log('reelDetailse>>>>>>>>>>>>', reelDetails)} */}
         <TouchableOpacity
           onPress={imageUpload}
           style={{

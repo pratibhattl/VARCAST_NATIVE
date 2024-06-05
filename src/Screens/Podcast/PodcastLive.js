@@ -71,11 +71,12 @@ const {width, height} = Dimensions.get('screen');
 
 const PodcastLive = props => {
   const route = useRoute();
-  const isFocused = useIsFocused();
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-  const id = route.params?.id;
+  const id = route.params?._id;
   const token = useSelector(state => state.authData.token);
+
+  const isFocused = useIsFocused();
   const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -130,7 +131,7 @@ const PodcastLive = props => {
   const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
   const [messagee, setMessagee] = useState(''); // Message to the user
   const [podcasts, setPodcasts] = useState([]);
-  const [totalCoins,setTotalCoins]=useState()
+  const [totalCoins, setTotalCoins] = useState();
 
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
@@ -278,14 +279,39 @@ const PodcastLive = props => {
   const getAllGift = async () => {
     try {
       const data = await apiCall('gift/index', 'GET', null, token);
-      console.log('data', data);
-      setTotalCoins(data?.data?.total)
+
+      setTotalCoins(data?.data?.total);
       setGiftData(data?.data?.listData);
       setGiftModalState(true);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
+
+  //-----------------------------------------------------------------------------------------------------------//
+
+  /*** SEND GIFT ***/
+
+  const sendGift = async gift => {
+   
+    const payload = {
+      podcastId: id,
+      userId: route?.params?.userId,
+      giftId: gift._id,
+    };
+
+    try {
+      const response = await apiCall('gift/send', 'POST', payload, token);
+      setTotalCoins(response?.data?.total);
+      setGiftModalState(false);
+      HelperFunctions.showToastMsg(`${gift.gift_name} sent successfully`);
+      
+    } catch (error) {
+      console.error('Error while sending the gift:', error);
+    }
+  };
+
+  //-----------------------------------------------------------------------------------------------------------//
 
   // Function to handle the press event of the heart icon
   const handleLikePress = () => {
@@ -300,14 +326,11 @@ const PodcastLive = props => {
 
     apiCall('podcast/like', 'POST', payload, token)
       .then(response => {
-        // console.log('Message', response.message);
         if (response.message === 'Liked') {
           setLikeStatus(true);
-          // console.log('Podcast liked successfully');
           HelperFunctions.showToastMsg('Podcast liked');
         } else {
           setLikeStatus(false);
-          // console.log('Podcast disliked successfully');
           HelperFunctions.showToastMsg('Podcast Disliked');
         }
       })
@@ -327,7 +350,7 @@ const PodcastLive = props => {
       podcastId: podcastId,
       comment: comment,
     };
-    console.log('PayLoad', payload);
+
     apiCall('podcast/comment', 'POST', payload, token)
       .then(res => {
         if (res) {
@@ -665,22 +688,24 @@ const PodcastLive = props => {
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
-        {mapComment?.length > 0 &&
-        <Pressable
-          onPress={() => NavigationService.navigate('PodcastComment',{mapComment})}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.96)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <CommentIcon />
-          {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
-        </Pressable>
-        }
+        {mapComment?.length > 0 && (
+          <Pressable
+            onPress={() =>
+              NavigationService.navigate('PodcastComment', {mapComment})
+            }
+            style={{
+              height: 50,
+              width: 50,
+              borderRadius: 50,
+              backgroundColor: 'rgba(27, 27, 27, 0.96)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 15,
+            }}>
+            <CommentIcon />
+            {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
+          </Pressable>
+        )}
         <Pressable
           onPress={getAllGift}
           style={{
@@ -951,37 +976,37 @@ const PodcastLive = props => {
             }}
             // horizontal
             renderItem={({item, index}) => {
-              console.log('item', item);
               return (
-                <View
-                  key={index}
-                  style={{
-                    width: 43,
-                    height: 60,
-                    alignItems: 'center',
-                    marginHorizontal: 20,
-                    marginVertical: 5,
-                    marginBottom: 20,
-                  }}>
-                  <Image
-                    source={{uri: `${imageUrl}${item.icon_image}`}}
+                <Pressable onPress={() => sendGift(item)}>
+                  <View
+                    key={index}
                     style={{
-                      height: 30,
-                      width: 30,
-                    }}
-                    resizeMode="cover"
-                  />
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.normal,
-                      marginTop: 5,
+                      width: 43,
+                      height: 60,
+                      alignItems: 'center',
+                      marginHorizontal: 20,
+                      marginVertical: 5,
+                      marginBottom: 20,
                     }}>
-                    {item.coin_value}
-                    
-                  </Text>
-                </View>
+                    <Image
+                      source={{uri: `${imageUrl}${item.icon_image}`}}
+                      style={{
+                        height: 30,
+                        width: 30,
+                      }}
+                      resizeMode="cover"
+                    />
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 14,
+                        fontFamily: Theme.FontFamily.normal,
+                        marginTop: 5,
+                      }}>
+                      {item.coin_value}
+                    </Text>
+                  </View>
+                </Pressable>
               );
             }}
           />

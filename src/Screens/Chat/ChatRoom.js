@@ -19,12 +19,8 @@ import {useSelector} from 'react-redux';
 // import { moderateScale,moderateScaleVertical } from 'react-native-size-matters';
 
 const ChatRoom = () => {
-  const Stack = createNativeStackNavigator();
   const route = useRoute();
   const {userDetails} = useSelector(state => state.authData);
-
-  // console.log('user', userDetails);
-  console.log('route',route)
 
   const [messages, setMessages] = useState([]);
 
@@ -43,26 +39,6 @@ const ChatRoom = () => {
         <Image source={require('../../assets/images/Vector.png')} />
       </TouchableOpacity>
     );
-  }, []);
-
-  useEffect(() => {
-    const subscriber = firestore()
-      .collection('chats')
-      .doc(userDetails._id + route.params.data.id)
-      .collection('messages')
-      .orderBy('createdAt', 'desc');
-
-    subscriber.onSnapshot(querySnapshot => {
-      const allMessages = querySnapshot.docs.map(item => {
-        console.log(item);
-        return {...item._data, createdAt: item._data.createdAt};
-      });
-
-      console.log('all', allMessages);
-      setMessages(allMessages);
-    });
-
-    return () => subscriber();
   }, []);
 
   const onSend = useCallback(async (messages = []) => {
@@ -96,7 +72,23 @@ const ChatRoom = () => {
       .add(myMessage);
   }, []);
 
- 
+  useEffect(() => {
+    const subscriber = firestore()
+      .collection('chats')
+      .doc(userDetails._id + route.params.data.id)
+      .collection('messages')
+      .orderBy('createdAt', 'desc');
+
+    subscriber.onSnapshot(querySnapshot => {
+      const allMessages = querySnapshot.docs.map(item => {
+        return {...item._data, createdAt: item._data.createdAt};
+      });
+
+      setMessages(allMessages);
+    });
+
+    return () => subscriber();
+  }, []);
 
   return (
     <SafeAreaProvider>
