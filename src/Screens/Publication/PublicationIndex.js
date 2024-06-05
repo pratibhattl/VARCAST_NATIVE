@@ -43,6 +43,7 @@ import AllSourcePath from '../../Constants/PathConfig';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import axios from 'axios';
+import { useIsFocused } from '@react-navigation/native';
 // import { loadingState } from "../../../../../../../../";
 const {width, height} = Dimensions.get('screen');
 
@@ -51,7 +52,7 @@ const PublicationIndex = props => {
   // require the module
   // var RNFS = require('react-native-fs');
   var result = null;
-
+  const isFocused = useIsFocused();
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingStates, changeloadingStates] = useState(false);
@@ -72,7 +73,7 @@ const PublicationIndex = props => {
   const [Musiclist, setMusiclist] = useState([]);
   const licenseAndroid = require('../../assets/vesdk_license/vesdk_license.android.json');
   const licenseIos = require('../../assets/vesdk_license/vesdk_license.ios.json');
-
+  const [publicationData,setPublicationData] = useState({});
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
 
   const getPermission = async () => {
@@ -102,12 +103,11 @@ const PublicationIndex = props => {
     try {
       const endpoint = 'videos/list';
       const response = await apiCall(endpoint, 'GET', {}, token);
-      const data = response?.data?.listData; // Assuming response is already parsed as JSON
+      const data = response?.data?.listData; // Assuming response is already parsed as JSON      
       const mappedData = data?.map(item => ({
         title: item.title,
         slug: item.slug,
-        img: item.imageUrl,
-        videoUrl: item.videoUrl,
+        img: item.image,
       }));
       setAllImage(mappedData);
     } catch (error) {
@@ -115,8 +115,10 @@ const PublicationIndex = props => {
     }
   };
   useEffect(() => {
+    if (isFocused) {
     fetchAllPublicationList();
-  }, []);
+    }
+  }, [isFocused]);
 
   const uploadPublicationData = file => {
     setLoader(true);
@@ -194,9 +196,10 @@ const PublicationIndex = props => {
 
         type: `image/${fileType}`,
       };
+      setPublicationData(file);
       // if (result != null) {
 
-      uploadPublicationData(file);
+      // uploadPublicationData(file);
 
       // setAllImage(s => s.map((res, ind) => ind == 0 ? { ...res, img: result.image,self:true } : { ...res }))
       // } else {
