@@ -98,7 +98,6 @@ const Publication02 = props => {
 
     postApi('api/list-follower-user', data, token)
       .then(response => {
-        console.log('fetchFollowers', response);
         if (response?.status == 'success') {
           setFollowerList(response?.data);
           // setLoader(false)

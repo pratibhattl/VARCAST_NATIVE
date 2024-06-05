@@ -20,7 +20,7 @@ import {I18nextProvider} from 'react-i18next';
 import i18next from './src/Utils/i18.config';
 import {AutocompleteDropdownContextProvider} from 'react-native-autocomplete-dropdown';
 import messaging from '@react-native-firebase/messaging';
-
+import {PermissionsAndroid} from 'react-native';
 export const navRef = createRef();
 export const isReady = createRef();
 const Stack = createNativeStackNavigator();
@@ -36,7 +36,6 @@ const App = () => {
     let result = await getData('account');
     let resulttoken = await getData('token');
     // const headerHeight = useHeaderHeight();
-
     if (result && resulttoken) {
       dispatch(setUserDetails(result));
       dispatch(setToken(resulttoken));
@@ -52,21 +51,21 @@ const App = () => {
 
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
-    PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
-    );
+    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
+  
     if (enabled) {
-      const token = await messaging().getToken();
+      console.log('Authorization status:', authStatus);
+           const token =await messaging().getToken();
+      console.log("Firebase Token",token);
     }
-  }
+    }
 
-  useEffect(() => {
-    requestUserPermission();
-    messaging()
+useEffect(()=>{
+  requestUserPermission();
+  messaging()
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
@@ -76,22 +75,24 @@ const App = () => {
           );
         }
       });
-    messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log(
-        'Notification caused app to open from background state:',
-        remoteMessage.notification,
-      );
-    });
+  messaging().onNotificationOpenedApp(remoteMessage => {
+    console.log(
+      'Notification caused app to open from background state:',
+      remoteMessage.notification,
+    );
+  });
 
-    messaging().setBackgroundMessageHandler(async remoteMessage => {
-      console.log('Message handled in the background!', remoteMessage);
-    });
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-    });
+  messaging().setBackgroundMessageHandler(async remoteMessage => {
+    console.log('Message handled in the background!', 
+      
+    );
+  });
+  const unsubscribe = messaging().onMessage(async remoteMessage => {
+    Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+  });
 
-    return unsubscribe;
-  }, []);
+  return unsubscribe;
+},[]);
 
   if (LoderStatus) return <SplashScreen />;
 
@@ -100,7 +101,7 @@ const App = () => {
       <AutocompleteDropdownContextProvider>
         <I18nextProvider i18n={i18next}>
           <ThemeProvider>
-            <NavigationContainer
+            <NavigationContainer 
               onReady={() => (isReady.current = true)}
               ref={r => NavigationService.setTopLevelNavigator(r)}>
               <Stack.Navigator

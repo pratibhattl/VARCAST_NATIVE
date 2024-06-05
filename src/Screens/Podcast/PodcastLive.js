@@ -113,7 +113,7 @@ const PodcastLive = props => {
         }
       })
       .catch(error => {
-        console.error('Error fetching Live comments:', error);
+        console.error('Error fetching Podcast comments:', error);
       });
   };
 

@@ -173,7 +173,7 @@ const LiveDetails = props => {
         }
       })
       .catch(error => {
-        console.error('Error fetching Live comments:', error);
+        console.error('Error fetching comments:', error);
       });
   };
 
