@@ -6,46 +6,89 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import Carousel from 'react-native-reanimated-carousel';
-import {useSharedValue} from 'react-native-reanimated';
+import { useSharedValue } from 'react-native-reanimated';
 import Theme from '../../Constants/Theme';
-const {width, height} = Dimensions.get('screen');
+import { apiCall, postApi } from '../../Services/Service';
+import HelperFunctions from '../../Constants/HelperFunctions';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import AllSourcePath from '../../Constants/PathConfig';
+const { width, height } = Dimensions.get('screen');
 
 const FinalPublication = () => {
   const route = useRoute();
+  const bodyData = route.params.body;
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
+  const [loading, setLoading] = useState(false);
   const [loadingState, changeloadingState] = useState(false);
   const [allImage, setAllImage] = useState([
-    {img: require('../../assets/images/image105(1).png')},
-    {img: require('../../assets/images/image104.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image157.png')},
+    { img: require('../../assets/images/image105(1).png') },
+    { img: require('../../assets/images/image104.png') },
+    { img: require('../../assets/images/image105.png') },
+    { img: require('../../assets/images/image154.png') },
+    { img: require('../../assets/images/image155.png') },
+    { img: require('../../assets/images/image156.png') },
+    { img: require('../../assets/images/image157.png') },
     // {img:require('../../assets/images/image157(1).png')},
-    {img: require('../../assets/images/image158.png')},
-    {img: require('../../assets/images/image159.png')},
-    {img: require('../../assets/images/image160.png')},
-    {img: require('../../assets/images/image161.png')},
-    {img: require('../../assets/images/image162.png')},
-    {img: require('../../assets/images/image105.png')},
-    {img: require('../../assets/images/image154.png')},
-    {img: require('../../assets/images/image155.png')},
-    {img: require('../../assets/images/image156.png')},
-    {img: require('../../assets/images/image103.png')},
+    { img: require('../../assets/images/image158.png') },
+    { img: require('../../assets/images/image159.png') },
+    { img: require('../../assets/images/image160.png') },
+    { img: require('../../assets/images/image161.png') },
+    { img: require('../../assets/images/image162.png') },
+    { img: require('../../assets/images/image105.png') },
+    { img: require('../../assets/images/image154.png') },
+    { img: require('../../assets/images/image155.png') },
+    { img: require('../../assets/images/image156.png') },
+    { img: require('../../assets/images/image103.png') },
   ]);
   const [pagingEnabled, setPagingEnabled] = React.useState(true);
   const [snapEnabled, setSnapEnabled] = React.useState(true);
   const progressValue = useSharedValue(0);
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.API_IMG_URL_DEV;
+  const tokenData = useSelector(state => state.authData.token);
+  const publishVideoFunc = () => {
+    setLoader(true);
+    const formData = new FormData();
+    formData.append('title', bodyData?.title);
+    formData.append('image', bodyData?.image);
+    formData.append('description', bodyData?.description);
+    bodyData?.tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag));
+    bodyData?.category.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
+
+    axios
+      .post(`${baseUrl}videos/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${tokenData}`,
+        },
+      })
+      .then(response => {
+        setTags([]);
+        setTitle('');
+        setDescription('');
+        setCat([]);
+
+        NavigationService.navigate('PublicationIndex');
+        setLoader(false);
+
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+  };
+
+
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
+      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
       showLoading={loadingState}
       isScrollable={true}
       leftHeading={'New Publication'}
@@ -53,7 +96,7 @@ const FinalPublication = () => {
       // right
       // onRightTextPress={() => NavigationService.navigate('Publication01')}
       // Publish
-      leftHeadingStyle={{color: '#E1D01E'}}
+      leftHeadingStyle={{ color: '#E1D01E' }}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
@@ -117,7 +160,7 @@ const FinalPublication = () => {
           data={allImage}
           scrollAnimationDuration={500}
           onSnapToItem={index => console.log('current index:', index)}
-          renderItem={({item, index}) => (
+          renderItem={({ item, index }) => (
             <View
               style={{
                 flex: 1,

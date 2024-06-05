@@ -30,7 +30,6 @@ const Wallet = () => {
       try {
         const endpoint = 'wallet/index';
         const response = await apiCall(endpoint, 'GET', {}, token);
-        console.log('response', response);
 
         if (response.status) {
           setTransactions(response.data.listData);

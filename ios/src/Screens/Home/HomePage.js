@@ -68,8 +68,6 @@ const HomePage = props => {
       const endpoint = 'follow/followings';
       const response = await apiCall(endpoint, 'GET', {}, token);
 
-      console.log('Raw response:', response); // Log the raw response
-
       if (response && response.status === true && response.data) {
         const data = response.data; // Assuming response is already parsed as JSON
 

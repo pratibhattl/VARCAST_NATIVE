@@ -1,3 +1,4 @@
+
 import {
   View,
   Text,
@@ -29,17 +30,18 @@ import {apiCall, postApi} from '../../Services/Service';
 import HelperFunctions from '../../Constants/HelperFunctions';
 import {useSelector} from 'react-redux';
 import axios from 'axios';
-
+import AllSourcePath from '../../Constants/PathConfig';
 const {width, height} = Dimensions.get('screen');
 
-const Publication02 = props => {
+const Publication02 = (props) => {
   const route = useRoute();
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const {login_status, userDetails, token, deviceid} = useSelector(
     state => state.authData,
   );
-
+  const tokenData = useSelector(state => state.authData.token);
   // Access the customProp passed from the source screen
-  // const {reelDetails} = props.route.params;
+  const {croppedImage} = route.params;
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [Title, setTitle] = useState('');
@@ -51,7 +53,7 @@ const Publication02 = props => {
   const [suggestionsList, setSuggestionsList] = useState(null);
   const [selectedItem, setSelectedItem] = useState([null]);
   const dropdownController = useRef(null);
-
+  const [selectedValue, setSelectedValue] = useState('');
   const searchRef = useRef(null);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
@@ -60,32 +62,21 @@ const Publication02 = props => {
 
   const [followerList, setFollowerList] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
-  const fetchCategories = () => {
-    setLoader(true);
-    let data = {
-      limit: '10',
-      keyword: '',
-      page: null,
-    };
-
-    apiCall('api/all-category', data, '')
-      .then(response => {
-        // console.log('response',response)
-        if (response?.status == 'success') {
-          setCategorylist(response?.data);
-          setLoader(false);
-        } else {
-          // setModalVisible(true)
-          setLoader(false);
-        }
-      })
-      .catch(error => {
-        HelperFunctions.showToastMsg(error?.message);
-        setLoader(false);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
+  
+  const fetchCategories = async () => {
+    setLoader(true)
+    try {
+      const endpoint = 'home/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      if (response?.status === true) {
+        setLoader(false)
+        setCategorylist(response?.data.categories || []);
+       
+      }
+    } catch (error) {
+      setLoader(false)
+      HelperFunctions.showToastMsg(error?.message);
+    }
   };
   const fetchFollowers = () => {
     setUserLoader(true);
@@ -116,22 +107,18 @@ const Publication02 = props => {
       });
   };
 
-  const handleAddTag = val => {
-    if (val.name.trim() !== '') {
-      tags.find(res => res._id == val._id)
-        ? setTags(tags)
-        : setTags([
-            ...tags,
-            {
-              _id: val._id,
-              name: val.name,
-            },
-          ]);
-      setSelectedItem(val._id);
-      setSelectedItem('');
-      setSuggestionsList(null);
+  const handleAddTag = text => {
+    if (text[text.length - 1] === ' ') {
+      if (text[text.length - 1] === ' ') {
+        const newTags = text.trim().split(' ').filter(tag => tag.trim() !== ''); // Split text by space and remove empty strings
+        const updatedTags = [...new Set([...tags, ...newTags])]; // Concatenate new tags with existing tags and remove duplicates
+        setTags(updatedTags);
+        setSelectedValue(''); // Clear the selected value
+      } else {
+        setSelectedValue(text); // Update the selected value
+      }
     }
-  };
+  }
 
   const handleRemoveTag = index => {
     const newTags = [...tags];
@@ -278,6 +265,70 @@ const Publication02 = props => {
     fetchCategories();
     fetchFollowers();
   }, []);
+
+
+  const publishVideoFunc = () => {
+    setLoader(true);
+    const formData = new FormData();
+    formData.append('title', Title);
+    formData.append('image', croppedImage);
+    formData.append('description', Description);
+    tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
+    cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
+
+    axios
+      .post(`${baseUrl}videos/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${tokenData}`,
+        },
+      })
+      .then(response => {
+        setTags([]);
+        setTitle('');
+        setDescription('');
+        setCat([]);
+
+        NavigationService.navigate('PublicationIndex');
+        setLoader(false);
+        
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+  };
+  const saveDraftVideoFunc = () => {
+    setLoader(true);
+    const formData = new FormData();
+    formData.append('title', Title);
+    formData.append('image', croppedImage);
+    formData.append('description', Description);
+    tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
+    cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
+
+    axios
+      .post(`${baseUrl}videos/save_draft`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${tokenData}`,
+        },
+      })
+      .then(response => {
+        setTags([]);
+        setTitle('');
+        setDescription('');
+        setCat([]);
+        
+        NavigationService.navigate('PublicationIndex');
+        setLoader(false);
+        
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+  };
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
@@ -286,7 +337,7 @@ const Publication02 = props => {
       leftHeading={'New Publication'}
       viewStyle={{backgroundColor: '#131313'}}
       // right
-      onRightTextPress={() => publishReels()}
+      onRightTextPress={() => publishVideoFunc()}
       Publish
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
@@ -312,18 +363,18 @@ const Publication02 = props => {
           }}>
           <Image
             source={
-              imagesdet
-                ? {uri: imagesdet.path}
+              croppedImage
+                ? {uri: croppedImage.uri}
                 : require('../../assets/images/addimage.png')
             }
             style={{
-              height: imagesdet ? 130 : 80,
-              width: imagesdet ? 130 : 80,
+              height: croppedImage ? 130 : 80,
+              width: croppedImage ? 130 : 80,
               borderRadius: 20,
             }}
             resizeMode="cover"
           />
-          {imagesdet ? (
+          {/* {imagesdet ? (
             <TouchableOpacity
               onPress={imageUpload}
               style={{
@@ -339,7 +390,7 @@ const Publication02 = props => {
               }}>
               <EditProfileIcon />
             </TouchableOpacity>
-          ) : null}
+          ) : null} */}
         </TouchableOpacity>
 
         <AppTextInput
@@ -401,10 +452,9 @@ const Publication02 = props => {
             // initialValue={'1'}
             direction={Platform.select({ios: 'down', android: 'down'})}
             dataSet={suggestionsList}
-            onChangeText={getSuggestions}
-            onSelectItem={item => {
-              item && handleAddTag(item);
-            }}
+            value={selectedValue}
+            // onChangeText={getSuggestions}
+           onChangeText={handleAddTag}
             debounce={600}
             suggestionsListMaxHeight={Dimensions.get('window').height * 0.4}
             onClear={onClearPress}
@@ -484,7 +534,7 @@ const Publication02 = props => {
                     fontFamily: Theme.FontFamily.normal,
                     // marginTop:5
                   }}>
-                  {item.name}
+                  {item}
                 </Text>
                 <Icon
                   name="cross"
@@ -556,9 +606,9 @@ const Publication02 = props => {
               <Pressable
                 key={index}
                 onPress={() => {
-                  cat.find(res => res._id == item._id)
-                    ? setCat(s => s.filter(re => re._id != item._id))
-                    : setCat([...cat, item]);
+                  cat.find(res => res == item._id)
+                    ? setCat(s => s.filter(re => re != item._id && item._id))
+                    : setCat([...cat, item._id]);
                 }}
                 style={{
                   height: 40,
@@ -566,7 +616,7 @@ const Publication02 = props => {
                   borderRadius: 10,
                   borderColor: 'rgba(255, 255, 255, 0.12)',
                   borderWidth: 1.5,
-                  backgroundColor: cat.find(res => res._id == item._id)
+                  backgroundColor: cat.find(res => res == item._id)
                     ? '#fff'
                     : '#000',
                   marginRight: 5,
@@ -576,7 +626,7 @@ const Publication02 = props => {
                 }}>
                 <Text
                   style={{
-                    color: cat.find(res => res._id == item._id)
+                    color: cat.find(res => res == item._id)
                       ? '#000'
                       : '#fff',
                     fontSize: 14,
@@ -590,7 +640,9 @@ const Publication02 = props => {
           }}
         />
         <Pressable
-          onPress={() => NavigationService.navigate('FinalPublication')}
+          // onPress={() => NavigationService.navigate('FinalPublication')}
+          onPress={() => saveDraftVideoFunc()}
+          
           style={{
             // marginTop:30,
             // flexDirection:'row',

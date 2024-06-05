@@ -87,7 +87,6 @@ const OtpInputPage = props => {
     };
     postApi('api/user-verify-account', data, '')
       .then(response => {
-        console.log('response', response);
         if (response?.status == 'success') {
           //   storeToLocalAndRedux(response)
           HelperFunctions.showToastMsg(response?.message);
@@ -125,7 +124,6 @@ const OtpInputPage = props => {
     };
     postApi('api/user-verify-account', data, '')
       .then(response => {
-        console.log('response', response);
         if (response?.status == 'success') {
           //   storeToLocalAndRedux(response)
           HelperFunctions.showToastMsg(response?.message);
@@ -161,7 +159,6 @@ const OtpInputPage = props => {
     };
     postApi('api/resent-otp', data, '')
       .then(response => {
-        console.log('response', response);
         if (response?.status == 'success') {
           //   storeToLocalAndRedux(response)
           HelperFunctions.showToastMsg(response?.message);
@@ -192,7 +189,6 @@ const OtpInputPage = props => {
     };
     postApi('api/resend-otp', data, '')
       .then(response => {
-        console.log('response', response);
         if (response?.status == 'success') {
           //   storeToLocalAndRedux(response)
           HelperFunctions.showToastMsg(response?.message);
