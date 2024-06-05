@@ -73,10 +73,12 @@ const HomePage = props => {
 
   //Fetching HomePage Data
   const fetchHomePageData = async () => {
+    setLoader(true)
     try {
       const endpoint = 'home/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       if (response?.status === true) {
+        setLoader(false)
         const usermappedData =
         response?.data?.latest_followings?.length > 0 &&
         response?.data?.latest_followings?.map(item => ({
@@ -97,6 +99,7 @@ const HomePage = props => {
 
       }
     } catch (error) {
+      setLoader(false)
       HelperFunctions.showToastMsg(error?.message);
     }
   };

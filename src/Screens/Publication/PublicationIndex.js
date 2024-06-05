@@ -11,48 +11,49 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import CameraIcon from '../../assets/icons/CameraIcon';
 import Theme from '../../Constants/Theme';
 import PlayBackIcon from '../../assets/icons/PlaybackIcon';
 import TemplateIcon from '../../assets/icons/TemplateIcon';
-import {BlurView} from '@react-native-community/blur';
+import { BlurView } from '@react-native-community/blur';
 import LiveHeader from '../../Components/Header/LiveHeader';
 import LiveEditIcon from '../../assets/icons/LiveEditIcon';
 import LiveIcon from '../../assets/icons/LiveIcon';
 import RefressIcon from '../../assets/icons/RefressIcon';
 import GallaryIcon from '../../assets/icons/GallaryIcon';
-import {AppTextInput} from 'react-native-basic-elements';
-import {useTranslation} from 'react-i18next';
+import { AppTextInput } from 'react-native-basic-elements';
+import { useTranslation } from 'react-i18next';
 import {
   PESDK,
   PhotoEditorModal,
   Configuration,
 } from 'react-native-photoeditorsdk';
 import ImagePicker from 'react-native-image-crop-picker';
-import {VESDK, CanvasAction, AudioClip} from 'react-native-videoeditorsdk';
-import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
-import {PermissionsAndroid} from 'react-native';
-import {apiCall} from '../../Services/Service';
+import { VESDK, CanvasAction, AudioClip } from 'react-native-videoeditorsdk';
+import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
+import { PermissionsAndroid } from 'react-native';
+import { apiCall } from '../../Services/Service';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import axios from 'axios';
-import { useIsFocused } from '@react-navigation/native';
+import { Video } from 'react-native';
 // import { loadingState } from "../../../../../../../../";
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const PublicationIndex = props => {
   const route = useRoute();
-  // require the module
+  const videoExtensions = ["mp4", "mov", "wmv", "avi", "flv", "avchd", "f4v", "swf", "mkv"];
   // var RNFS = require('react-native-fs');
   var result = null;
-  const isFocused = useIsFocused();
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingStates, changeloadingStates] = useState(false);
@@ -61,6 +62,7 @@ const PublicationIndex = props => {
   const [audio, setAudio] = useState();
   const [imgUrl, setImgUrl] = useState('');
   const [allImage, setAllImage] = useState([]);
+  const [publicationIndex, setPublicationIndex] = useState(0)
   const token = useSelector(state => state.authData.token);
   const audioToken =
     '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
@@ -69,13 +71,10 @@ const PublicationIndex = props => {
   const [name, setName] = useState('');
   const [overView, setOverView] = useState('');
   const [Loder, setLoader] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
   const [Musiclist, setMusiclist] = useState([]);
   const licenseAndroid = require('../../assets/vesdk_license/vesdk_license.android.json');
   const licenseIos = require('../../assets/vesdk_license/vesdk_license.ios.json');
-  const [publicationData,setPublicationData] = useState({});
-  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-
   const getPermission = async () => {
     if (Platform.OS === 'android') {
       await PermissionsAndroid.requestMultiple([
@@ -103,65 +102,40 @@ const PublicationIndex = props => {
     try {
       const endpoint = 'videos/list';
       const response = await apiCall(endpoint, 'GET', {}, token);
-      const data = response?.data?.listData; // Assuming response is already parsed as JSON      
-      const mappedData = data?.map(item => ({
-        title: item.title,
-        slug: item.slug,
-        img: item.image,
-      }));
-      setAllImage(mappedData);
+      const data = response?.data?.listData; // Assuming response is already parsed as JSON
+      setLoader(false);
+      setAllImage(data);
     } catch (error) {
+      setLoader(false);
       console.error('Error fetching data:', error);
     }
   };
-  useEffect(() => {
-    if (isFocused) {
-    fetchAllPublicationList();
-    }
-  }, [isFocused]);
 
-  const uploadPublicationData = file => {
+  const fetchDraftPublicationList = async () => {
     setLoader(true);
-    const formData = new FormData();
-    formData.append('image', file);
+    try {
+      const endpoint = 'videos/list_draft';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      const data = response?.data?.listData; // Assuming response is already parsed as JSON
 
-    // apiCall('videos/create', formData, '', 'multipart/form-data')
-    axios
-      .post(`${baseUrl}videos/create`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${tokenData}`,
-        },
-      })
-      .then(response => {
-        if (response?.status == 'true') {
-          changeImagee(url);
-          // let image = `${AllSourcePath.API_BASE_URL_DEV}upload`
-          allImage.unshift({img: url, self: true});
-          setAllImage([...allImage]);
-          setLoader(false);
-        } else {
-          // setModalVisible(true)
-          setLoader(false);
-        }
-      })
-      .catch(error => {
-        HelperFunctions.showToastMsg(error?.message);
-        setLoader(false);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
+      setLoader(false);
+      setAllImage(data);
+    } catch (error) {
+      setLoader(false);
+      console.error('Error fetching data:', error);
+    }
   };
+
+  useEffect(() => {
+    if (publicationIndex == 0) {
+      fetchAllPublicationList();
+    } else if (publicationIndex == 1) {
+      fetchDraftPublicationList()
+    }
+  }, [publicationIndex]);
+
   const openPhotoFromLocalPathExample = async () => {
     try {
-      // Add a photo from the assets directory.
-
-      //   const license = await PESDK.unlockWithLicense("./pesdk_license");
-      // } catch (error) {
-      // console.log(`Failed to unlock PE.SDK with error: ${error}.`);
-      // }
-      // if (Platform.OS === 'ios') { await getPermissionIos() };
       let pickerResult = await ImagePicker.openCamera({
         width: 300,
         height: 400,
@@ -170,43 +144,15 @@ const PublicationIndex = props => {
       if (pickerResult.cancelled) {
         return;
       }
-
-      const result = await PESDK.openEditor(pickerResult.path);
-      // ImagePicker.openPicker({
-      //     width: 300,
-      //     height: 400,
-      //     cropping: true
-      //   }).then(image => {
-      //     console.log(image);
-      //     console.log("PESDK.openEditor(image.path)",PESDK.openEditor(image.path));
-
-      //     result = PESDK.openEditor(image.path);
-      //   });
-      // const photo = require("../../assets/images/image105.png");
-
-      // Open the photo editor and handle the export as well as any occuring errors.
-      const fileUri = pickerResult.path;
-      // const fileData = await RNFS.readFile(fileUri, 'base64');
-      const fileName = fileUri.split('/').pop();
+      const fileName = pickerResult.path.split('/').pop();
       const fileType = fileName.split('.').pop();
 
       const file = {
-        uri: fileUri,
+        uri: pickerResult.path,
         name: fileName,
-
         type: `image/${fileType}`,
       };
-      setPublicationData(file);
-      // if (result != null) {
-
-      // uploadPublicationData(file);
-
-      // setAllImage(s => s.map((res, ind) => ind == 0 ? { ...res, img: result.image,self:true } : { ...res }))
-      // } else {
-      //   // The user tapped on the cancel button within the editor.
-      //   console.log('nocddt found');
-      //   return;
-      // }
+      NavigationService.navigate('Publication02', { croppedImage: file });
     } catch (error) {
       console.log(error);
     }
@@ -275,6 +221,12 @@ const PublicationIndex = props => {
       if (result != null) {
         // The user exported a new video successfully and the newly generated video is located at `result.video`.
 
+        console.log('videdoready', result.video, {
+          ...result,
+          path: result.video,
+          mime: 'video/mp4',
+          modificationDate: Date.now(),
+        });
         NavigationService.navigate('Publication02', {
           reelDetails: {
             ...result,
@@ -285,10 +237,10 @@ const PublicationIndex = props => {
         });
       } else {
         // The user tapped on the cancel button within the editor.
-
         return;
       }
     } catch (error) {
+      // There was an error generating the video.
       console.log(error);
       // setRecoil(loadingState, true);
     }
@@ -367,7 +319,12 @@ const PublicationIndex = props => {
       const result = await VESDK.openEditor(pickerResult.path, configuration);
       if (result != null) {
         // The user exported a new video successfully and the newly generated video is located at `result.video`.
-
+        console.log('videdoready', result.video, {
+          ...result,
+          path: result.video,
+          mime: 'video/mp4',
+          modificationDate: Date.now(),
+        });
         NavigationService.navigate('Publication02', {
           reelDetails: {
             ...result,
@@ -396,6 +353,7 @@ const PublicationIndex = props => {
     };
     apiCall('api/all-music', data, '')
       .then(response => {
+        // console.log('response',response)
         if (response?.status == 'success') {
           setMusiclist(response?.data);
           setLoader(false);
@@ -428,9 +386,10 @@ const PublicationIndex = props => {
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
+        console.log('START');
         // const realPath = await RNFetchBlob.fs.contentUriToPath(pickedFile.uri);
         // console.log('img', file://${realPath});
-
+        // console.log("pickedFile----",pickedFile);
         await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
           setImgUrl(data);
         });
@@ -439,15 +398,12 @@ const PublicationIndex = props => {
       if (DocumentPicker.isCancel(err)) {
         console.log('err', err);
       } else {
+        console.log('error', err);
         throw err;
       }
     }
   };
 
-  const tokenData = useSelector(state => state.authData.token);
-
-  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
-  
 
   const fileSubmit = async () => {
     let formData = new FormData();
@@ -456,14 +412,14 @@ const PublicationIndex = props => {
     formData.append('overview', overView);
     formData.append('image', pickedImg);
     formData.append('audio', audio);
-
+    console.log(formData);
     setLoader(true);
 
     try {
       const data = await axios.post(`${baseUrl}podcast/create`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${tokenData}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       setName('');
@@ -474,7 +430,6 @@ const PublicationIndex = props => {
       NavigationService.navigate('ProfileIndex');
       return data;
     } catch (error) {
-      
       HelperFunctions.showToastMsg(error?.message);
       setLoader(false);
     }
@@ -490,14 +445,15 @@ const PublicationIndex = props => {
     if (Platform.OS === 'ios') {
       getPermissionIos();
     }
-    // console.log('Image.resolveAssetSource(source).uri',URL.createObjectURL('https://pagalnew.com/download128/45972'))
   }, []);
 
+
   return (
-    <View style={{flex: 1}}>
+    <View style={{ flex: 1 }}>
+      {/* {console.log('sdsdsdsdsd>>>>>>',allImage)} */}
       {cat == 'Publication' ? (
         <ScreenLayout
-          headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
+          headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
           showLoading={loadingStates || Loder}
           isScrollable={true}
           leftHeading={'New Publication'}
@@ -505,26 +461,27 @@ const PublicationIndex = props => {
           // right
           onRightTextPress={() => NavigationService.navigate('Publication01')}
           Live={cat == 'Live' ? true : false}
-          leftHeadingStyle={{color: '#E1D01E'}}
+          leftHeadingStyle={{ color: '#E1D01E' }}
           hideLeftIcon={customProp ? false : true}
           onLeftIconPress={() => NavigationService.back()}>
           <View style={styles.container}>
-            <View style={{alignSelf: 'center'}}>
+            <View style={{ alignSelf: 'center' }}>
               <FlatList
                 data={[1, 2, 3]}
                 //    horizontal
                 numColumns={3}
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{paddingHorizontal: 0, paddingTop: 20}}
-                renderItem={({item, index}) => {
+                contentContainerStyle={{ paddingHorizontal: 0, paddingTop: 20 }}
+                renderItem={({ item, index }) => {
                   return (
                     <Pressable
                       onPress={() => {
+                        setPublicationIndex(index)
                         if (index === 0) {
                           openPhotoFromLocalPathExample();
                         } else if (index === 1) {
-                          openVideoFromLocalPathExample();
+                          fetchDraftPublicationList();
                         } else {
                           openVideoFromRemoteUrlExample();
                         }
@@ -555,8 +512,8 @@ const PublicationIndex = props => {
                         {index == 0
                           ? 'Camera'
                           : index == 1
-                          ? 'Drafts'
-                          : 'Templates'}
+                            ? 'Drafts'
+                            : 'Templates'}
                       </Text>
                     </Pressable>
                   );
@@ -573,7 +530,13 @@ const PublicationIndex = props => {
                   paddingHorizontal: 0,
                   paddingVertical: 10,
                 }}
-                renderItem={({item, index}) => {
+                renderItem={({ item, index }) => {
+                  // const imageParts = item?.image.split('/');
+                  // const imageName = imageParts[imageParts?.length - 1];
+                  // const [videoName, extension] = imageName.split('.');
+
+                  // const isVideo = videoExtensions.includes(extension.toLowerCase()); // Check if the extension is in the videoExtensions array
+
                   return (
                     <View
                       key={index}
@@ -581,16 +544,28 @@ const PublicationIndex = props => {
                         marginRight: index == 2 ? 0 : 7,
                         marginTop: 10,
                       }}>
-                      <Image
-                        // source={item?.self ? {uri: item?.img} : item?.img}
-                        source={{uri: `${imageUrl}${item?.img}`}}
-                        style={{
-                          height: 180,
-                          width: 120,
-                          borderRadius: 15,
-                        }}
-                        resizeMode="cover"
-                      />
+                      {/* {videoExtensions.includes(extension.toLowerCase()) ? (
+                        <Video
+                          source={{ uri: imageUrl + item?.image }} // Provide the video source URI
+                          style={{
+                            height: 180,
+                            width: 120,
+                            borderRadius: 15,
+                          }}
+                          resizeMode="cover"
+                          controls={true} // Show video controls
+                        />
+                      ) : ( */}
+                        <Image
+                          source={{ uri: imageUrl + item?.image }}
+                          style={{
+                            height: 180,
+                            width: 120,
+                            borderRadius: 15,
+                          }}
+                          resizeMode="cover"
+                        />
+                      {/* )} */}
                     </View>
                   );
                 }}
@@ -603,7 +578,7 @@ const PublicationIndex = props => {
           </View>
         </ScreenLayout>
       ) : cat == 'Live' ? (
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <StatusBar
             backgroundColor={'transparent'}
             // animated={true}
@@ -626,18 +601,18 @@ const PublicationIndex = props => {
         </View>
       ) : (
         <ScreenLayout
-          headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
+          headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
           showLoading={loadingStates}
           isScrollable={true}
           leftHeading={t('New Publication')}
           Podcast
           right
           Live={cat == 'Live' ? true : false}
-          leftHeadingStyle={{color: '#E1D01E'}}
+          leftHeadingStyle={{ color: '#E1D01E' }}
           hideLeftIcon={customProp ? false : true}
           onLeftIconPress={() => NavigationService.back()}>
           <View
-            style={{...styles.container, alignItems: 'center', height: height}}>
+            style={{ ...styles.container, alignItems: 'center', height: height }}>
             <Pressable
               onPress={async () => await uploadFileOnPressHandler()}
               style={{
@@ -654,7 +629,9 @@ const PublicationIndex = props => {
               }}>
               {pickedImg?.uri && (
                 <Image
+                  // source={{ uri: imgUrl?.uri }}
                   source={{uri: `data:image/jpeg;base64,${imgUrl}`}}
+
                   resizeMode="cover"
                 />
               )}
@@ -666,7 +643,7 @@ const PublicationIndex = props => {
               onChangeText={a => setName(a)}
               placeholder="Name Podcast"
               placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-              inputStyle={{fontSize: 14}}
+              inputStyle={{ fontSize: 14 }}
               titleStyle={{
                 fontFamily: Theme.FontFamily.semiBold,
                 fontSize: Theme.sizes.s16,
@@ -684,7 +661,7 @@ const PublicationIndex = props => {
               onChangeText={a => setOverView(a)}
               placeholder="Overview"
               placeholderTextColor={'rgba(255, 255, 255, 0.44)'}
-              inputStyle={{fontSize: 15}}
+              inputStyle={{ fontSize: 15 }}
               titleStyle={{
                 fontFamily: Theme.FontFamily.semiBold,
                 fontSize: Theme.sizes.s16,
@@ -730,43 +707,9 @@ const PublicationIndex = props => {
 
             <Pressable
               onPress={fileSubmit}
-              style={{...styles.upload_btn, width: 350, marginTop: 20}}>
+              style={{ ...styles.upload_btn, width: 350, marginTop: 20 }}>
               <Text style={styles.upload_text}>SUBMIT</Text>
             </Pressable>
-            {/* <Pressable
-              style={{
-                height: 64,
-                width: 64,
-                borderRadius: 64,
-                borderWidth: 1.5,
-                borderColor: '#fff',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 50,
-              }}>
-              <Pressable
-                onPress={() => NavigationService.navigate('OwnPodcastLive')}
-                style={{
-                  height: 54,
-                  width: 54,
-                  borderRadius: 64,
-                  backgroundColor: 'rgba(255, 255, 255, 0.98)',
-
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderWidth: 2,
-                  borderColor: '#fff',
-                  // marginTop:50
-                }}>
-                <View
-                  style={{
-                    height: 24,
-                    width: 24,
-                    borderRadius: 25,
-                    backgroundColor: '#ED4040',
-                  }}></View>
-              </Pressable>
-            </Pressable> */}
           </View>
         </ScreenLayout>
       )}
@@ -827,7 +770,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Live');
-                NavigationService.navigate('VideoLive', {host: true});
+                NavigationService.navigate('VideoLive', { host: true });
               }}
               style={{
                 height: 54,
@@ -860,7 +803,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Refress');
-                NavigationService.navigate('PodcastLive', {host: true});
+                NavigationService.navigate('PodcastLive', { host: true });
               }}
               style={{
                 height: 54,
@@ -880,6 +823,7 @@ const PublicationIndex = props => {
           </Pressable>
         </Pressable>
       ) : null}
+
       <Pressable
         style={{
           borderRadius: 100,
@@ -899,7 +843,7 @@ const PublicationIndex = props => {
             paddingHorizontal: 5,
             alignItems: 'center',
           }}
-          renderItem={({item, index}) => {
+          renderItem={({ item, index }) => {
             return (
               <Pressable
                 key={index}
@@ -908,8 +852,6 @@ const PublicationIndex = props => {
                   height: 45,
                   width: 110,
                   borderRadius: 30,
-                  //   borderColor: 'rgba(255, 255, 255, 0.12)',
-                  //   borderWidth: 1.5,
                   backgroundColor:
                     cat == item ? 'rgba(255, 255, 255, 0.12)' : 'transparent',
                   marginRight: 5,
@@ -941,22 +883,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#131313',
     alignItems: 'center',
     paddingLeft: 5,
-    // backgroundColor: 'rgba(27, 27, 27, 0.96)',
   },
   input_container_sty: {
     paddingHorizontal: 10,
     height: 52,
     alignItems: 'center',
     justifyContent: 'center',
-    // backgroundColor: 'rgba(255, 255, 255, 0.15)',
     borderWidth: 0,
     width: 350,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     borderBottomWidth: 1,
     marginTop: 20,
-    // padding:0
-    // backfaceVisibility:'hidden'
-    // elevation:3
   },
   text_style: {
     fontFamily: Theme.FontFamily.normal,
@@ -985,20 +922,3 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
 });
-
-//   <BlurView
-//   style={{
-//     height: 53,
-//     width: 345,
-//     // alignItems:'center',
-//     alignSelf: 'center',
-//   backgroundColor:'#1C1C1C'
-//   }}
-//   blurType="dark"
-//   overlayColor="transparent"
-//   blurAmount={20}
-//   blurRadius={10}
-//   borderRadius={20}
-//   reducedTransparencyFallbackColor="grey">
-
-//   </BlurView>
