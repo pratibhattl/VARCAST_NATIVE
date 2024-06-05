@@ -30,7 +30,7 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import {t} from 'i18next';
 const {width, height} = Dimensions.get('screen');
 
-const Publication01 = () => {
+const Publication01 = ({ croppedImage}) => {
   const route = useRoute();
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -125,7 +125,7 @@ const Publication01 = () => {
       <View style={styles.container}>
         <View style={{height: height / 1.5, bottom: 80}}>
           <Image
-            source={require('../../assets/images/image155(1).png')}
+            source={{uri: croppedImage}}
             style={{
               height: height / 1.2,
               width: width,
@@ -134,7 +134,7 @@ const Publication01 = () => {
             resizeMode="contain"
           />
         </View>
-        <Text
+        {/* <Text
           style={{
             color: 'rgba(255, 255, 255, 0.54)',
             fontSize: 16,
@@ -193,7 +193,7 @@ const Publication01 = () => {
               </View>
             );
           }}
-        />
+        /> */}
       </View>
       <ReactNativeModal
         isVisible={isModalVisible}
