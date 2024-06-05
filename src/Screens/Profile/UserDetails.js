@@ -31,14 +31,17 @@ import {t} from 'i18next';
 const {width, height} = Dimensions.get('screen');
 import {useTranslation} from 'react-i18next';
 import CustomHeader from '../../Components/Header/CustomHeader';
+import ChatIcon from '../../assets/icons/ChatIcon';
+import {apiCall} from '../../Services/Service';
 
 const UserDetails = props => {
   const route = useRoute();
+  const token = useSelector(state => state.authData.token);
   const {userData} = route.params;
-  console.log('userData123', userData);
-  // console.log(userData.name);
+
   const Tab = createMaterialTopTabNavigator();
   const [loadingState, setLoadingState] = useState(false);
+  const [userDetails, setUserDetails] = useState();
   const {following} = useSelector(state => state.commonData);
   const dispatch = useDispatch();
 
@@ -61,6 +64,35 @@ const UserDetails = props => {
       console.error('Error sharing:', error.message);
     }
   };
+
+  //----------------------------------------------------------------------------------------------------//
+
+  /*** GET USER DETAILS ***/
+
+  const getUserDetails = async () => {
+    setLoadingState(true);
+    try {
+      const data = await apiCall(
+        'user-profile',
+        'POST',
+        {userId: userData?._id},
+        token,
+      );
+      setUserDetails(data.data);
+    } catch (error) {
+      console.error('ERROR WHILE FETCHING DATA :', error);
+    } finally {
+      setLoadingState(false);
+    }
+  };
+
+  useEffect(() => {
+    getUserDetails();
+  }, [userData?._id]);
+
+  if (loadingState) {
+    return <Text>Fetching user details...</Text>;
+  }
 
   return (
     <View style={styles.container}>
@@ -89,7 +121,7 @@ const UserDetails = props => {
               padding: 25,
             }}>
             <Image
-              source={{uri: userData?.full_path_image}}
+              source={{uri: userDetails?.full_path_image}}
               style={{
                 height: 75,
                 width: 75,
@@ -106,9 +138,9 @@ const UserDetails = props => {
                 marginTop: 12,
                 textAlign: 'center',
               }}>
-              {userData?.name}
+              {userDetails?.name}
             </Text>
-            <Text
+            {/* <Text
               style={{
                 color: 'rgba(255, 255, 255, 0.54)',
                 fontSize: 15,
@@ -117,8 +149,8 @@ const UserDetails = props => {
                 textAlign: 'center',
                 lineHeight: 25,
               }}>
-              {/* {userData.total_views} views */}
-            </Text>
+              {userData.total_views > 0 ? userData.total_views : 0} views
+            </Text> */}
             <View
               style={{
                 flexDirection: 'row',
@@ -131,7 +163,7 @@ const UserDetails = props => {
                 onPress={() =>
                   NavigationService.navigate(
                     'Followers',
-                    userData.latest_followers,
+                    userDetails.latest_followers,
                   )
                 }>
                 <Text
@@ -142,7 +174,7 @@ const UserDetails = props => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  {userData.count_followers}
+                  {userDetails?.count_followers}
                 </Text>
                 <Text
                   style={{
@@ -163,7 +195,7 @@ const UserDetails = props => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  {userData.count_videos}
+                  {userDetails?.count_videos}
                 </Text>
                 <Text
                   style={{
@@ -184,7 +216,7 @@ const UserDetails = props => {
                     textAlign: 'center',
                     marginTop: 10,
                   }}>
-                  {userData.count_podcasts}
+                  {userDetails?.count_podcasts}
                 </Text>
                 <Text
                   style={{
@@ -200,7 +232,7 @@ const UserDetails = props => {
                 onPress={() =>
                   NavigationService.navigate(
                     'FollowingUsers',
-                    userData.latest_followings,
+                    userDetails?.latest_followings,
                   )
                 }>
                 <Text
@@ -211,7 +243,7 @@ const UserDetails = props => {
                     marginTop: 10,
                     textAlign: 'center',
                   }}>
-                  {userData.count_followings}
+                  {userDetails?.count_followings}
                 </Text>
                 <Text
                   style={{
@@ -258,7 +290,7 @@ const UserDetails = props => {
                 onPress={handleShare}
                 style={{
                   height: 45,
-                  width: 165,
+                  width: 65,
                   borderRadius: 50,
                   backgroundColor: 'transparent',
                   flexDirection: 'row',
@@ -268,7 +300,7 @@ const UserDetails = props => {
                   borderWidth: 1,
                 }}>
                 <ShareIcon />
-                <Text
+                {/* <Text
                   style={{
                     color: '#fff',
                     fontSize: 14,
@@ -277,7 +309,43 @@ const UserDetails = props => {
                     marginHorizontal: 5,
                   }}>
                   {t('Share')}
-                </Text>
+                </Text> */}
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() =>
+                  NavigationService.navigate('ChatRoom', {
+                    data: {
+                      id: userDetails?._id,
+                      title: userDetails?.name,
+                      date: new Date(),
+                      image: userDetails?.full_path_image,
+                      details: 'abc',
+                      time: '12:00',
+                    },
+                  })
+                }
+                style={{
+                  height: 45,
+                  width: 65,
+                  borderRadius: 50,
+                  backgroundColor: 'transparent',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  borderColor: 'rgba(255, 255, 255, 0.12)',
+                  borderWidth: 1,
+                }}>
+                <ChatIcon />
+                {/* <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.normal,
+                    marginTop: 0,
+                    marginHorizontal: 5,
+                  }}>
+                  {t('Share')}
+                </Text> */}
               </TouchableOpacity>
             </View>
           </View>
@@ -317,12 +385,12 @@ const UserDetails = props => {
                       right: -15,
                       fontSize: 10,
                     }}>
-                    {userData.count_podcasts}
+                    {userDetails?.count_podcasts}
                   </Text>
                 </Pressable>
               ),
             }}>
-            {() => <AudioReels userData={userData} />}
+            {() => <AudioReels userData={userDetails} />}
           </Tab.Screen>
           <Tab.Screen
             name="VideoReels"
@@ -338,12 +406,12 @@ const UserDetails = props => {
                       right: -15,
                       fontSize: 10,
                     }}>
-                    {userData.count_videos}
+                    {userDetails?.count_videos}
                   </Text>
                 </Pressable>
               ),
             }}>
-            {() => <VideoReels userData={userData} />}
+            {() => <VideoReels userData={userDetails} />}
           </Tab.Screen>
         </Tab.Navigator>
       </ScrollView>
