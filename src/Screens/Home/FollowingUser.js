@@ -39,6 +39,7 @@ const FollowingUser = () => {
             email: item.followings.email,
             imageUrl: item.followings.full_path_image,
           })) || [];
+        
         setFollowingUserData(usermappedData);
       }
     } catch (error) {

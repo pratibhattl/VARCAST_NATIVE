@@ -109,7 +109,7 @@ const App = () => {
                   animation: 'none',
                   headerShown: false,
                 }}>
-                {console.log('login_status', userDetails, deviceid, token)}
+             
                 {login_status == false ? (
                   <Stack.Screen
                     name="AuthNavigation"

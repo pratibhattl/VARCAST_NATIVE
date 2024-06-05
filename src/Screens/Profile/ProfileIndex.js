@@ -141,7 +141,7 @@ const ProfileIndex = () => {
               }}>
               {userDetails.name}
             </Text>
-            <Text
+            {/* <Text
               style={{
                 color: 'rgba(255, 255, 255, 0.54)',
                 fontSize: 15,
@@ -151,7 +151,7 @@ const ProfileIndex = () => {
                 lineHeight: 25,
               }}>
               44,189,642 views
-            </Text>
+            </Text> */}
             <View
               style={{
                 flexDirection: 'row',
