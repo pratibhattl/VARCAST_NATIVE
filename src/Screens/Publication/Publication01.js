@@ -8,12 +8,13 @@ import {
   Pressable,
   ScrollView,
   KeyboardAvoidingView,
+  Audio
 } from 'react-native';
-import React, {useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
-import {Image} from 'react-native';
+import { Image } from 'react-native';
 import CameraIcon from '../../assets/icons/CameraIcon';
 import PlayBackIcon from '../../assets/icons/PlaybackIcon';
 import TemplateIcon from '../../assets/icons/TemplateIcon';
@@ -24,15 +25,28 @@ import TextIcon from '../../assets/icons/TextIcon';
 import LiveEditIcon from '../../assets/icons/LiveEditIcon';
 import ReactNativeModal from 'react-native-modal';
 import MicroPhoneIcon from '../../assets/icons/MicrophoneIcon';
-import {AppTextInput, Icon} from 'react-native-basic-elements';
-import {BlurView} from '@react-native-community/blur';
+import { AppTextInput, Icon } from 'react-native-basic-elements';
+import { BlurView } from '@react-native-community/blur';
 import LinkIcon from '../../assets/icons/LinkIcon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import {t} from 'i18next';
-const {width, height} = Dimensions.get('screen');
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { t } from 'i18next';
+import AllSourcePath from '../../Constants/PathConfig';
+import { apiCall, postApi } from '../../Services/Service';
+import HelperFunctions from '../../Constants/HelperFunctions';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { useIsFocused } from '@react-navigation/native';
 
-const Publication01 = ({ croppedImage}) => {
+const { width, height } = Dimensions.get('screen');
+
+const Publication01 = () => {
   const route = useRoute();
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.API_IMG_URL_DEV
+  const tokenData = useSelector(state => state.authData.token);
+  const { croppedImage } = route.params;
+  const isFocused = useIsFocused();
+
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -41,92 +55,68 @@ const Publication01 = ({ croppedImage}) => {
   const [passwordShow, setPasswordShow] = useState(false);
   const [cat, setCat] = useState('My Sounds');
   const [email, setEmail] = useState('');
+  const [loader, setLoader] = useState(false)
+  const [audioList, setAudioList] = useState([]);
+  const [selectedata,setSelectedata] = useState({file: croppedImage})
 
-  const [allData, setAllData] = useState([
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: '25 Sep ',
-      time: '• 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: '• 14:45',
-      image: require('../../assets/images/Coin(1).png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image150.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'I Liked the Podcast',
-      date: '25 Sep ',
-      time: '• 19:32',
-      image: require('../../assets/images/image151.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    {
-      title: 'Purchased 300 coins',
-      date: '23 Sep ',
-      time: '• 14:45',
-      image: require('../../assets/images/Coin(1).png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Hosted by: Kevin Hart',
-      price: '- $ 120',
-    },
-    {
-      title: 'Video Watched',
-      date: '25 Sep ',
-      time: '• 19:45',
-      image: require('../../assets/images/image153.png'),
-      details: 'Pitbull by Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-  ]);
+  const openAudeoList = (index) => {
+    if (index == 0) {
+      setModalVisible(!isModalVisible)
+    }
+  }
+
+  const fetchAudioList = async () => {
+    setLoader(true)
+    try {
+      const endpoint = 'audio/list';
+      const response = await apiCall(endpoint, 'GET', {}, tokenData);
+      if (response?.status === true) {
+        setLoader(false)
+        setAudioList(response?.data.listData || []);
+
+      }
+    } catch (error) {
+      setLoader(false)
+      HelperFunctions.showToastMsg(error?.message);
+    }
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchAudioList()
+    }
+  }, [isFocused]);
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+const [audioIndex,setAudioIndex] = useState(null)
+
+  const selectAudioFunc=(data, index)=>{
+    setAudioIndex(index)
+    setSelectedata({...selectedata, audio:data?.fileurl});
+  }
+
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
+      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
       showLoading={loadingState}
       isScrollable={true}
       leftHeading={t('New Publication')}
       // viewStyle={{backgroundColor:'transparent'}}
       right
-      onRightTextPress={() => setModalVisible(true)}
+      // onRightTextPress={() => setModalVisible(true)}
+      onRightTextPress={() => NavigationService.navigate('Publication02', { selectedata: selectedata })}
+
       // Live={cat == 'Live' ? true : false}
-      leftHeadingStyle={{color: '#E1D01E'}}
+      leftHeadingStyle={{ color: '#E1D01E' }}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
-        <View style={{height: height / 1.5, bottom: 80}}>
+        <View style={{ height: height / 1.5, bottom: 80 }}>
           <Image
-            source={{uri: croppedImage}}
+            source={{ uri: croppedImage?.uri }}
             style={{
               height: height / 1.2,
               width: width,
@@ -135,7 +125,7 @@ const Publication01 = ({ croppedImage}) => {
             resizeMode="contain"
           />
         </View>
-        {/* <Text
+        <Text
           style={{
             color: 'rgba(255, 255, 255, 0.54)',
             fontSize: 16,
@@ -155,7 +145,7 @@ const Publication01 = ({ croppedImage}) => {
             alignItems: 'center',
             paddingTop: 15,
           }}
-          renderItem={({item, index}) => {
+          renderItem={({ item, index }) => {
             return (
               <View
                 key={index}
@@ -177,24 +167,26 @@ const Publication01 = ({ croppedImage}) => {
                 ) : (
                   <LiveEditIcon Color={'#fff'} />
                 )}
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontFamily: Theme.FontFamily.normal,
-                    marginTop: 5,
-                  }}>
-                  {index == 0
-                    ? 'Audio'
-                    : index == 1
-                    ? 'Text'
-                    : index == 2
-                    ? 'Sticker'
-                    : 'Effects'}
-                </Text>
+                <Pressable onPress={() => openAudeoList(index)}>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontFamily: Theme.FontFamily.normal,
+                      marginTop: 5,
+                    }}>
+                    {index == 0
+                      ? 'Audio'
+                      : index == 1
+                        ? 'Text'
+                        : index == 2
+                          ? 'Sticker'
+                          : 'Effects'}
+                  </Text>
+                </Pressable>
               </View>
             );
           }}
-        /> */}
+        />
       </View>
       <ReactNativeModal
         isVisible={isModalVisible}
@@ -239,7 +231,7 @@ const Publication01 = ({ croppedImage}) => {
                 onChangeText={a => setPassword(a)}
                 placeholder="Search"
                 placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-                inputStyle={{fontSize: 14}}
+                inputStyle={{ fontSize: 14 }}
                 titleStyle={{
                   fontFamily: Theme.FontFamily.semiBold,
                   fontSize: Theme.sizes.s16,
@@ -265,8 +257,8 @@ const Publication01 = ({ croppedImage}) => {
                 data={['My Sounds', 'Link']}
                 showsHorizontalScrollIndicator={false}
                 horizontal
-                contentContainerStyle={{paddingVertical: 20, paddingLeft: 0}}
-                renderItem={({item, index}) => {
+                contentContainerStyle={{ paddingVertical: 20, paddingLeft: 0 }}
+                renderItem={({ item, index }) => {
                   return (
                     <Pressable
                       key={index}
@@ -299,7 +291,7 @@ const Publication01 = ({ croppedImage}) => {
                   );
                 }}
               />
-              {allData.map((res, ind) => {
+              {audioList?.length > 0 && audioList?.map((res, ind) => {
                 return (
                   <View
                     key={ind}
@@ -309,15 +301,15 @@ const Publication01 = ({ croppedImage}) => {
                       // justifyContent:'space-between',
                       marginTop: 10,
                     }}>
-                    <Image
-                      source={res?.image}
+                    {/* <Audio
+                      source={imageUrl+res?.fileurl}
                       style={{
                         height: 45,
                         width: 45,
                         borderRadius: 45,
                       }}
                       resizeMode="contain"
-                    />
+                    /> */}
                     <View
                       style={{
                         flexDirection: 'row',
@@ -335,7 +327,7 @@ const Publication01 = ({ croppedImage}) => {
                             fontSize: 16,
                             fontFamily: Theme.FontFamily.medium,
                           }}>
-                          {res.title}
+                          {res?.filename}
                         </Text>
                         <Text
                           style={{
@@ -344,29 +336,20 @@ const Publication01 = ({ croppedImage}) => {
                             fontFamily: Theme.FontFamily.light,
                             marginTop: 3,
                           }}>
-                          {res.date}{' '}
-                          <Text
-                            style={{
-                              color: 'rgba(255, 255, 255, 0.54)',
-                              fontSize: 14,
-                              fontFamily: Theme.FontFamily.light,
-                            }}>
-                            {res.time}
-                          </Text>
+                         {formatDate(res?.created_at)}
                         </Text>
                       </View>
                       <Pressable
                         onPress={() => {
-                          setModalVisible(false);
-                          NavigationService.navigate('Publication02');
+                          selectAudioFunc(res,ind)
                         }}
-                        style={{}}>
+                        >
                         <Icon
-                          name="plus"
+                          name={audioIndex == ind ? "minus" : "plus" }
                           type="Entypo"
                           size={25}
                           color={'#E1D01E'}
-                          //   style={{marginTop:5}}
+                        //   style={{marginTop:5}}
                         />
                       </Pressable>
                     </View>
@@ -382,7 +365,7 @@ const Publication01 = ({ croppedImage}) => {
                   onChangeText={a => setPassword(a)}
                   placeholder="Search"
                   placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-                  inputStyle={{fontSize: 14}}
+                  inputStyle={{ fontSize: 14 }}
                   titleStyle={{
                     fontFamily: Theme.FontFamily.semiBold,
                     fontSize: Theme.sizes.s16,
@@ -408,8 +391,8 @@ const Publication01 = ({ croppedImage}) => {
                   data={['My Sounds', 'Link']}
                   showsHorizontalScrollIndicator={false}
                   horizontal
-                  contentContainerStyle={{paddingVertical: 20, paddingLeft: 0}}
-                  renderItem={({item, index}) => {
+                  contentContainerStyle={{ paddingVertical: 20, paddingLeft: 0 }}
+                  renderItem={({ item, index }) => {
                     return (
                       <Pressable
                         key={index}
@@ -471,7 +454,7 @@ const Publication01 = ({ croppedImage}) => {
                   onChangeText={a => setEmail(a)}
                   placeholder="Insert Link"
                   placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-                  inputStyle={{fontSize: 14}}
+                  inputStyle={{ fontSize: 14 }}
                   titleStyle={{
                     fontFamily: Theme.FontFamily.medium,
                     fontSize: Theme.sizes.s16,

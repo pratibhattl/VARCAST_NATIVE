@@ -9,6 +9,8 @@ import HomePage from '../Screens/Home/HomePage';
 import BottomTabNavigation from './BottomTabNavigation';
 import Wallet from '../Screens/DrawerScreens/Wallet';
 import Activity from '../Screens/DrawerScreens/Activity';
+import HelpCenter from '../Screens/DrawerScreens/HelpCenter';
+import PrivacyPolicy from '../Screens/DrawerScreens/PrivacyPolicy';
 import SearchIndex from '../Screens/Search/SearchIndex';
 import AddPlaylist from '../Screens/Playlist/AddPlaylist';
 import PublicationIndex from '../Screens/Publication/PublicationIndex';
@@ -121,6 +123,16 @@ function MainNavigation() {
         name="Activity"
         options={{headerShown: false}}
         component={Activity}
+      />
+       <Stack.Screen
+        name="PrivacyPolicy"
+        options={{headerShown: false}}
+        component={PrivacyPolicy}
+      />
+        <Stack.Screen
+        name="HelpCenter"
+        options={{headerShown: false}}
+        component={HelpCenter}
       />
       <Stack.Screen
         name="SearchIndex"

@@ -152,7 +152,7 @@ const PublicationIndex = props => {
         name: fileName,
         type: `image/${fileType}`,
       };
-      NavigationService.navigate('Publication02', { croppedImage: file });
+      NavigationService.navigate('Publication01', { croppedImage: file });
     } catch (error) {
       console.log(error);
     }

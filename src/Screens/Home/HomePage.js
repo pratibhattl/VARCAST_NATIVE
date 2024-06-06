@@ -120,12 +120,11 @@ const HomePage = props => {
   };
 
   useEffect(() => {
-    if (isFocused) {
     fetchHomePageData();
     fetchPopularEpisodes();
     fetchOurPicksData();
-    }
-  }, [isFocused]);
+    
+  }, []);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
@@ -543,10 +542,10 @@ const HomePage = props => {
                 NavigationService.navigate('PodcastLive', {id:item?._id})
               }
               style={{
-                width: 335,
+                // width: 335,
                 height: 175,
                 borderRadius: 15,
-                marginRight: 20,
+                // marginRight: 20,
                 borderTopRightRadius: 0,
                 borderTopLeftRadius: 0,
                 overflow: 'hidden',

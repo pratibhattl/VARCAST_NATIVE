@@ -51,7 +51,7 @@ const DrawerListCard = props => {
     {
       img: <PrivacyIcon />,
       title: t('Privacy & Security'),
-      handleClick: 'HomePage',
+      handleClick: 'PrivacyPolicy',
       arrow: 'No',
     },
     {
@@ -62,8 +62,8 @@ const DrawerListCard = props => {
     },
     {
       img: <HelpIcon />,
-      title: t('Customers'),
-      handleClick: 'HomePage',
+      title: t('Help Center'),
+      handleClick: 'HelpCenter',
       arrow: 'No',
     },
     {

@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -5,15 +6,19 @@ import {
   TouchableOpacity,
   Dimensions,
   Pressable,
+  
 } from 'react-native';
-import React from 'react';
+import { TextInput } from 'react-native-paper';
 import CrossIcon from '../../assets/icons/CrossIcon';
-import {Image} from 'react-native';
+import { Image } from 'react-native';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const Report = () => {
+  const [email, setEmail] = useState('');
+  const [description, setDescription] = useState('');
+
   return (
     <View style={styles.container}>
       <View
@@ -55,7 +60,7 @@ const Report = () => {
           Report a problem
         </Text>
       </View>
-      <View style={{marginHorizontal: 20, flex: 1}}>
+      <View style={{ marginHorizontal: 20, flex: 1 }}>
         <Text
           style={{
             color: 'white',
@@ -95,6 +100,20 @@ const Report = () => {
           ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
           eirmod tempor invidunt ut labore et.
         </Text>
+        <View style={{ padding: 10 }}>
+        <TextInput
+      label="Email"
+      value={email}
+      onChangeText={text => setEmail(text)}
+    />
+        </View>
+        <View style={{ padding: 10 }}>
+        <TextInput
+      label="Description"
+      value={description}
+      onChangeText={text => setDescription(text)}
+    />
+        </View>
       </View>
       <Pressable
         onPress={() => NavigationService.navigate('ReportChat')}

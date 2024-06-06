@@ -251,7 +251,6 @@ const VideoLive = props => {
   };
   const fetchCommentData = async () => {
 
-    console.log("PARAMS", id);
     const formData = new FormData();
     formData.append('videoId', id);
     axios
@@ -269,7 +268,6 @@ const VideoLive = props => {
           const like = response?.data?.data?.isLiked == true ? true : false
           setSelectedData(response?.data?.data)
           setLikeStatus(like)
-          console.log("mappedDatamappedDatamappedData", mappedData);
           setMapcomment(mappedData);
         } else {
           console.error('Unexpected API response structure:', response);
