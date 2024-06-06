@@ -7,7 +7,7 @@ import {
   Image,
   Pressable,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import {useRoute} from '@react-navigation/core';
@@ -17,95 +17,56 @@ import Theme from '../../Constants/Theme';
 import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import ThreeDots from '../../assets/icons/ThreeDots';
 import DoubleTick from '../../assets/icons/DoubleTick';
-import pic from '../../assets/images/image3.png'
-
+import pic from '../../assets/images/image3.png';
+import {apiCall} from '../../Services/Service';
+import {useSelector} from 'react-redux';
 
 const {width, height} = Dimensions.get('screen');
 
-
 const ChatList = props => {
   const route = useRoute();
+  const {token} = useSelector(state => state.authData);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordShow, setPasswordShow] = useState(false);
-  const [allData, setAllData] = useState([
-    {
-      id:1,
-      title: 'Sourab',
-      date: 'Hello!',
-      time: '19:45',
-      image: require('../../assets/images/user.png'),
-      details: 'My mission is my happiness',
-      hostedby: 'Sourab',
-    },
-    {
-      id:2,
-      title: 'Arnab',
-      date: 'Hii!!',
-      time: '19:32',
-      image: require('../../assets/images/user.png'),
-      details: 'Gold Minds with Kevin Hart',
-      hostedby: 'Hosted by: Kevin Hart',
-    },
-    // {
-    //   id:3,
-    //   title: 'Purchased 300 coins',
-    //   date: '31 videos • 12 podcasts',
-    //   time: ' 14:45',
-    //   image: require('../../assets/images/image3.png'),
-    //   details: 'My mission is my happiness',
-    //   hostedby: 'Hosted by: Kevin Hart',
-    //   price: '- $ 120',
-    // },
-    // {
-    //   id:4,
-    //   title: 'Video Watched',
-    //   date: '15 videos • 14 podcasts',
-    //   time: ' 19:45',
-    //   image: require('../../assets/images/image153.png'),
-    //   details: 'Pitbull by Gold Minds with Kevin Hart',
-    //   hostedby: 'Hosted by: Kevin Hart',
-    // },
-    // {
-    //   title: 'Video Watched',
-    //   date: '7 videos • 14 podcasts',
-    //   time: ' 19:45',
-    //   image: require('../../assets/images/image150.png'),
-    //   details: 'My mission is my happiness',
-    //   hostedby: 'Hosted by: Kevin Hart',
-    // },
-    // {
-    //   title: 'I Liked the Podcast',
-    //   date: '7 videos • 14 podcasts',
-    //   time: ' 19:32',
-    //   image: require('../../assets/images/image151.png'),
-    //   details: 'Gold Minds with Kevin Hart',
-    //   hostedby: 'Hosted by: Kevin Hart',
-    // },
-    // {
-    //   title: 'Purchased 300 coins',
-    //   date: '23 Sep ',
-    //   time: ' 14:45',
-    //   image: require('../../assets/images/image3.png'),
-    //   details: 'My mission is my happiness',
-    //   hostedby: 'Hosted by: Kevin Hart',
-    //   price: '- $ 120',
-    // },
-    // {
-    //   title: 'Video Watched',
-    //   date: '7 videos • 14 podcasts',
-    //   time: '19:45',
-    //   image: require('../../assets/images/image153.png'),
-    //   details: 'Pitbull by Gold Minds with Kevin Hart',
-    //   hostedby: 'Hosted by: Kevin Hart',
-    // },
-  ]);
+  const [loading, setLoading] = useState(false);
+  const [searchText, setSearchText] = useState('');
+  const [allData, setAllData] = useState();
+
+  const searchChatUser = async () => {
+    const {data} = await apiCall(
+      `home/chatUserList?search=${searchText}`,
+      'GET',
+      null,
+      token,
+    );
+    setAllData(data?.listData)
+    console.log('search', data);
+  };
+
+  useEffect(() => {
+    searchChatUser();
+  }, [searchText]);
+
+  useEffect(() => {
+    const getChatUsers = async () => {
+      setLoading(true);
+      try {
+        const {data} = await apiCall('home/chatUserList', 'GET', null, token);
+        setAllData(data?.listData);
+      } catch (error) {
+        console.error('ERROR WHILE FETCHING CHATLIST :', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getChatUsers();
+  }, []);
+
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
-      showLoading={loadingState}
+      showLoading={loading}
       isScrollable={true}
       Chat
       // viewStyle={{backgroundColor:'#131313'}}
@@ -117,8 +78,8 @@ const ChatList = props => {
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
         <AppTextInput
-          value={password}
-          onChangeText={a => setPassword(a)}
+          value={searchText}
+          onChangeText={a => setSearchText(a)}
           placeholder="Search"
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
           inputStyle={{fontSize: 14}}
@@ -131,25 +92,33 @@ const ChatList = props => {
               //   marginHorizontal:20
             }
           }
-          rightAction={<MicroPhoneIcon />}
+          // rightAction={<MicroPhoneIcon />}
           leftIcon={{
             name: 'search',
             type: 'Feather',
             color: 'rgba(255, 255, 255, 0.54)',
             size: 21,
           }}
-          secureTextEntry={passwordShow ? false : true}
-          onRightIconPress={() => setPasswordShow(!passwordShow)}
           inputContainerStyle={styles.input_container_sty}
           style={styles.text_style}
         />
         <KeyboardAwareScrollView>
-          {allData.map((res, ind) => {
-            console.log('res',res)
+          {loading && <Text>Loading...</Text>}
+
+          {!loading && allData?.length === 0 && <Text>No chats to show!</Text>}
+
+          {allData?.map((res, ind) => {
             return (
               <Pressable
                 key={ind}
-                onPress={() => NavigationService.navigate('ChatRoom',{data:res})}
+                onPress={() =>
+                  NavigationService.navigate('ChatRoom', {
+                    id: res?._id,
+                    title: res?.name,
+                    image: res?.full_path_image,
+                    isExisting: true,
+                  })
+                }
                 style={{
                   flexDirection: 'row',
                   // alignItems: 'center',
@@ -159,7 +128,11 @@ const ChatList = props => {
                 }}>
                 <Pressable>
                   <Image
-                    source={res?.image}
+                    source={
+                      res.full_path_image
+                        ? {uri: res?.full_path_image}
+                        : require('../../assets/images/image.png')
+                    }
                     style={{
                       height: 45,
                       width: 45,
@@ -186,9 +159,9 @@ const ChatList = props => {
                         fontSize: 16,
                         fontFamily: Theme.FontFamily.medium,
                       }}>
-                      {res.title}
+                      {res.name}
                     </Text>
-                    <Text
+                    {/* <Text
                       style={{
                         color: 'rgba(255, 255, 255, 0.54)',
                         fontSize: 14,
@@ -196,9 +169,9 @@ const ChatList = props => {
                         marginTop: 3,
                       }}>
                       {res.date}{' '}
-                    </Text>
+                    </Text> */}
                   </View>
-                  <Pressable
+                  {/* <Pressable
                     onPress={() => {
                       // setModalVisible(false)
                       // NavigationService.navigate('Publication02')
@@ -217,7 +190,7 @@ const ChatList = props => {
                       {res.time}{' '}
                     </Text>
                     <DoubleTick />
-                  </Pressable>
+                  </Pressable> */}
                 </View>
               </Pressable>
             );

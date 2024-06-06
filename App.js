@@ -59,7 +59,7 @@ const App = () => {
     if (enabled) {
       console.log('Authorization status:', authStatus);
            const token =await messaging().getToken();
-      console.log("Firebase Token",token);
+  
     }
     }
 
