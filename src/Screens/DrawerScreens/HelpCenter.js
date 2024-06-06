@@ -10,12 +10,11 @@ import {
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import CrossIcon from '../../assets/icons/CrossIcon';
-import { Image } from 'react-native';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 const { width, height } = Dimensions.get('screen');
 
-const Report = () => {
+const HelpCenter = () => {
   const [email, setEmail] = useState('');
   const [description, setDescription] = useState('');
 
@@ -57,7 +56,7 @@ const Report = () => {
             fontSize: 16,
             marginLeft: width / 6,
           }}>
-          Report a problem
+         Help center
         </Text>
       </View>
       <View style={{ marginHorizontal: 20, flex: 1 }}>
@@ -152,7 +151,7 @@ const Report = () => {
   );
 };
 
-export default Report;
+export default HelpCenter;
 const styles = StyleSheet.create({
   container: {
     flex: 1,

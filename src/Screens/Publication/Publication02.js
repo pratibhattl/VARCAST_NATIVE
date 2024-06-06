@@ -41,7 +41,7 @@ const Publication02 = (props) => {
   );
   const tokenData = useSelector(state => state.authData.token);
   // Access the customProp passed from the source screen
-  const {croppedImage} = route.params;
+  const {selectedata} = route.params;
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [Title, setTitle] = useState('');
@@ -271,8 +271,9 @@ const Publication02 = (props) => {
     setLoader(true);
     const formData = new FormData();
     formData.append('title', Title);
-    formData.append('image', croppedImage);
+    formData.append('image', selectedata?.file);
     formData.append('description', Description);
+    formData.append('audioUrl', selectedata?.audio);
     tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
     cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
 
@@ -288,7 +289,6 @@ const Publication02 = (props) => {
         setTitle('');
         setDescription('');
         setCat([]);
-
         NavigationService.navigate('PublicationIndex');
         setLoader(false);
         
@@ -302,8 +302,9 @@ const Publication02 = (props) => {
     setLoader(true);
     const formData = new FormData();
     formData.append('title', Title);
-    formData.append('image', croppedImage);
+    formData.append('image', selectedata?.file);
     formData.append('description', Description);
+    formData.append('audioUrl', selectedata?.audio);
     tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
     cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
 
@@ -363,13 +364,13 @@ const Publication02 = (props) => {
           }}>
           <Image
             source={
-              croppedImage
-                ? {uri: croppedImage.uri}
+              selectedata?.file
+                ? {uri: selectedata?.file.uri}
                 : require('../../assets/images/addimage.png')
             }
             style={{
-              height: croppedImage ? 130 : 80,
-              width: croppedImage ? 130 : 80,
+              height: selectedata?.file ? 130 : 80,
+              width: selectedata?.file ? 130 : 80,
               borderRadius: 20,
             }}
             resizeMode="cover"

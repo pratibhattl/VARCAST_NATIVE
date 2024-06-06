@@ -21,6 +21,8 @@ import i18next from './src/Utils/i18.config';
 import {AutocompleteDropdownContextProvider} from 'react-native-autocomplete-dropdown';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid} from 'react-native';
+// import { GestureHandlerRootView } from 'react-native-gesture-handler';
+
 export const navRef = createRef();
 export const isReady = createRef();
 const Stack = createNativeStackNavigator();
@@ -132,8 +134,10 @@ useEffect(()=>{
 };
 
 export default () => (
+  // <GestureHandlerRootView style={{ flex: 1 }}> 
   <Provider store={store}>
     <App />
   </Provider>
+  // </GestureHandlerRootView>
 );
 const styles = StyleSheet.create({});
