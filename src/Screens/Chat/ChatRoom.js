@@ -42,8 +42,7 @@ const ChatRoom = () => {
   }, []);
 
   const onSend = useCallback(async (messages = []) => {
-    console.log('msg', messages[0]);
-
+ 
     const msg = messages[0];
 
     const myMessage = {
@@ -53,9 +52,7 @@ const ChatRoom = () => {
       createdAt: Date.parse(msg.createdAt),
     };
 
-    console.log('myMsg', myMessage);
-
-    setMessages(previousMessages =>
+     setMessages(previousMessages =>
       GiftedChat.append(previousMessages, myMessage),
     );
 

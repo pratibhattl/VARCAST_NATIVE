@@ -30,7 +30,6 @@ const SplashScreen = props => {
 
   const DeviceIdData = () => {
     DeviceInfo.getUniqueId().then(uniqueid => {
-      console.log('uniqueid', uniqueid);
       if (uniqueid) {
         dispatch(setDeviceid(uniqueid));
         setData('deviceId', uniqueid);

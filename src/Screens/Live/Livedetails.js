@@ -342,7 +342,7 @@ const LiveDetails = props => {
         })
         .catch(err => {});
 
-// Post comments to firebase
+      // Post comments to firebase
 
       await firestore()
         .collection('live')
@@ -356,7 +356,9 @@ const LiveDetails = props => {
     }
   };
 
-// Get comments from firebase
+  //-----------------------------------------------------------------------------------------------------------//
+
+  /*** Get comments from firebase ***/
 
   useEffect(() => {
     const unsubscribe = firestore()

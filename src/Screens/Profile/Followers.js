@@ -15,6 +15,7 @@ const {width, height} = Dimensions.get('screen');
 
 const Followers = props => {
   const route = useRoute();
+  console.log('props',props)
 
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -41,70 +42,78 @@ const Followers = props => {
         )}
         <KeyboardAwareScrollView>
           {allData.map((res, ind) => {
+            console.log('followers',res)
             return (
-              <View
-                key={ind}
-                style={{
-                  flexDirection: 'row',
-                  // alignItems: 'center',
-                  // justifyContent:'space-between',
-                  marginTop: 15,
-                }}>
-                <Image
-                  source={
-                    res.followers.full_path_image
-                      ? res.followers.full_path_image
-                      : require('../../assets/images/image.png')
-                  }
-                  style={{
-                    height: 45,
-                    width: 45,
-                    borderRadius: 45,
-                  }}
-                  resizeMode="contain"
-                />
+              <Pressable
+                onPress={() =>
+                  NavigationService.navigate('UserDetails', {
+                    userData: res.followers,
+                  })
+                }>
                 <View
+                  key={ind}
                   style={{
                     flexDirection: 'row',
-                    flex: 1,
-                    justifyContent: 'space-between',
-                    marginLeft: 20,
-                    borderColor: 'rgba(118, 118, 128, 0.24)',
-                    borderBottomWidth: 1,
-                    paddingBottom: 10,
-                    marginTop: 5,
+                    // alignItems: 'center',
+                    // justifyContent:'space-between',
+                    marginTop: 15,
                   }}>
-                  <View>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 16,
-                        fontFamily: Theme.FontFamily.medium,
-                      }}>
-                      {res.followers.name}
-                    </Text>
-                    <Text
-                      style={{
-                        color: 'rgba(255, 255, 255, 0.54)',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.light,
-                        marginTop: 3,
-                      }}>
-                      {res.followers.updated_at}{' '}
-                    </Text>
-                  </View>
-                  <Pressable
-                    onPress={() => {
-                      // setModalVisible(false)
-                      // NavigationService.navigate('Publication02')
-                    }}
+                  <Image
+                    source={
+                      res.followers.full_path_image
+                        ? {uri: res.followers.full_path_image}
+                        : require('../../assets/images/image.png')
+                    }
                     style={{
-                      marginRight: 20,
+                      height: 45,
+                      width: 45,
+                      borderRadius: 45,
+                    }}
+                    resizeMode="contain"
+                  />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      flex: 1,
+                      justifyContent: 'space-between',
+                      marginLeft: 20,
+                      borderColor: 'rgba(118, 118, 128, 0.24)',
+                      borderBottomWidth: 1,
+                      paddingBottom: 10,
+                      marginTop: 5,
                     }}>
-                    <ThreeDots />
-                  </Pressable>
+                    <View>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 16,
+                          fontFamily: Theme.FontFamily.medium,
+                        }}>
+                        {res.followers.name}
+                      </Text>
+                      <Text
+                        style={{
+                          color: 'rgba(255, 255, 255, 0.54)',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.light,
+                          marginTop: 3,
+                        }}>
+                        {res.followers.updated_at}{' '}
+                      </Text>
+                    </View>
+                    {/* <Pressable
+                      onPress={() => {
+                        // setModalVisible(false)
+                        // NavigationService.navigate('Publication02')
+                      }}
+                      style={{
+                        marginRight: 20,
+                      }}>
+                      <ThreeDots />
+                    </Pressable> */}
+                  </View>
                 </View>
-              </View>
+              </Pressable>
             );
           })}
         </KeyboardAwareScrollView>
