@@ -36,17 +36,19 @@ import HelperFunctions from '../../Constants/HelperFunctions';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
+import DocumentPicker from 'react-native-document-picker';
+import RNFS from 'react-native-fs';
 
 const { width, height } = Dimensions.get('screen');
 
 const Publication01 = () => {
   const route = useRoute();
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
-  const imageUrl = AllSourcePath.API_IMG_URL_DEV
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL
   const tokenData = useSelector(state => state.authData.token);
   const { croppedImage } = route.params;
   const isFocused = useIsFocused();
-
+  const [searchQuery, setSearchQuery] = useState('');
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -57,7 +59,10 @@ const Publication01 = () => {
   const [email, setEmail] = useState('');
   const [loader, setLoader] = useState(false)
   const [audioList, setAudioList] = useState([]);
-  const [selectedata,setSelectedata] = useState({file: croppedImage})
+  const [audioArray, setAudioArray] = useState([]);
+
+  const [selectedata, setSelectedata] = useState({ file: croppedImage })
+  const [audio, setAudio] = useState();
 
   const openAudeoList = (index) => {
     if (index == 0) {
@@ -73,6 +78,7 @@ const Publication01 = () => {
       if (response?.status === true) {
         setLoader(false)
         setAudioList(response?.data.listData || []);
+        setAudioArray(response?.data.listData || [])
 
       }
     } catch (error) {
@@ -91,12 +97,69 @@ const Publication01 = () => {
     const date = new Date(timestamp);
     return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   };
-const [audioIndex,setAudioIndex] = useState(null)
+  const [audioIndex, setAudioIndex] = useState(null)
 
-  const selectAudioFunc=(data, index)=>{
+  const selectAudioFunc = (data, index) => {
     setAudioIndex(index)
-    setSelectedata({...selectedata, audio:data?.fileurl});
+    setSelectedata({ ...selectedata, audio: data?.fileurl });
   }
+
+  const uploadFileOnPressHandler = async () => {
+    try {
+      const pickedFile = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.allFiles],
+      });
+
+      pickedFile.type === 'audio/mpeg'
+        ? setAudio(pickedFile)
+        : HelperFunctions.showToastMsg('You can upload only Audio');
+
+
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('err', err);
+      } else {
+        console.log('error', err);
+        throw err;
+      }
+    }
+  };
+
+  const fileSubmit = async () => {
+    let formData = new FormData();
+    formData.append('audio', audio);
+    setLoader(true);
+
+    try {
+      const data = await axios.post(`${baseUrl}audio/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${tokenData}`,
+        },
+      });
+      setCat('My Sounds');
+      fetchAudioList()
+      setAudio({});
+      HelperFunctions.showToastMsg('Uploaded sucessfully ');
+      return data;
+    } catch (error) {
+      HelperFunctions.showToastMsg(error?.message);
+      setLoader(false);
+    }
+  };
+  const searchData = (text) => {
+    setSearchQuery(text)
+    const data = [...audioList];
+
+    if (text.length >= 3) {
+    const results = data.filter(item =>
+      item?.filename.toLowerCase().includes(text.toLowerCase())
+    );
+    setAudioList(results);
+  }else{
+    setAudioList(audioArray);
+  }
+  };
 
   return (
     <ScreenLayout
@@ -215,6 +278,7 @@ const [audioIndex,setAudioIndex] = useState(null)
           }}>
           <View
             style={{
+              position: 'absolute',
               alignSelf: 'center',
               height: 4,
               width: 32,
@@ -225,10 +289,12 @@ const [audioIndex,setAudioIndex] = useState(null)
           />
           {/* <KeyboardAwareScrollView> */}
           {cat == 'My Sounds' ? (
-            <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
+            <View > 
               <AppTextInput
-                value={password}
-                onChangeText={a => setPassword(a)}
+                // value={password}
+                onChangeText={text => searchData(text)}
+                value={searchQuery}
+                onSubmitEditing={searchData}
                 placeholder="Search"
                 placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
                 inputStyle={{ fontSize: 14 }}
@@ -248,11 +314,10 @@ const [audioIndex,setAudioIndex] = useState(null)
                   color: 'rgba(255, 255, 255, 0.54)',
                   size: 21,
                 }}
-                secureTextEntry={passwordShow ? false : true}
-                onRightIconPress={() => setPasswordShow(!passwordShow)}
                 inputContainerStyle={styles.input_container_sty}
                 style={styles.text_style}
               />
+              <KeyboardAwareScrollView>
               <FlatList
                 data={['My Sounds', 'Link']}
                 showsHorizontalScrollIndicator={false}
@@ -336,16 +401,16 @@ const [audioIndex,setAudioIndex] = useState(null)
                             fontFamily: Theme.FontFamily.light,
                             marginTop: 3,
                           }}>
-                         {formatDate(res?.created_at)}
+                          {formatDate(res?.created_at)}
                         </Text>
                       </View>
                       <Pressable
                         onPress={() => {
-                          selectAudioFunc(res,ind)
+                          selectAudioFunc(res, ind)
                         }}
-                        >
+                      >
                         <Icon
-                          name={audioIndex == ind ? "minus" : "plus" }
+                          name={audioIndex == ind ? "minus" : "plus"}
                           type="Entypo"
                           size={25}
                           color={'#E1D01E'}
@@ -357,10 +422,11 @@ const [audioIndex,setAudioIndex] = useState(null)
                 );
               })}
             </KeyboardAwareScrollView>
+            </View>
           ) : (
             <>
               <KeyboardAwareScrollView showsVerticalScrollIndicator={false}>
-                <AppTextInput
+                {/* <AppTextInput
                   value={password}
                   onChangeText={a => setPassword(a)}
                   placeholder="Search"
@@ -382,11 +448,10 @@ const [audioIndex,setAudioIndex] = useState(null)
                     color: 'rgba(255, 255, 255, 0.54)',
                     size: 21,
                   }}
-                  secureTextEntry={passwordShow ? false : true}
-                  onRightIconPress={() => setPasswordShow(!passwordShow)}
+                 
                   inputContainerStyle={styles.input_container_sty}
                   style={styles.text_style}
-                />
+                /> */}
                 <FlatList
                   data={['My Sounds', 'Link']}
                   showsHorizontalScrollIndicator={false}
@@ -425,7 +490,7 @@ const [audioIndex,setAudioIndex] = useState(null)
                     );
                   }}
                 />
-                <Pressable
+                {/* <Pressable
                   style={{
                     //   height: 53,
                     width: width - 30,
@@ -447,12 +512,40 @@ const [audioIndex,setAudioIndex] = useState(null)
                     You can insert a link to a video or audio track from
                     third-party applications.
                   </Text>
-                </Pressable>
-
+                </Pressable> */}
+                {/* <View style={styles.upload}>
+              {audio && (
+                <Text
+                  style={{
+                    ...styles.upload_text,
+                    width: 100,
+                    overflow: 'hidden',
+                    marginRight: 10,
+                  }}>
+                  {audio.name}
+                </Text>
+              )}
+              {!audio && (
+                <Text style={styles.upload_text}> Upload Audio File</Text>
+              )}
+              <Pressable
+                style={styles.upload_btn}
+                onPress={async () => await uploadFileOnPressHandler()}>
+                <Text
+                  style={{
+                    fontFamily: Theme.FontFamily.normal,
+                    textAlign: 'center',
+                    fontSize: 15,
+                    color: '#fff',
+                  }}>
+                  Upload
+                </Text>
+              </Pressable>
+            </View> */}
                 <AppTextInput
-                  value={email}
-                  onChangeText={a => setEmail(a)}
-                  placeholder="Insert Link"
+                  value={audio?.name}
+                  editable={false}
+                  placeholder="Select an audio"
                   placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
                   inputStyle={{ fontSize: 14 }}
                   titleStyle={{
@@ -464,7 +557,9 @@ const [audioIndex,setAudioIndex] = useState(null)
                       //   marginHorizontal:20
                     }
                   }
-                  rightAction={<LinkIcon />}
+                  rightAction={
+                    <Pressable onPress={() => uploadFileOnPressHandler()}><LinkIcon /></Pressable>
+                  }
                   inputContainerStyle={{
                     paddingHorizontal: 10,
                     height: 48,
@@ -482,10 +577,7 @@ const [audioIndex,setAudioIndex] = useState(null)
                 />
               </KeyboardAwareScrollView>
               <Pressable
-                onPress={() => {
-                  setModalVisible(false);
-                  NavigationService.navigate('Publication02');
-                }}
+                onPress={() => { fileSubmit() }}
                 style={{
                   height: 50,
                   width: 350,
@@ -509,6 +601,7 @@ const [audioIndex,setAudioIndex] = useState(null)
               </Pressable>
             </>
           )}
+          
           {/* </KeyboardAwareScrollView> */}
         </View>
       </ReactNativeModal>
@@ -544,5 +637,25 @@ const styles = StyleSheet.create({
     width: '100%',
     fontSize: 15,
     color: '#fff',
+  },
+  upload: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: 350,
+    paddingHorizontal: 10,
+    marginTop: 10,
+  },
+  upload_text: {
+    fontFamily: Theme.FontFamily.normal,
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#fff',
+  },
+  upload_btn: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
 });

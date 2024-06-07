@@ -36,12 +36,13 @@ const {width, height} = Dimensions.get('screen');
 const Publication02 = (props) => {
   const route = useRoute();
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const {login_status, userDetails, token, deviceid} = useSelector(
     state => state.authData,
   );
   const tokenData = useSelector(state => state.authData.token);
   // Access the customProp passed from the source screen
-  const {selectedata} = route.params;
+  const {selectedata,DraftItem} = route.params;
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [Title, setTitle] = useState('');
@@ -59,10 +60,11 @@ const Publication02 = (props) => {
   const [tagInput, setTagInput] = useState('');
   const [Loder, setLoader] = useState(false);
   const [userLoad, setUserLoader] = useState(false);
-
+const [image, setImage] = useState('');
   const [followerList, setFollowerList] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
-  
+  const [audioUrl,setAudioUrl] = useState('');
+
   const fetchCategories = async () => {
     setLoader(true)
     try {
@@ -265,15 +267,27 @@ const Publication02 = (props) => {
     fetchCategories();
     fetchFollowers();
   }, []);
-
-
+    useEffect(()=>{
+    if(DraftItem){
+      setTags(DraftItem?.tags || []);
+      setTitle(DraftItem?.title);
+      setDescription(DraftItem?.description);
+      setImage(DraftItem?.image)
+      setAudioUrl(DraftItem?.audioUrl)
+      const catArr = DraftItem?.categories?.map(item => item.categoryId)
+      setCat(catArr || []);
+    }else{
+      setAudioUrl(DraftItem?.audio)
+      setImage(selectedata?.file.uri)
+    }
+  },[])
   const publishVideoFunc = () => {
     setLoader(true);
     const formData = new FormData();
     formData.append('title', Title);
-    formData.append('image', selectedata?.file);
+    formData.append('image', image);
     formData.append('description', Description);
-    formData.append('audioUrl', selectedata?.audio);
+    formData.append('audioUrl', audioUrl);
     tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
     cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
 
@@ -298,13 +312,48 @@ const Publication02 = (props) => {
         setLoader(false);
       })
   };
-  const saveDraftVideoFunc = () => {
+
+  // console.log("CATEGORY--------", cat);
+
+  const publishDraftVideoFunc = () => {
     setLoader(true);
     const formData = new FormData();
     formData.append('title', Title);
-    formData.append('image', selectedata?.file);
     formData.append('description', Description);
-    formData.append('audioUrl', selectedata?.audio);
+    formData.append('videoDraftId', DraftItem?._id);
+    tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
+    cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
+
+    axios
+      .post(`${baseUrl}videos/publish_draft`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${tokenData}`,
+        },
+      })
+      .then(response => {
+        setTags([]);
+        setTitle('');
+        setDescription('');
+        setCat([]);
+        NavigationService.navigate('PublicationIndex');
+        setLoader(false);
+        
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+  };
+
+  const saveDraftVideoFunc = () => {
+    setLoader(true);
+
+    const formData = new FormData();
+    formData.append('title', Title);
+    formData.append('image', image);
+    formData.append('description', Description);
+    formData.append('audioUrl', audioUrl);
     tags.forEach((tag, index) => formData.append(`tags[${index}]`, tag)); 
     cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
 
@@ -330,6 +379,14 @@ const Publication02 = (props) => {
         setLoader(false);
       })
   };
+
+  const submitFunction=()=>{
+    if(DraftItem?._id){
+      publishDraftVideoFunc();
+    }else{
+      publishVideoFunc();
+    }
+  }
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
@@ -338,7 +395,7 @@ const Publication02 = (props) => {
       leftHeading={'New Publication'}
       viewStyle={{backgroundColor: '#131313'}}
       // right
-      onRightTextPress={() => publishVideoFunc()}
+      onRightTextPress={() => submitFunction()}
       Publish
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
@@ -362,9 +419,20 @@ const Publication02 = (props) => {
             borderColor: 'rgba(255, 255, 255, 0.14)',
             alignSelf: 'center',
           }}>
+            {DraftItem?.image ? 
+            
+            <Image
+            source={{uri: imageUrl+image}}
+            style={{
+              height: imageUrl+image ? 130 : 80,
+              width: imageUrl+image ? 130 : 80,
+              borderRadius: 20,
+            }}
+            resizeMode="cover"
+          />
+          :
           <Image
-            source={
-              selectedata?.file
+            source={selectedata?.file
                 ? {uri: selectedata?.file.uri}
                 : require('../../assets/images/addimage.png')
             }
@@ -375,6 +443,7 @@ const Publication02 = (props) => {
             }}
             resizeMode="cover"
           />
+          }
           {/* {imagesdet ? (
             <TouchableOpacity
               onPress={imageUpload}
