@@ -103,7 +103,7 @@ const DrawerNavigationCard = () => {
             style={{
               height: 65,
               width: 65,
-              borderRadius: 10,
+              borderRadius: 50,
             }}
           />
           <Text

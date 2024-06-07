@@ -52,6 +52,7 @@ const Signup = props => {
   const [Dob, setDob] = useState('');
   const [CountryModal, setCountryModal] = useState(false);
   const [countryCode, setCountryCode] = useState('91');
+ 
   const [countryCodeList, setCountryCodeList] = useState(countryCodes);
   const [isEmailMode, setIsEmailMode] = useState(true);
   const [isMobileMode, setIsMobileMode] = useState(false);
@@ -184,7 +185,7 @@ const Signup = props => {
         phone: value,
         password: password,
         password_confirmation: ConfirmPassword,
-        country_id: countryCode,
+        country_id:countryCode.toString(''),
         dob: Dob,
         gender: GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O',
       };
@@ -660,7 +661,7 @@ const Signup = props => {
             fontFamily: Theme.FontFamily.medium,
             fontSize: Theme.sizes.s16,
           }}>
-          {t('Signup')}
+          {t('Upload Image')}
         </Text>
         {loadingState ? <ActivityIndicator size={20} color="#131313" /> : null}
       </Pressable>
@@ -748,8 +749,10 @@ const Signup = props => {
             renderItem={({item, index}) => {
               return (
                 <Pressable
+                  key={index}
                   onPress={() => {
                     setCountryCode(item.dial_code.replace('+', ''));
+                    setCountry_id(item.code)
                     setCountryModal(false);
                     setSearchVal('');
                     setCountryCodeList(countryCodes);

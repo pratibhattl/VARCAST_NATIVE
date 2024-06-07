@@ -39,7 +39,7 @@ const ChatList = props => {
       null,
       token,
     );
-    setAllData(data?.listData)
+    setAllData(data?.listData);
     console.log('search', data);
   };
 
@@ -103,9 +103,29 @@ const ChatList = props => {
           style={styles.text_style}
         />
         <KeyboardAwareScrollView>
-          {loading && <Text>Loading...</Text>}
+          {loading && (
+            <Text
+              style={{
+                color: '#ffffff',
+                textAlign: 'center',
+                marginTop: 100,
+                fontSize: 24,
+              }}>
+              Loading...
+            </Text>
+          )}
 
-          {!loading && allData?.length === 0 && <Text>No chats to show!</Text>}
+          {!loading && allData?.length === 0 && (
+            <Text
+              style={{
+                color: '#ffffff',
+                textAlign: 'center',
+                marginTop: 100,
+                fontSize: 24,
+              }}>
+              No chats to show!
+            </Text>
+          )}
 
           {allData?.map((res, ind) => {
             return (
