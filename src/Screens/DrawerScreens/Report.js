@@ -6,20 +6,65 @@ import {
   TouchableOpacity,
   Dimensions,
   Pressable,
-  
+  Alert
 } from 'react-native';
 import { TextInput } from 'react-native-paper';
 import CrossIcon from '../../assets/icons/CrossIcon';
 import { Image } from 'react-native';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
+import axios from 'axios';
+import AllSourcePath from '../../Constants/PathConfig';
+import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
+import { useSelector } from 'react-redux';
+import HelperFunctions from '../../Constants/HelperFunctions';
+import { FA5Style } from 'react-native-vector-icons/FontAwesome5';
 const { width, height } = Dimensions.get('screen');
 
 const Report = () => {
-  const [email, setEmail] = useState('');
   const [description, setDescription] = useState('');
+  const [Loder, setLoader] = useState(false);
+  const token = useSelector(state => state.authData.token);
+  const userDetails = useSelector(state => state.authData.userDetails);
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
 
+  const onSubmitFunc = () => {
+    setLoader(true);
+    const formData = new FormData();
+    formData.append('email', userDetails?.email);
+    formData.append('description', description);
+
+    axios
+      .post(`${baseUrl}report/add`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+        setDescription('');
+        setLoader(false);
+        Alert.alert('Send', 'Our technical team will get back to you soon.', [
+          {
+            text: 'Okay',
+            onPress: () => null,
+            style: 'default',
+          },
+
+        ]);
+        return true;
+      })
+      .catch(error => {
+        HelperFunctions.showToastMsg(error?.message);
+        setLoader(false);
+      })
+  }
   return (
+    <ScreenLayout
+    headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
+    showLoading={Loder}
+    isScrollable={true}
+  >
     <View style={styles.container}>
       <View
         style={{
@@ -61,7 +106,7 @@ const Report = () => {
         </Text>
       </View>
       <View style={{ marginHorizontal: 20, flex: 1 }}>
-        <Text
+        {/* <Text
           style={{
             color: 'white',
             fontSize: 21,
@@ -69,8 +114,8 @@ const Report = () => {
             // marginLeft:width/6,
           }}>
           Would you like to include complete logs and diagnostics?
-        </Text>
-        <Text
+        </Text> */}
+        {/* <Text
           style={{
             color: 'white',
             fontSize: 11,
@@ -99,24 +144,24 @@ const Report = () => {
           amet. No sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem
           ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy
           eirmod tempor invidunt ut labore et.
-        </Text>
+        </Text> */}
         <View style={{ padding: 10 }}>
-        <TextInput
-      label="Email"
-      value={email}
-      onChangeText={text => setEmail(text)}
-    />
+          <TextInput
+            editable={false}
+            label="Email"
+            value={userDetails?.email}
+          />
         </View>
         <View style={{ padding: 10 }}>
-        <TextInput
-      label="Description"
-      value={description}
-      onChangeText={text => setDescription(text)}
-    />
+          <TextInput
+            label="Description"
+            value={description}
+            onChangeText={text => setDescription(text)}
+          />
         </View>
       </View>
       <Pressable
-        onPress={() => NavigationService.navigate('ReportChat')}
+        onPress={() => onSubmitFunc()}
         style={{
           height: 53,
           width: 350,
@@ -149,6 +194,7 @@ const Report = () => {
         Don't Include and Continue
       </Text>
     </View>
+    </ScreenLayout>
   );
 };
 
