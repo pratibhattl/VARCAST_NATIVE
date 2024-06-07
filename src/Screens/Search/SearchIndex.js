@@ -210,7 +210,7 @@ const SearchIndex = props => {
                     } else if (cat === 1) {
                       NavigationService.navigate('PodcastLive', item);
                     } else if (cat === 2) {
-                      NavigationService.navigate('VideoLive', {id: item?._id});
+                      NavigationService.navigate('ReelVideoIndex', {id: item?._id});
                     }
                   }}
                   style={{
