@@ -1,179 +1,138 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  FlatList,
-  Image,
-  Pressable,
-  Dimensions,
-  Alert,
-} from 'react-native';
-import React, {useState, useCallback} from 'react';
-import {useFocusEffect} from '@react-navigation/native';
+import { View, Text, StyleSheet, FlatList, Image, Pressable, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { useRoute } from '@react-navigation/native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import DownloadIcon from '../../assets/icons/DownloadIcon';
 import ShareIcon from '../../assets/icons/ShareIcon';
-import {Icon} from 'react-native-basic-elements';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Icon } from 'react-native-basic-elements';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
-
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const WatchLater = () => {
-  const [loadingState, setLoadingState] = useState(false);
-  const [savedVideos, setSavedVideos] = useState([]);
+  const route = useRoute();
+  const customProp = route.params?.showButton;
+  const [loadingState, changeloadingState] = useState(false);
+  const [playlistData, setPlaylistData] = useState([]);
+  console.log("PlayListData",playlistData)
 
-  const loadSavedVideos = useCallback(async () => {
-    try {
-      const savedVideosString = await AsyncStorage.getItem('savedVideos');
-      if (savedVideosString) {
-        const savedVideosArray = JSON.parse(savedVideosString);
-        console.log('savedVideos:', savedVideosArray);
-        setSavedVideos(savedVideosArray);
-      }
-    } catch (error) {
-      console.error('Error loading saved videos:', error);
+  useEffect(() => {
+    if (route.params?.playlist) {
+      setPlaylistData(route.params.playlist.media);
     }
-  }, []);
-
-  useFocusEffect(loadSavedVideos);
-
-  const clearSavedVideos = async () => {
-    try {
-      await AsyncStorage.removeItem('savedVideos');
-      setSavedVideos([]);
-      Alert.alert('Success', 'Saved videos cleared successfully');
-    } catch (error) {
-      console.error('Error clearing saved videos:', error);
-    }
-  };
+  }, [route.params?.playlist]);
 
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
+      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
       showLoading={loadingState}
       isScrollable={true}
       leftHeading={'Watch Later'}
-      leftHeadingStyle={{color: '#E1D01E'}}
-      hideLeftIcon={false}
-      onLeftIconPress={() => NavigationService.back()}
-      rightIconName={'trash'}
-      onRightIconPress={clearSavedVideos}>
+      leftHeadingStyle={{ color: '#E1D01E' }}
+      hideLeftIcon={customProp ? false : true}
+      onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
         <FlatList
-          data={savedVideos}
+          data={playlistData}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{paddingHorizontal: 20, paddingTop: 0}}
-          renderItem={({item, index}) => (
-            <View
-              key={index}
-              style={{
-                marginTop: 15,
-                borderBottomColor: '#1C1C1C',
-                borderBottomWidth: 1.5,
-                paddingBottom: 10,
-              }}>
-              <View style={{flexDirection: 'row', marginTop: 12}}>
-                <View
-                  style={{
-                    borderColor: 'rgba(255, 255, 255, 0.12)',
-                    borderWidth: item.price ? 2 : 0,
-                    borderRadius: 6,
-                  }}>
-                  <Image
-                    source={{uri: item.image}}
-                    style={{
-                      height: 42,
-                      width: 42,
-                      borderRadius: 5,
-                    }}
-                    resizeMode="contain"
-                  />
-                </View>
-
-                <View style={{paddingHorizontal: 15}}>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 16,
-                      fontFamily: Theme.FontFamily.normal,
-                    }}>
-                    {item.title}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.54)',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.light,
-                      marginTop: 5,
-                    }}>
-                    {item.created_by_name}
-                  </Text>
-                </View>
-              </View>
-              <Text
-                style={{
-                  color: 'rgba(255, 255, 255, 0.54)',
-                  fontSize: 16,
-                  fontFamily: Theme.FontFamily.light,
-                  marginTop: 10,
-                }}>
-                {item.overview}
-              </Text>
+          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 0 }}
+          renderItem={({ item, index }) => {
+            return (
               <View
+                key={index}
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 0,
-                  alignItems: 'center',
+                  marginTop: 15,
+                  borderBottomColor: '#1C1C1C',
+                  borderBottomWidth: 1.5,
+                  paddingBottom: 10,
                 }}>
+                <View style={{ flexDirection: 'row', marginTop: 12 }}>
+                  <View
+                    style={{
+                      borderColor: 'rgba(255, 255, 255, 0.12)',
+                      borderWidth: item.price ? 2 : 0,
+                      borderRadius: 6,
+                    }}>
+                    <Image
+                      source={{ uri: item.image }}
+                      style={{
+                        height: 42,
+                        width: 42,
+                        borderRadius: 5,
+                      }}
+                      resizeMode="contain"
+                    />
+                  </View>
+                  <View style={{ paddingHorizontal: 15 }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 16,
+                        fontFamily: Theme.FontFamily.normal,
+                      }}>
+                      {item._id}
+                    </Text>
+                    <Text
+                      style={{
+                        color: 'rgba(255, 255, 255, 0.54)',
+                        fontSize: 14,
+                        fontFamily: Theme.FontFamily.light,
+                        marginTop: 5,
+                      }}>
+                      {item.hostedby}
+                    </Text>
+                  </View>
+                </View>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 16,
+                    fontFamily: Theme.FontFamily.light,
+                    marginTop: 10,
+                  }}>
+                  {item.description}
+                </Text>
                 <View
                   style={{
                     flexDirection: 'row',
-                    marginTop: 10,
                     justifyContent: 'space-between',
-                    width: '25%',
+                    paddingHorizontal: 0,
                     alignItems: 'center',
                   }}>
-                  <DownloadIcon />
-                  <ShareIcon />
-                  <Icon
-                    name="dots-three-horizontal"
-                    type="Entypo"
-                    size={16}
-                    color={'#fff'}
-                  />
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      marginTop: 10,
+                      justifyContent: 'space-between',
+                      width: '25%',
+                      alignItems: 'center',
+                    }}>
+                    {/* <DownloadIcon />
+                    <ShareIcon />
+                    <Icon
+                      name="dots-three-horizontal"
+                      type="Entypo"
+                      size={16}
+                      color={'#fff'}
+                    /> */}
+                  </View>
+                  <Pressable
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: 15,
+                      backgroundColor: '#fff',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}>
+                    <VideoPlayIcon />
+                  </Pressable>
                 </View>
-                <Pressable
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 15,
-                    backgroundColor: '#fff',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                  <VideoPlayIcon />
-                </Pressable>
               </View>
-            </View>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
-        <Pressable
-          style={{
-            backgroundColor: '#ff0000',
-            padding: 10,
-            borderRadius: 5,
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: 20,
+            );
           }}
-          onPress={clearSavedVideos}>
-          <Text style={{color: '#fff', fontSize: 16}}>Clear Saved Videos</Text>
-        </Pressable>
+        />
       </View>
     </ScreenLayout>
   );

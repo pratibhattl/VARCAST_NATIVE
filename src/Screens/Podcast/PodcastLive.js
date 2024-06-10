@@ -84,11 +84,60 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
+  
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
   const [GiftData, setGiftData] = useState();
   const [newComment, setNewComment] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  const fetchPlaylists = async () => {
+    try {
+      changeloadingState(true);
+      const endpoint = 'playlist/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      setPlaylists(response.data.listData);
+      console.log('RawRes', response);
+      changeloadingState(false);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+      changeloadingState(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchPlaylists();
+  }, [token]);
+  
+  const handlePlaylistClick = async (playlistId) => {
+    try {
+      const endpoint = 'playlist/add_media'; // Replace with your actual endpoint
+      console.log("Podcast", selectedData.audio);
+      const mediaUrl = selectedData.audio;
+      const data = { playlistId, mediaUrl }; // The data to be sent in the POST request
+      const response = await apiCall(endpoint, 'POST', data, token);
+      console.log('API Response:', response.status);
+      if (response.status === true) {
+        HelperFunctions.showToastMsg('Media added to playlist successfully!');
+        fetchPlaylists();
+        setTimeout(() => {
+          toggleModal();
+        }, 2000);
+        
+      } else {
+        HelperFunctions.showToastMsg('This media already exists in the playlist.');
+      }
+      // Handle the response as needed
+    } catch (error) {
+      console.error('Error making API call:', error);
+    }
+  };
+  
 
   const fetchCommentData = async () => {
     const formData = new FormData();
@@ -132,6 +181,7 @@ const PodcastLive = props => {
   const [messagee, setMessagee] = useState(''); // Message to the user
   const [podcasts, setPodcasts] = useState([]);
   const [totalCoins, setTotalCoins] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
 
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
@@ -293,7 +343,6 @@ const PodcastLive = props => {
   /*** SEND GIFT ***/
 
   const sendGift = async gift => {
-   
     const payload = {
       podcastId: id,
       userId: route?.params?.userId,
@@ -305,7 +354,6 @@ const PodcastLive = props => {
       setTotalCoins(response?.data?.total);
       setGiftModalState(false);
       HelperFunctions.showToastMsg(`${gift.gift_name} sent successfully`);
-      
     } catch (error) {
       console.error('Error while sending the gift:', error);
     }
@@ -360,6 +408,69 @@ const PodcastLive = props => {
         }
       })
       .catch(err => {});
+  };
+
+  const renderPlaylistModal = () => {
+    return (
+      <ReactNativeModal
+        isVisible={modalVisible}
+        onBackdropPress={toggleModal}
+        backdropOpacity={1}
+        style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <FlatList
+            data={playlists}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 20, paddingTop: 0}}
+            keyExtractor={item => item._id}
+            renderItem={({item}) => {
+              const mediaCount = item.media ? item.media.length : 0;
+              return (
+                <LinearGradient
+                  colors={[
+                    'rgba(255, 255, 255, 0.3)',
+                    '#f4c5c5',
+                    'rgba(255, 255, 255, 0.3)',
+                    'rgba(255, 255, 255, 0.15)',
+                    'rgba(255, 255, 255, 0.100)',
+                  ]}
+                  start={{x: 0, y: 0}}
+                  end={{x: 0.4, y: 0}}
+                  style={styles.playlistItem}>
+                  <Pressable
+                   onPress={() => handlePlaylistClick(item._id)}
+                    // onPress={() =>
+                    //   // NavigationService.navigate('WatchLater', {playlist: item})
+                    // }
+                    style={{flexDirection: 'row'}}>
+                    <View style={{marginLeft: 3}}>
+                      <Image
+                        source={{uri: `${imageUrl}${item?.image}`}}
+                        style={styles.playlistImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <View style={styles.playlistTextContainer}>
+                      <Text style={styles.playlistName}>{item.name}</Text>
+                      <Text style={styles.trackCount}>
+                        {`${mediaCount} tracks`}
+                      </Text>
+                    </View>
+                  </Pressable>
+                  {/* <Icon
+                  name="dots-three-horizontal"
+                  type="Entypo"
+                  size={16}
+                  color={'#fff'}
+                  style={{ marginTop: 5 }}
+                /> */}
+                </LinearGradient>
+              );
+            }}
+          />
+        </View>
+      </ReactNativeModal>
+    );
   };
 
   return (
@@ -791,16 +902,19 @@ const PodcastLive = props => {
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
             <BookmarkIcon />
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft: 15,
-                // marginTop:5,
-              }}>
-              Save this Video for Later
-            </Text>
+            <TouchableOpacity onPress={toggleModal}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 17,
+                  fontFamily: Theme.FontFamily.normal,
+                  marginLeft: 15,
+                  // marginTop:10,
+                }}>
+                Save this Video for Later
+              </Text>
+            </TouchableOpacity>
+            {renderPlaylistModal()}
           </View>
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
@@ -1063,6 +1177,40 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     padding: 10,
     fontSize: 16,
+  },
+  playlistItem: {
+    flex: 1,
+    height: 89,
+    width: width - 40,
+    borderRadius: 15,
+    marginTop: 10,
+    flexDirection: 'row',
+    padding: 10,
+    paddingRight: 20,
+    justifyContent: 'space-between',
+    alignSelf: 'center',
+  },
+  playlistImage: {
+    height: 68,
+    width: 68,
+  },
+  playlistTextContainer: {
+    marginHorizontal: 12,
+    width: '60%',
+    marginTop: 10,
+  },
+  playlistName: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: Theme.FontFamily.medium,
+    marginLeft: 5,
+  },
+  trackCount: {
+    color: 'rgba(255, 255, 255, 0.54)',
+    fontSize: 14,
+    fontFamily: Theme.FontFamily.light,
+    marginLeft: 5,
+    marginTop: 3,
   },
 });
 
