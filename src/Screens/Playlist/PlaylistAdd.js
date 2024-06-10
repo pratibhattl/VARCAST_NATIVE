@@ -13,6 +13,7 @@ import {useSelector} from 'react-redux';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import {useRoute, useNavigation} from '@react-navigation/native';
 import Theme from '../../Constants/Theme';
+import HelperFunctions from '../../Constants/HelperFunctions';
 import ImagePicker from 'react-native-image-crop-picker';
 import GallaryIcon from '../../assets/icons/GallaryIcon';
 import NavigationService from '../../Services/Navigation';
@@ -34,19 +35,6 @@ const PlaylistAdd = () => {
   const token = useSelector(state => state.authData.token);
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
 
-  useEffect(() => {
-    // Check if the page needs to be refreshed
-    if (route.params?.refresh) {
-      setRefreshPage(true);
-    }
-  }, [route.params?.refresh]);
-
-  useEffect(() => {
-    // Reset the refresh state after rendering the page
-    if (refreshPage) {
-      setRefreshPage(false);
-    }
-  }, [refreshPage]);
 
   const openGallery = async () => {
     try {
@@ -100,8 +88,21 @@ const PlaylistAdd = () => {
 
       setLoadingState(false);
       console.log('Playlist created:', response);
+
+
+      setPlaylistName('');
+      setImage(null);
+      setImageUrl(null);
+      HelperFunctions.showToastMsg('Playlist Created Successfully!');
       // Navigate to another screen or perform any other action here
       setRefreshPage(true); // Set the state to refresh the page
+
+      // Redirect to AddPlaylist page after 5 seconds
+      setTimeout(() => {
+        navigation.navigate('AddPlaylist');
+      }, 2000);
+
+
     } catch (error) {
       console.error('Error creating playlist:', error);
       setLoadingState(false);
@@ -113,7 +114,7 @@ const PlaylistAdd = () => {
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
       showLoading={loadingState}
       isScrollable={true}
-      leftHeading={'New Publication'}
+      leftHeading={'New Playlist'}
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>

@@ -6,6 +6,7 @@ import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import DownloadIcon from '../../assets/icons/DownloadIcon';
 import ShareIcon from '../../assets/icons/ShareIcon';
+import AllSourcePath from '../../Constants/PathConfig';
 import { Icon } from 'react-native-basic-elements';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 const { width, height } = Dimensions.get('screen');
@@ -16,7 +17,7 @@ const WatchLater = () => {
   const [loadingState, changeloadingState] = useState(false);
   const [playlistData, setPlaylistData] = useState([]);
   console.log("PlayListData",playlistData)
-
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   useEffect(() => {
     if (route.params?.playlist) {
       setPlaylistData(route.params.playlist.media);
@@ -55,7 +56,7 @@ const WatchLater = () => {
                       borderRadius: 6,
                     }}>
                     <Image
-                      source={{ uri: item.image }}
+                      source={{uri: `${imageUrl}${item?.image}`}}
                       style={{
                         height: 42,
                         width: 42,
@@ -71,7 +72,7 @@ const WatchLater = () => {
                         fontSize: 16,
                         fontFamily: Theme.FontFamily.normal,
                       }}>
-                      {item._id}
+                      {item.title}
                     </Text>
                     <Text
                       style={{
@@ -80,7 +81,7 @@ const WatchLater = () => {
                         fontFamily: Theme.FontFamily.light,
                         marginTop: 5,
                       }}>
-                      {item.hostedby}
+                      {item._id}
                     </Text>
                   </View>
                 </View>
@@ -91,7 +92,7 @@ const WatchLater = () => {
                     fontFamily: Theme.FontFamily.light,
                     marginTop: 10,
                   }}>
-                  {item.description}
+                  {item.overview}
                 </Text>
                 <View
                   style={{
