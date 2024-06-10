@@ -1,66 +1,82 @@
-// AddPlaylist.js
-import { View, Text, StyleSheet, Image, Pressable, FlatList, Dimensions } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Pressable,
+  FlatList,
+  Dimensions,
+} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import { useRoute } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
-import { AppTextInput, Icon } from 'react-native-basic-elements';
+import {useRoute} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import {AppTextInput, Icon} from 'react-native-basic-elements';
 import Theme from '../../Constants/Theme';
 import LinearGradient from 'react-native-linear-gradient';
 import MicroPhoneIcon from '../../assets/icons/MicrophoneIcon';
-import { t } from 'i18next';
+import {t} from 'i18next';
 import AllSourcePath from '../../Constants/PathConfig';
-import { apiCall } from '../../Services/Service';
+import {apiCall} from '../../Services/Service';
+import {useIsFocused} from '@react-navigation/native';
 
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
-const AddPlaylist = props => {
+const AddPlaylist = () => {
   const route = useRoute();
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
+  const [loadingState, setLoadingState] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordShow, setPasswordShow] = useState(false);
   const [playlists, setPlaylists] = useState([]);
   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const isFocused = useIsFocused();
+  const fetchPlaylists = async () => {
+    try {
+      setLoadingState(true);
+      const endpoint = 'playlist/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+
+      // Sort playlists by most recently created or updated
+      const sortedPlaylists = response.data.listData.sort((a, b) => {
+        const dateA = new Date(a.updated_at || a.created_at);
+        const dateB = new Date(b.updated_at || b.created_at);
+        return dateB - dateA;
+      });
+
+      setPlaylists(sortedPlaylists);
+      console.log('RawRes', response);
+      setLoadingState(false);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+      setLoadingState(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchPlaylists = async () => {
-      try {
-        changeloadingState(true);
-        const endpoint = 'playlist/index';
-        const response = await apiCall(endpoint, 'GET', {}, token);
-        setPlaylists(response.data.listData);
-        console.log("RawRes", response)
-        changeloadingState(false);
-      } catch (error) {
-        console.error('Error fetching playlists:', error);
-        changeloadingState(false);
-
-      }
-    };
-
-    fetchPlaylists();
-   
-  }, []);
+    if (isFocused) {
+      fetchPlaylists();
+    }
+  }, [isFocused]);
 
   return (
     <ScreenLayout
-      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
+      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
       showLoading={loadingState}
       isScrollable={true}
       Home
       Play
-      hideLeftIcon={customProp ? false : true}
+      hideLeftIcon={!customProp}
       onLeftIconPress={() => NavigationService.openDrawer()}>
       <View style={styles.container}>
         <AppTextInput
           value={password}
-          onChangeText={a => setPassword(a)}
+          onChangeText={setPassword}
           placeholder={t('Search')}
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-          inputStyle={{ fontSize: 14 }}
+          inputStyle={{fontSize: 14}}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
@@ -72,38 +88,31 @@ const AddPlaylist = props => {
             color: 'rgba(255, 255, 255, 0.54)',
             size: 21,
           }}
-          secureTextEntry={passwordShow ? false : true}
+          secureTextEntry={!passwordShow}
           onRightIconPress={() => setPasswordShow(!passwordShow)}
-          inputContainerStyle={styles.input_container_sty}
-          style={styles.text_style}
+          inputContainerStyle={styles.inputContainer}
+          style={styles.textStyle}
         />
 
         <LinearGradient
           colors={['#1C1C1C', '#1C1C1C']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0.5, y: 0 }}
+          start={{x: 0, y: 0}}
+          end={{x: 0.5, y: 0}}
           style={styles.gradientStyle}>
           <Pressable
             onPress={() => NavigationService.navigate('PlaylistAdd')}
             style={styles.addPlaylistButton}>
-            <Icon
-              name="plus"
-              type="Entypo"
-              size={45}
-              color={'#E1D01E'}
-            />
+            <Icon name="plus" type="Entypo" size={45} color={'#E1D01E'} />
           </Pressable>
-          <Text style={styles.addPlaylistText}>
-            {t('Add Playlist')}
-          </Text>
+          <Text style={styles.addPlaylistText}>{t('Add Playlist')}</Text>
         </LinearGradient>
 
         <FlatList
           data={playlists}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20, paddingTop: 0 }}
-          keyExtractor={(item) => item._id}
-          renderItem={({ item }) => {
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{paddingBottom: 20, paddingTop: 0}}
+          keyExtractor={item => item._id}
+          renderItem={({item}) => {
             const mediaCount = item.media ? item.media.length : 0;
             return (
               <LinearGradient
@@ -114,35 +123,28 @@ const AddPlaylist = props => {
                   'rgba(255, 255, 255, 0.15)',
                   'rgba(255, 255, 255, 0.1)',
                 ]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 0.4, y: 0 }}
+                start={{x: 0, y: 0}}
+                end={{x: 0.4, y: 0}}
                 style={styles.playlistItem}>
                 <Pressable
-                  onPress={() => NavigationService.navigate('WatchLater', { playlist: item })}
-                  style={{ flexDirection: 'row' }}>
-                  <View style={{ marginLeft: 3 }}>
+                  onPress={() =>
+                    NavigationService.navigate('WatchLater', {playlist: item})
+                  }
+                  style={{flexDirection: 'row'}}>
+                  <View style={{marginLeft: 3}}>
                     <Image
-                      source={{ uri: `${imageUrl}${item?.image}` }}
+                      source={{uri: `${imageUrl}${item?.image}`}}
                       style={styles.playlistImage}
-                      resizeMode="contain"
+                      resizeMode="cover"
                     />
                   </View>
                   <View style={styles.playlistTextContainer}>
-                    <Text style={styles.playlistName}>
-                      {item.name}
-                    </Text>
+                    <Text style={styles.playlistName}>{item.name}</Text>
                     <Text style={styles.trackCount}>
                       {`${mediaCount} tracks`}
                     </Text>
                   </View>
                 </Pressable>
-                {/* <Icon
-                  name="dots-three-horizontal"
-                  type="Entypo"
-                  size={16}
-                  color={'#fff'}
-                  style={{ marginTop: 5 }}
-                /> */}
               </LinearGradient>
             );
           }}
@@ -158,10 +160,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#131313',
-    height: height,
+    height: '100%',
     alignItems: 'center',
   },
-  input_container_sty: {
+  inputContainer: {
     paddingHorizontal: 10,
     height: 45,
     alignItems: 'center',
@@ -173,7 +175,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 25,
   },
-  text_style: {
+  textStyle: {
     fontFamily: Theme.FontFamily.normal,
     width: '100%',
     fontSize: 15,

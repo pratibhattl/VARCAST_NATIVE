@@ -32,7 +32,7 @@ const SearchIndex = props => {
   const [cat, setCat] = useState(0);
   const [data, setData] = useState([]);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-  
+
   useEffect(() => {
     console.log('Category changed:', cat);
     const fetchData = async () => {
@@ -55,9 +55,14 @@ const SearchIndex = props => {
         try {
           const response = await apiCall(endpoint, 'GET', {}, token);
           if (response && response.data && response.data.listData) {
-            setData(response.data.listData);
-            setFilteredData(response.data.listData);
-            console.log('Data received:', response.data.listData);
+            let newData = response.data.listData;
+            if (endpoint === 'videos/list') {
+              // Filter the data to include only items with '.mp4' in their image URL
+              newData = newData.filter(item => item?.image?.includes('.mp4'));
+            }
+            setData(newData);
+            setFilteredData(newData);
+            console.log('Data received:', newData);
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -87,9 +92,14 @@ const SearchIndex = props => {
     }
   };
 
-  const formatDate = (timestamp) => {
+  const formatDate = timestamp => {
     const date = new Date(timestamp);
-    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+    return `${date.getFullYear()}-${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date
+      .getHours()
+      .toString()
+      .padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   };
   return (
     <SafeAreaView style={styles.container}>
@@ -206,11 +216,13 @@ const SearchIndex = props => {
                 <Pressable
                   onPress={() => {
                     if (cat === 0) {
-                      NavigationService.navigate('LiveDetails', {id: item?._id});
+                      NavigationService.navigate('LiveDetails', {
+                        id: item?._id,
+                      });
                     } else if (cat === 1) {
                       NavigationService.navigate('PodcastLive', item);
                     } else if (cat === 2) {
-                      NavigationService.navigate('ReelVideoIndex', {id: item?._id});
+                      NavigationService.navigate('VideoLive', {id: item?._id});
                     }
                   }}
                   style={{
@@ -255,9 +267,9 @@ const SearchIndex = props => {
                         fontFamily: Theme.FontFamily.light,
                         marginLeft: 5,
                       }}>
-                      {item.views} 
+                      {item.views}
                       {/* • */}
-                       {formatDate(item.created_at)}
+                      {formatDate(item.created_at)}
                     </Text>
                   </View>
                 </Pressable>

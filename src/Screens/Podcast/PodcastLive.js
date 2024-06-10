@@ -84,7 +84,7 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
-  
+
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -109,17 +109,32 @@ const PodcastLive = props => {
       changeloadingState(false);
     }
   };
-  
+
   useEffect(() => {
     fetchPlaylists();
   }, [token]);
-  
-  const handlePlaylistClick = async (playlistId) => {
+
+  const handlePlaylistClick = async playlistId => {
     try {
       const endpoint = 'playlist/add_media'; // Replace with your actual endpoint
-      console.log("Podcast", selectedData.audio);
+      console.log('Podcast Data', selectedData);
       const mediaUrl = selectedData.audio;
-      const data = { playlistId, mediaUrl }; // The data to be sent in the POST request
+      const image = selectedData.image;
+      const title = selectedData.title;
+      const overview = selectedData.overview;
+      const updated_at = selectedData.updated_at;
+      const created_at = selectedData.created_at;
+
+      const data = {
+        playlistId,
+        mediaUrl,
+        image,
+        title,
+        overview,
+        updated_at,
+        created_at,
+      }; // The data to be sent in the POST request
+      console.log('Sent Podcast Data ', data);
       const response = await apiCall(endpoint, 'POST', data, token);
       console.log('API Response:', response.status);
       if (response.status === true) {
@@ -128,16 +143,19 @@ const PodcastLive = props => {
         setTimeout(() => {
           toggleModal();
         }, 2000);
-        
       } else {
-        HelperFunctions.showToastMsg('This media already exists in the playlist.');
+        HelperFunctions.showToastMsg(
+          'This media already exists in the playlist.',
+        );
       }
       // Handle the response as needed
     } catch (error) {
+      HelperFunctions.showToastMsg(
+        'This media already exists in the playlist.',
+      );
       console.error('Error making API call:', error);
     }
   };
-  
 
   const fetchCommentData = async () => {
     const formData = new FormData();
@@ -438,7 +456,7 @@ const PodcastLive = props => {
                   end={{x: 0.4, y: 0}}
                   style={styles.playlistItem}>
                   <Pressable
-                   onPress={() => handlePlaylistClick(item._id)}
+                    onPress={() => handlePlaylistClick(item._id)}
                     // onPress={() =>
                     //   // NavigationService.navigate('WatchLater', {playlist: item})
                     // }
@@ -646,7 +664,7 @@ const PodcastLive = props => {
               elevation: 20,
             }}>
             <>
-              <View
+              {/* <View
                 style={{
                   height: 25,
                   width: 44,
@@ -665,7 +683,7 @@ const PodcastLive = props => {
                   }}>
                   LIVE
                 </Text>
-              </View>
+              </View> */}
               <Text
                 style={{
                   color: '#fff',
@@ -817,7 +835,7 @@ const PodcastLive = props => {
             {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
-        <Pressable
+        {/* <Pressable
           onPress={getAllGift}
           style={{
             height: 50,
@@ -829,7 +847,7 @@ const PodcastLive = props => {
             marginBottom: 15,
           }}>
           <GitftIcon />
-        </Pressable>
+        </Pressable> */}
         <Pressable
           onPress={() => setModalState(true)}
           style={{
