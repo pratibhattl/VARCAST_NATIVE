@@ -1,5 +1,5 @@
 //import liraries
-import React, {Component} from 'react';
+import React, {Component, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -21,16 +21,15 @@ import NavigationService from '../../Services/Navigation';
 import {setData} from '../../Services/LocalStorage';
 import {resetAuthData} from '../../Store/Reducers/AuthReducer';
 import {useTranslation} from 'react-i18next';
+import {apiCall} from '../../Services/Service';
 
 // create a component
 const DrawerNavigationCard = () => {
   const {t} = useTranslation();
   const colors = useTheme();
-  const {login_status, userDetails, token, deviceid} = useSelector(
-    state => state.authData,
-  );
-
   const dispatch = useDispatch();
+  const {login_status, token, deviceid} = useSelector(state => state.authData);
+  const [userDetails, setUserDetails] = useState();
 
   const logout = () => {
     setData('account', null);
@@ -46,6 +45,19 @@ const DrawerNavigationCard = () => {
       },
       {text: 'Yes', onPress: () => logout()},
     ]);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const {data} = await apiCall('get-user', 'GET', null, token);
+        setUserDetails(data);
+      } catch (error) {
+        console.log("ERROR WHILE FETCHING USER DETAILS :",error)
+      }
+    };
+    fetchUser();
+  }, []);
+
   return (
     <View
       style={{
@@ -91,7 +103,7 @@ const DrawerNavigationCard = () => {
             style={{
               height: 65,
               width: 65,
-              borderRadius: 10,
+              borderRadius: 50,
             }}
           />
           <Text
@@ -102,7 +114,7 @@ const DrawerNavigationCard = () => {
               marginVertical: 10,
               textAlign: I18nManager.isRTL ? 'left' : 'auto',
             }}>
-            {userDetails.name}
+            {userDetails?.name}
           </Text>
           <View style={{flexDirection: 'row'}}>
             <Text
@@ -112,7 +124,14 @@ const DrawerNavigationCard = () => {
                 fontFamily: Theme.FontFamily.medium,
                 // marginVertical:10
               }}>
-              4.5m{' '}
+              {userDetails?.count_followers} {" "}
+              {userDetails?.count_followers > 10000000
+                ? 'b'
+                : userDetails?.count_followers > 100000
+                ? 'm'
+                : userDetails?.count_followers > 1000
+                ? 'k'
+                : ''}
               <Text
                 style={{
                   color: 'rgba(255, 255, 255, 0.54)',
@@ -131,7 +150,14 @@ const DrawerNavigationCard = () => {
                 marginLeft: 10,
                 // marginVertical:10
               }}>
-              175k{' '}
+              {userDetails?.count_followings} {" "}
+              {userDetails?.count_followings > 10000000
+                ? 'b'
+                : userDetails?.count_followings > 100000
+                ? 'm'
+                : userDetails?.count_followings > 1000
+                ? 'k'
+                : ''}
               <Text
                 style={{
                   color: 'rgba(255, 255, 255, 0.54)',

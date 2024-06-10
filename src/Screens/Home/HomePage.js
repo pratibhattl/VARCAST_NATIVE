@@ -36,7 +36,7 @@ const HomePage = props => {
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [cat, setCat] = useState(0);
-  const [Loder, setLoader] = useState(false);
+  const [Loder, setLoader] = useState(true);
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
@@ -120,11 +120,12 @@ const HomePage = props => {
   };
 
   useEffect(() => {
+    if(token){
     fetchHomePageData();
     fetchPopularEpisodes();
     fetchOurPicksData();
-    
-  }, []);
+    }
+  }, [token]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
@@ -187,7 +188,7 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={{uri: item.imageUrl}}
+                  source={{uri: item?.imageUrl}}
                   style={{
                     width: 335,
                     height: 175,
@@ -221,7 +222,7 @@ const HomePage = props => {
                           fontSize: 16,
                           fontFamily: Theme.FontFamily.medium,
                         }}>
-                        {item.title}
+                        {item?.title}
                       </Text>
                       <Text
                         style={{
@@ -230,7 +231,7 @@ const HomePage = props => {
                           fontFamily: Theme.FontFamily.normal,
                           marginLeft: 4,
                         }}>
-                        {item.views} online • {item.created_by_name}
+                        {item?.views} online • {item?.created_by_name}
                       </Text>
                     </View>
                     <Icon

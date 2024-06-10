@@ -36,6 +36,7 @@ import MyDropDownComponent from '../../Components/MyDropDownComponent/MyDropDown
 import moment from 'moment';
 import {setData} from '../../Services/LocalStorage';
 import {setToken, setUserDetails} from '../../Store/Reducers/AuthReducer';
+import {apiCall} from '../../Services/Service';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -69,6 +70,10 @@ const EditProfile = () => {
       ? 'Male'
       : 'Others',
   );
+  const [idProof, setIdProof] = useState(
+    userDetails?.full_path_gov_id_card ?? '',
+  );
+  const [idImg, setIdImg] = useState();
   const [genderDropDown, setGenderDropDown] = useState(false);
   const [password, setPassword] = useState('');
   const [passwordShow, setPasswordShow] = useState(false);
@@ -77,15 +82,10 @@ const EditProfile = () => {
   const [ConfirmPassword, setConfirmPassword] = useState('');
   const [ConfirmpasswordShow, setConfirmPasswordShow] = useState(false);
   const form = new FormData();
-  const [imagesdet, setimagesdet] = useState({
-    hasChanges: false,
-    mime: 'video/mp4',
-    modificationDate: 1711626336028,
-    path: 'file:///storage/emulated/0/Android/data/com.varcast.app/files/Pictures/video-a8475195-782d-44b0-b9bd-bbdfcbb283c42808684410008036142.mp4',
-    serialization: null,
-    video:
-      'file:///storage/emulated/0/Android/data/com.varcast.app/files/Pictures/video-a8475195-782d-44b0-b9bd-bbdfcbb283c42808684410008036142.mp4',
-  });
+  const [imagesdet, setimagesdet] = useState(
+    userDetails?.full_path_image ?? '',
+  );
+  const [profileImg, setProfileImg] = useState();
   const [userOtp, setUserOtp] = useState('');
   const [Loder, setLoader] = useState(false);
   const {t, i18n} = useTranslation();
@@ -155,9 +155,13 @@ const EditProfile = () => {
   };
 
   function getOriginalname(data) {
-    let arr = data.split('/');
-    let lent = Number(arr.length - 1);
-    return arr[lent];
+    try {
+      let arr = data?.split('/');
+      let lent = Number(arr?.length - 1);
+      return arr[lent];
+    } catch (error) {
+      console.error('ERROR:', error);
+    }
   }
   const getPermissionIos = async () => {
     if (Platform.OS === 'ios') {
@@ -193,62 +197,87 @@ const EditProfile = () => {
         type: image.mime,
         name: get_originalname,
       });
-      setimagesdet(image);
+      setProfileImg(image);
+      setimagesdet(image.path);
       // console.log('form',form)
-      //  if(form!=null && image){
-      //   UpdateProfileImage()
-      //  }
+      if (form != null && image) {
+        UpdateProfileImage();
+      }
     });
   };
-  const UpdateProfile = () => {
-    if (imagesdet) {
-      let get_originalname = getOriginalname(imagesdet.path);
 
-      // form.append('image_for', 'profile_image');
-      form.append('image', {
-        uri: imagesdet.path,
-        type: imagesdet.mime,
+  const idUpload = () => {
+    ImagePicker.openPicker({
+      width: 300,
+      height: 400,
+      cropping: true,
+    }).then(image => {
+      console.log('imaher', image);
+      setIdImg(image);
+      setIdProof(image.path);
+      let get_originalname = getOriginalname(image.path);
+
+      // // form.append('image_for', 'profile_image');
+      form.append('govt_id_card', {
+        uri: image.path,
+        type: image.mime,
         name: get_originalname,
       });
-    }
-    setLoader(true);
-    form.append('name', Name);
-    form.append('email', email);
-    form.append('phone', value);
-    form.append('password', password);
-    form.append('old_password', Oldpassword);
-    form.append('password_confirmation', ConfirmPassword);
-    form.append('country_id', countryCode);
-    form.append('dob', moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD'));
-    form.append(
-      'gender',
-      GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O',
-    );
-    form.append('register_for', 'app');
-    form.append('device_token', deviceid);
-    postApi('api/edit-profile', form, token, 'multipart/form-data')
-      .then(response => {
-        // console.log('response',response)
-        if (response?.status == 'success') {
-          storeToLocalAndRedux(response);
-          HelperFunctions.showToastMsg('Profile Updated Successfully');
-          NavigationService.back();
-
-          setLoader(false);
-        } else {
-          HelperFunctions.showToastMsg(response?.message);
-          setLoader(false);
-        }
-      })
-      .catch(error => {
-        HelperFunctions.showToastMsg(error?.message);
-        setLoader(false);
-      })
-      .finally(() => {
-        setLoader(false);
-      });
+      // console.log('form',form)
+      if (form != null && image) {
+        UpdateProfileImage();
+      }
+    });
   };
-  const UpdatePassword = () => {
+
+  const UpdateProfile = async () => {
+    console.log('runninggg');
+
+    changeloadingState(true);
+
+    try {
+      let get_originalname = getOriginalname(profileImg?.path);
+      let idProofName = getOriginalname(idImg?.path);
+      let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
+      let gender =
+        GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O';
+
+      console.log('runninggg2222');
+      const payload = {
+        name: Name,
+        dob: DOB,
+        gender,
+        image: {
+          uri: profileImg?.path,
+          type: profileImg?.mime,
+          name: get_originalname,
+        },
+        govt_id_card: {
+          uri: idImg?.path,
+          type: idImg?.mime,
+          name: idProofName,
+        },
+      };
+
+      console.log(payload);
+
+      const data = await apiCall('edit-profile', 'POST', payload, token);
+
+      if (data?.status === 'success') {
+        storeToLocalAndRedux(data?.data);
+        HelperFunctions.showToastMsg('Profile Updated Successfully');
+        NavigationService.back();
+        changeloadingState(false);
+      }
+    } catch (error) {
+      HelperFunctions.showToastMsg(error?.message);
+    } finally {
+      changeloadingState(false);
+    }
+  };
+
+  
+  const UpdatePassword = async () => {
     if (
       Oldpassword == null ||
       Oldpassword == undefined ||
@@ -281,32 +310,27 @@ const EditProfile = () => {
       );
     } else {
       changeloadingState(true);
-      let data = {
+      let payload = {
         old_password: Oldpassword,
         password: password,
         password_confirmation: ConfirmPassword,
       };
-      postApi('api/update-password', data, token)
-        .then(response => {
-          // console.log('response',response)
-          if (response?.status == 'success') {
-            HelperFunctions.showToastMsg('Password Changed Successfully');
-            setConfirmPassword('');
-            setPassword('');
-            setOldPassword('');
-            changeloadingState(false);
-          } else {
-            HelperFunctions.showToastMsg(response?.message);
-            changeloadingState(false);
-          }
-        })
-        .catch(error => {
-          HelperFunctions.showToastMsg(error?.message);
+
+      try {
+        const data = await apiCall('update-password', 'POST', payload, token);
+
+        if (data?.status === 'success') {
+          HelperFunctions.showToastMsg('Password Changed Successfully');
+          setConfirmPassword('');
+          setPassword('');
+          setOldPassword('');
           changeloadingState(false);
-        })
-        .finally(() => {
-          changeloadingState(false);
-        });
+        }
+      } catch (error) {
+        HelperFunctions.showToastMsg(error?.message);
+      } finally {
+        changeloadingState(false);
+      }
     }
   };
   const storeToLocalAndRedux = userDataa => {
@@ -324,10 +348,7 @@ const EditProfile = () => {
       isScrollable={true}
       leftHeading={'Edit Profile'}
       Save
-      onRightTextPress={() =>
-        // NavigationService.navigate('DrawerNavigation')
-        UpdateProfile()
-      }
+      onRightTextPress={async () => UpdateProfile()}
       // Publish
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
@@ -342,16 +363,17 @@ const EditProfile = () => {
           }}>
           <Image
             source={{
-              uri: imagesdet ? imagesdet.path : userDetails?.full_path_image,
+              uri: imagesdet,
             }}
             style={{
               height: 90,
               width: 90,
-              borderRadius: 20,
+              borderRadius: 50,
               alignSelf: 'center',
             }}
             resizeMode="cover"
           />
+
           <TouchableOpacity
             onPress={imageUpload}
             style={{
@@ -394,9 +416,6 @@ const EditProfile = () => {
         />
         <AppTextInput
           value={email}
-          onChangeText={a => setEmail(a)}
-          placeholder="Email or Phone Number"
-          placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
           inputStyle={{fontSize: 14}}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
@@ -596,6 +615,21 @@ const EditProfile = () => {
             />
           </View>
         </View>
+
+        <TouchableOpacity
+          onPress={idUpload}
+          style={{marginHorizontal: 20, marginTop: 20}}>
+          <Image
+            source={idProof && {uri: idProof}}
+            style={{
+              height: imagesdet ? 250 : 110,
+              width: imagesdet ? width - 40 : 110,
+              borderRadius: 10,
+            }}
+            resizeMode="cover"
+          />
+        </TouchableOpacity>
+
         <Text
           style={{
             fontFamily: Theme.FontFamily.bold,

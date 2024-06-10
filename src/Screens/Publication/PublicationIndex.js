@@ -386,7 +386,6 @@ const PublicationIndex = props => {
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
-        console.log('START');
         // const realPath = await RNFetchBlob.fs.contentUriToPath(pickedFile.uri);
         // console.log('img', file://${realPath});
         // console.log("pickedFile----",pickedFile);
@@ -412,7 +411,6 @@ const PublicationIndex = props => {
     formData.append('overview', overView);
     formData.append('image', pickedImg);
     formData.append('audio', audio);
-    console.log(formData);
     setLoader(true);
 
     try {
@@ -544,6 +542,8 @@ const PublicationIndex = props => {
                         marginRight: index == 2 ? 0 : 7,
                         marginTop: 10,
                       }}>
+                        <Pressable 
+                        onPress={()=>{setPublicationIndex(0),  NavigationService.navigate('Publication02', { DraftItem: item })} }> 
                       {/* {videoExtensions.includes(extension.toLowerCase()) ? (
                         <Video
                           source={{ uri: imageUrl + item?.image }} // Provide the video source URI
@@ -565,6 +565,7 @@ const PublicationIndex = props => {
                           }}
                           resizeMode="cover"
                         />
+                        </Pressable>
                       {/* )} */}
                     </View>
                   );

@@ -51,7 +51,7 @@ const FinalPublication = () => {
   const [snapEnabled, setSnapEnabled] = React.useState(true);
   const progressValue = useSharedValue(0);
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
-  const imageUrl = AllSourcePath.API_IMG_URL_DEV;
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const tokenData = useSelector(state => state.authData.token);
   const publishVideoFunc = () => {
     setLoader(true);

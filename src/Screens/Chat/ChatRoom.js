@@ -16,63 +16,80 @@ import {moderateScale, scale, verticalScale} from '../../Constants/PixelRatio';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import NavigationService from '../../Services/Navigation';
 import {useSelector} from 'react-redux';
+import {apiCall} from '../../Services/Service';
 // import { moderateScale,moderateScaleVertical } from 'react-native-size-matters';
 
 const ChatRoom = () => {
   const route = useRoute();
-  const {userDetails} = useSelector(state => state.authData);
-
+  const {userDetails, token} = useSelector(state => state.authData);
+ 
   const [messages, setMessages] = useState([]);
 
   const renderAvatar = () => {
     return (
       <View style={styles.profile}>
-        <Image source={route.params.data.image} />
-        {/* <Image source={require('../../assets/images/image3.png')} /> */}
+        <Image
+          source={
+            route.params.image
+              ? {uri: route.params.image}
+              : require('../../assets/images/user.png')
+          }
+         style={styles.pic}
+        />
       </View>
     );
   };
 
-  const renderActions = useCallback(() => {
-    return (
-      <TouchableOpacity style={styles.clip}>
-        <Image source={require('../../assets/images/Vector.png')} />
-      </TouchableOpacity>
-    );
-  }, []);
+  // const renderActions = useCallback(() => {
+  //   return (
+  //     <TouchableOpacity style={styles.clip}>
+  //       <Image source={require('../../assets/images/Vector.png')} />
+  //     </TouchableOpacity>
+  //   );
+  // }, []);
 
   const onSend = useCallback(async (messages = []) => {
- 
     const msg = messages[0];
 
     const myMessage = {
       ...msg,
       sendBy: userDetails._id,
-      sendTo: route.params.data.id,
+      sendTo: route.params.id,
       createdAt: Date.parse(msg.createdAt),
     };
 
-     setMessages(previousMessages =>
+    setMessages(previousMessages =>
       GiftedChat.append(previousMessages, myMessage),
     );
 
     await firestore()
       .collection('chats')
-      .doc('' + userDetails._id + route.params.data.id)
+      .doc('' + userDetails._id + route.params.id)
       .collection('messages')
       .add(myMessage);
 
     await firestore()
       .collection('chats')
-      .doc('' + route.params.data.id + userDetails._id)
+      .doc('' + route.params.id + userDetails._id)
       .collection('messages')
       .add(myMessage);
+
+    if (route.params.isExisting) {
+      return;
+    } else {
+      await apiCall(
+        'home/checkUserChat',
+        'POST',
+        {userId: route.params.id},
+        token,
+      );
+    }
   }, []);
 
   useEffect(() => {
     const subscriber = firestore()
       .collection('chats')
-      .doc(userDetails._id + route.params.data.id)
+      .doc(userDetails._id + route.params.id)
       .collection('messages')
       .orderBy('createdAt', 'desc');
 
@@ -91,7 +108,7 @@ const ChatRoom = () => {
     <SafeAreaProvider>
       <CustomHeader
         HeaderColor="rgba(27, 27, 27, 0.96)"
-        leftHeading={`${route.params.data.title}`}
+        leftHeading={`${route.params.title}`}
         Watch={true}
         onLeftIconPress={() => NavigationService.back()}
       />
@@ -105,7 +122,7 @@ const ChatRoom = () => {
           renderAvatar={renderAvatar}
           renderBubble={renderBubble}
           renderInputToolbar={renderInputToolbar}
-          renderActions={renderActions}
+          // renderActions={renderActions}
           user={{
             _id: userDetails._id,
             name: userDetails.name,
@@ -139,8 +156,13 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 50,
-    borderWidth: 1,
-    borderColor: 'white',
+    borderWidth: 0,
+  },
+ pic: {
+    objectFit: 'scale-down',
+    borderRadius: 50,
+    width: 50,
+    height: 50,
   },
 });
 
@@ -159,8 +181,11 @@ const renderBubble = props => {
         },
       }}
       wrapperStyle={{
-        right: {backgroundColor: '#767680'},
-        left: {backgroundColor: 'rgba(118, 118, 128, 0.24)'},
+        right: {backgroundColor: '#767680', borderBottomRightRadius: 5},
+        left: {
+          backgroundColor: 'rgba(118, 118, 128, 0.24)',
+          borderBottomLeftRadius: 5,
+        },
       }}
     />
   );

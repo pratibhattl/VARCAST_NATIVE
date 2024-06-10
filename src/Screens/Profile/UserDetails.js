@@ -314,14 +314,9 @@ const UserDetails = props => {
               <TouchableOpacity
                 onPress={() =>
                   NavigationService.navigate('ChatRoom', {
-                    data: {
-                      id: userDetails?._id,
-                      title: userDetails?.name,
-                      date: new Date(),
-                      image: userDetails?.full_path_image,
-                      details: 'abc',
-                      time: '12:00',
-                    },
+                    id: userDetails?._id,
+                    title: userDetails?.name,
+                    image: userDetails?.full_path_image,
                   })
                 }
                 style={{
