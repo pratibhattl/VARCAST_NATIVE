@@ -42,14 +42,14 @@ const AddPlaylist = () => {
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       // Sort playlists by most recently created or updated
-      const sortedPlaylists = response.data.listData.map((a, b) => {
-        const dateA = new Date(a.updated_at || a.created_at);
-        const dateB = new Date(b.updated_at || b.created_at);
-        return dateB - dateA;
-      });
+      // const sortedPlaylists = response.data.listData.map((a, b) => {
+      //   const dateA = new Date(a.updated_at || a.created_at);
+      //   const dateB = new Date(b.updated_at || b.created_at);
+      //   return dateB - dateA;
+      // });
 
-      setPlaylists(sortedPlaylists);
-      setPlayArray(sortedPlaylists);  
+      setPlaylists(response.data.listData);
+      setPlayArray(response.data.listData);  
       changeloadingState(false);
     } catch (error) {
       console.error('Error fetching playlists:', error);
@@ -129,6 +129,7 @@ const AddPlaylist = () => {
           contentContainerStyle={{paddingBottom: 20, paddingTop: 0}}
           keyExtractor={item => item._id}
           renderItem={({item}) => {
+            console.log("itemitem--",item);
             const mediaCount = item.media ? item.media.length : 0;
             return (
               <LinearGradient
