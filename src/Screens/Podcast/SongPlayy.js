@@ -37,9 +37,15 @@ import PauseIcon from '../../assets/icons/PauseIcon';
 import AlarmIcon from '../../assets/icons/AlarmIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
+import {useRoute} from '@react-navigation/native';
+import AllSourcePath from '../../Constants/PathConfig';
 const {width, height} = Dimensions.get('screen');
 
 const SongPlayy = props => {
+  const route = useRoute();
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+
   const [isPlayerReady, setIsPlayerReady] = useState(true);
   const [truefalse, setTruefalse] = useState(false);
   const [playingLoader, setPlayingLoader] = useState(true);
@@ -97,50 +103,23 @@ const SongPlayy = props => {
     //   allSongs.push(data);
 
     //   if (index == (AudioArr.length - 1)) {
-    TrackPlayer.setupPlayer()
-      .then(() => {
-        TrackPlayer.add({
-          id: new Date().getDate(),
-          url: 'https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.flac',
-          title: 'Avaritia',
-          artist: 'deadmau5',
-          album: 'while(1<2)',
-          genre: 'Progressive House, Electro House',
-          date: '2014-05-20T07:00:00+00:00', // RFC 3339
-          artwork:
-            'https://cdn.statically.io/img/timelinecovers.pro/facebook-cover/download/ultra-hd-space-facebook-cover.jpg',
-        }).then(() => {
-          TrackPlayer.play().then(() => {
-            // songsSlider.current.scrollToOffset({
-            //   offset: (ind) * width,
-            // });
-            setPlayingLoader(false);
-          });
-        });
-      })
-      .catch(() => {
-        TrackPlayer.add([
-          {
-            id: new Date().getDate(),
-            url: 'https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.flac',
-            title: 'Avaritia',
-            artist: 'deadmau5',
-            album: 'while(1<2)',
-            genre: 'Progressive House, Electro House',
-            date: '2014-05-20T07:00:00+00:00', // RFC 3339
-            artwork:
-              'https://cdn.statically.io/img/timelinecovers.pro/facebook-cover/download/ultra-hd-space-facebook-cover.jpg',
-          },
-        ]).then(() => {
-          TrackPlayer.play().then(() => {
-            // songsSlider.current.scrollToOffset({
-            //   offset: (ind) * width,
-            // });
-            setPlayingLoader(false);
-          });
-        });
-      });
+    await TrackPlayer.setupPlayer();
+
+    await TrackPlayer.add({
+      id: route?.params?._id,
+      url:`${baseUrl}${route?.params?.audio}`,
+      title: route?.params?.title,
+      artwork: route?.params?.image,
+    });
+
+    TrackPlayer.play().then(() => {
+      // songsSlider.current.scrollToOffset({
+      //   offset: (ind) * width,
+      // });
+      setPlayingLoader(false);
+    });
   };
+
   //   console.log('sobngurl>',data.url)
   //     }
   //     );
@@ -178,14 +157,25 @@ const SongPlayy = props => {
   //   var minutesT = Math.floor(mindT/60);
   //   var secondsT = progress.duration - minutesT * 60;
   //   console.log('truer', progress);
+
+  // const playPodcast = () => {
+  //   try {
+  //     SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
+  //   } catch (error) {
+  //     console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
+  //   }
+  // };
+
+
+
   useEffect(() => {
     // setIsPlayerReady(false)
     setTimeout(() => {
       setIsPlayerReady(false);
       onRegisterPlayback();
       songsfunc();
+      // playPodcast()
     }, 500);
-    console.log('scrollx>>>>>>>>>>>>>>>>>', songsfunc());
 
     // scrollX.addListener(({ value }) => {
     //   console.log('scrollx', scrollX)
@@ -275,7 +265,9 @@ const SongPlayy = props => {
                     // backgroundColor: 'red',
                   }}>
                   <Image
-                    source={require('../../assets/images/image97.png')}
+                    source={{
+                      uri: `${imageUrl}${route?.params?.image}`,
+                    }}
                     style={{
                       height: 38,
                       width: 38,
@@ -286,15 +278,15 @@ const SongPlayy = props => {
                   />
                 </View>
                 <View style={{marginHorizontal: 10}}>
-                  <Text
+                  {/* <Text
                     style={{
                       color: '#fff',
                       fontSize: 14,
                       fontFamily: Theme.FontFamily.normal,
                     }}>
                     Adrian Reif
-                  </Text>
-                  <Text
+                  </Text> */}
+                  {/* <Text
                     style={{
                       color: 'rgba(255, 255, 255, 0.54)',
                       fontSize: 13,
@@ -303,7 +295,7 @@ const SongPlayy = props => {
                       marginTop: 1,
                     }}>
                     32,217 views
-                  </Text>
+                  </Text> */}
                 </View>
               </TouchableOpacity>
               <TouchableOpacity
@@ -346,7 +338,9 @@ const SongPlayy = props => {
                   marginTop: 25,
                 }}>
                 <Image
-                  source={require('../../assets/images/image97.png')}
+                  source={{
+                    uri: `${imageUrl}${route?.params?.image}`,
+                  }}
                   style={{
                     height: 305,
                     width: 305,
@@ -400,7 +394,8 @@ const SongPlayy = props => {
                       marginTop: 5,
                       textAlign: 'center',
                     }}>
-                    Hosted by: Adrian Reif
+                    {/* Hosted by: Adrian Reif */}
+                    {route?.params?.title}
                   </Text>
                 </View>
                 <Pressable

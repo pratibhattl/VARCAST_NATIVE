@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import Video from 'react-native-video';
+
 import {useRoute} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
@@ -18,6 +18,9 @@ import NavigationService from '../../Services/Navigation';
 import ReactNativeModal from 'react-native-modal';
 import Slider from '@react-native-community/slider';
 import AllSourcePath from '../../Constants/PathConfig';
+import Video from 'react-native-video';
+
+
 const {width, height} = Dimensions.get('screen');
 
 const ReelVideoIndex = (props) => {
@@ -34,6 +37,7 @@ const ReelVideoIndex = (props) => {
     seekableDuration: 0,
   });
   const ref = useRef(null);
+ 
 
   function format(seconds = 0) {
     let mins = parseInt(seconds / 60)
@@ -83,8 +87,8 @@ const ReelVideoIndex = (props) => {
     <View style={styles.container}>
       <View
         style={{
-          width: width,
-          height: height,
+          width,
+          height:'50%',
         }}>
         <Video
           source={{ uri: `${imageUrl}/${videoData?.image}` }} // Simplified URL for testing

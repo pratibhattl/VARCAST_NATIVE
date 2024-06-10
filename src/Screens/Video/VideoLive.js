@@ -342,6 +342,18 @@ const VideoLive = props => {
       })
       .catch(err => {});
   };
+
+// ------------------------------------------------------------------------------------------------//
+
+/*** Start Video playing ***/
+
+console.log('route', route);
+console.log('props', props);
+
+
+
+
+
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
