@@ -24,23 +24,26 @@ import ReactNativeModal from 'react-native-modal';
 import OtpInput from '../../Components/EditTextComponent/OtpInputComponent';
 import {moderateScale} from '../../Constants/PixelRatio';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {postApi} from '../../Services/Service';
+import {apiCall, postApi} from '../../Services/Service';
 import ImagePicker from 'react-native-image-crop-picker';
 import {countryCodes} from '../../Constants/countryCodes';
 import {useTranslation} from 'react-i18next';
 import EditIcon from '../../assets/icons/EditIcon';
 import {PERMISSIONS, requestMultiple} from 'react-native-permissions';
 import {useSelector} from 'react-redux';
+import axios from 'axios';
+import AllSourcePath from '../../Constants/PathConfig';
+
 const {width, height} = Dimensions.get('screen');
 
 const UploadGovtID = props => {
+  const form = new FormData();
   const {details} = props.route.params;
   const {login_status, userDetails, token, deviceid} = useSelector(
     state => state.authData,
   );
-
+  console.log('details', details);
   const [GovtIdImg, setGovtIdImg] = useState('');
-  const form = new FormData();
   const [imagesdet, setimagesdet] = useState('');
   const [userOtp, setUserOtp] = useState('');
   const [Loder, setLoader] = useState(false);
@@ -77,69 +80,111 @@ const UploadGovtID = props => {
       cropping: true,
     }).then(image => {
       console.log('imaher', image);
+      setimagesdet(image);
       let get_originalname = getOriginalname(image.path);
 
-      // form.append('image_for', 'profile_image');
+      // // form.append('image_for', 'profile_image');
       form.append('govt_id_card', {
         uri: image.path,
         type: image.mime,
         name: get_originalname,
       });
-      setimagesdet(image);
       // console.log('form',form)
-      //  if(form!=null && image){
-      //   UpdateProfileImage()
-      //  }
+      if (form != null && image) {
+        UpdateProfileImage();
+      }
     });
   };
 
-  const SendOtp = () => {
+ 
+
+  const register = async () => {
     if (imagesdet == null || imagesdet == undefined || imagesdet == '') {
       HelperFunctions.showToastMsg('Please upload any id proof!');
-    } else {
-      if (imagesdet) {
-        let get_originalname = getOriginalname(imagesdet.path);
+    }
 
-        // form.append('image_for', 'profile_image');
-        form.append('govt_id_card', {
+    setLoader(true);
+
+    try {
+      let get_originalname = getOriginalname(imagesdet.path);
+      const payload = {
+        name: details?.name,
+        email: details?.email,
+        password: details?.password,
+        country_id: details?.country_id,
+        phone: details?.phone,
+        dob: details?.dob,
+        gender: details?.gender,
+        register_for: 'app',
+        govt_id_card: {
           uri: imagesdet.path,
           type: imagesdet.mime,
           name: get_originalname,
-        });
-      }
-      setLoader(true);
-      form.append('name', details?.name);
-      form.append('email', details?.email);
-      form.append('phone', details?.phone);
-      form.append('password', details?.password);
-      form.append('password_confirmation', details?.password_confirmation);
-      form.append('country_id', details?.country_id);
-      form.append('dob', details?.dob);
-      form.append('gender', details?.gender);
-      form.append('register_for', 'app');
-      form.append('device_token', deviceid);
-      postApi('api/register', form, '', 'multipart/form-data')
-        .then(response => {
-          // console.log('response',response)
-          if (response?.status == 'success') {
-            HelperFunctions.showToastMsg('OTP Sent Successfully');
-            NavigationService.navigate('OtpInputPage', {details: details});
+        },
+      };
+    
+      const data = await apiCall('register', 'POST', payload);
 
-            setLoader(false);
-          } else {
-            HelperFunctions.showToastMsg(response?.message);
-            setLoader(false);
-          }
-        })
-        .catch(error => {
-          HelperFunctions.showToastMsg(error?.message);
-          setLoader(false);
-        })
-        .finally(() => {
-          setLoader(false);
-        });
+     
+      if (data.status === 'success') {
+        setimagesdet();
+        HelperFunctions.showToastMsg('Register Successfully');
+        NavigationService.navigate('Login')
+      }
+    } catch (error) {
+      console.log('error', error);
+      HelperFunctions.showToastMsg(error?.message);
+    } finally {
+      setLoader(false);
     }
   };
+
+  // const SendOtp = () => {
+  //   if (imagesdet == null || imagesdet == undefined || imagesdet == '') {
+  //     HelperFunctions.showToastMsg('Please upload any id proof!');
+  //   } else {
+  //     if (imagesdet) {
+  //       let get_originalname = getOriginalname(imagesdet.path);
+
+  //       // form.append('image_for', 'profile_image');
+  //       form.append('govt_id_card', {
+  //         uri: imagesdet.path,
+  //         type: imagesdet.mime,
+  //         name: get_originalname,
+  //       });
+  //     }
+  //     setLoader(true);
+  //     form.append('name', details?.name);
+  //     form.append('email', details?.email);
+  //     form.append('phone', details?.phone);
+  //     form.append('password', details?.password);
+  //     form.append('country_id', details?.country_id);
+  //     form.append('dob', details?.dob);
+  //     form.append('gender', details?.gender);
+  //     form.append('register_for', 'app');
+  //     form.append('device_token', deviceid);
+  //     postApi('register', form, '', 'multipart/form-data')
+  //       .then(response => {
+  //         // console.log('response',response)
+  //         if (response?.status == 'success') {
+  //           HelperFunctions.showToastMsg('OTP Sent Successfully');
+  //           NavigationService.navigate('OtpInputPage', {details: details});
+
+  //           setLoader(false);
+  //         } else {
+  //           HelperFunctions.showToastMsg(response?.message);
+  //           setLoader(false);
+  //         }
+  //       })
+  //       .catch(error => {
+  //         HelperFunctions.showToastMsg(error?.message);
+  //         setLoader(false);
+  //       })
+  //       .finally(() => {
+  //         setLoader(false);
+  //       });
+  //   }
+  // };
   return (
     <SafeAreaView style={styles.container}>
       <CustomHeader
@@ -147,7 +192,7 @@ const UploadGovtID = props => {
         leftHeading={'Government Id Proof'}
         onLeftIconPress={() => NavigationService.back()}
       />
-      {console.log('datata', details)}
+
       <Pressable
         style={{
           //   height: 53,
@@ -215,7 +260,8 @@ const UploadGovtID = props => {
       <Pressable
         disabled={Loder}
         onPress={
-          () => SendOtp()
+          register
+          // () => SendOtp()
           // NavigationService.navigate('OtpInputPage', { details: details })
         }
         style={{
@@ -238,7 +284,7 @@ const UploadGovtID = props => {
             fontFamily: Theme.FontFamily.medium,
             fontSize: Theme.sizes.s16,
           }}>
-          Send OTP
+          Sing Up
         </Text>
         {Loder ? (
           <ActivityIndicator

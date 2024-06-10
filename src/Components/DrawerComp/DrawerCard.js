@@ -103,7 +103,7 @@ const DrawerNavigationCard = () => {
             style={{
               height: 65,
               width: 65,
-              borderRadius: 10,
+              borderRadius: 50,
             }}
           />
           <Text
@@ -124,7 +124,7 @@ const DrawerNavigationCard = () => {
                 fontFamily: Theme.FontFamily.medium,
                 // marginVertical:10
               }}>
-              {userDetails?.count_followers}
+              {userDetails?.count_followers} {" "}
               {userDetails?.count_followers > 10000000
                 ? 'b'
                 : userDetails?.count_followers > 100000
@@ -150,7 +150,7 @@ const DrawerNavigationCard = () => {
                 marginLeft: 10,
                 // marginVertical:10
               }}>
-              {userDetails?.count_followings}
+              {userDetails?.count_followings} {" "}
               {userDetails?.count_followings > 10000000
                 ? 'b'
                 : userDetails?.count_followings > 100000

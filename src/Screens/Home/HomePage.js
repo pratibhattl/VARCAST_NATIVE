@@ -187,7 +187,7 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={{uri: item.imageUrl}}
+                  source={{uri: item?.imageUrl}}
                   style={{
                     width: 335,
                     height: 175,
@@ -221,7 +221,7 @@ const HomePage = props => {
                           fontSize: 16,
                           fontFamily: Theme.FontFamily.medium,
                         }}>
-                        {item.title}
+                        {item?.title}
                       </Text>
                       <Text
                         style={{
@@ -230,7 +230,7 @@ const HomePage = props => {
                           fontFamily: Theme.FontFamily.normal,
                           marginLeft: 4,
                         }}>
-                        {item.views} online • {item.created_by_name}
+                        {item?.views} online • {item?.created_by_name}
                       </Text>
                     </View>
                     <Icon

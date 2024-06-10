@@ -22,7 +22,7 @@ import {apiCall} from '../../Services/Service';
 const ChatRoom = () => {
   const route = useRoute();
   const {userDetails, token} = useSelector(state => state.authData);
-  console.log('route', route);
+ 
   const [messages, setMessages] = useState([]);
 
   const renderAvatar = () => {
