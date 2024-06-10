@@ -107,7 +107,7 @@ const SongPlayy = props => {
 
     await TrackPlayer.add({
       id: route?.params?._id,
-      url:`${baseUrl}${route?.params?.audio}`,
+      url:`${imageUrl}${route?.params?.audio}`,
       title: route?.params?.title,
       artwork: route?.params?.image,
     });

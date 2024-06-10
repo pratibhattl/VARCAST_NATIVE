@@ -265,7 +265,7 @@ const PodcastLive = props => {
       setRemoteUid(0);
       setIsJoined(false);
       showMessage('You left the channel');
-     
+     SoundPlayer.stop()
       HelperFunctions.showToastMsg('You left the channel');
     } catch (e) {
       console.log(e);
