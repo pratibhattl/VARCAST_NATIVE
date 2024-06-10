@@ -19,9 +19,10 @@ const AddPlaylist = props => {
   const route = useRoute();
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordShow, setPasswordShow] = useState(false);
   const [playlists, setPlaylists] = useState([]);
+  const [playArray, setPlayArray] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
 
@@ -32,6 +33,8 @@ const AddPlaylist = props => {
         const endpoint = 'playlist/index';
         const response = await apiCall(endpoint, 'GET', {}, token);
         setPlaylists(response.data.listData);
+        setPlayArray(response.data.listData);
+
         console.log("RawRes", response)
         changeloadingState(false);
       } catch (error) {
@@ -44,7 +47,19 @@ const AddPlaylist = props => {
     fetchPlaylists();
    
   }, []);
-
+  
+  const searchData = (text) => {
+    setSearchQuery(text)
+    const data = [...playlists];
+    if (text.length >= 3) {
+    const results = data.filter(item =>
+      item?.name.toLowerCase().includes(text.toLowerCase())
+    );
+    setPlaylists(results);
+  }else{
+    setPlaylists(playArray);
+  }
+  };
   return (
     <ScreenLayout
       headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
@@ -56,8 +71,9 @@ const AddPlaylist = props => {
       onLeftIconPress={() => NavigationService.openDrawer()}>
       <View style={styles.container}>
         <AppTextInput
-          value={password}
-          onChangeText={a => setPassword(a)}
+         onChangeText={text => searchData(text)}
+         value={searchQuery}
+         onSubmitEditing={searchData}
           placeholder={t('Search')}
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
           inputStyle={{ fontSize: 14 }}
@@ -72,8 +88,6 @@ const AddPlaylist = props => {
             color: 'rgba(255, 255, 255, 0.54)',
             size: 21,
           }}
-          secureTextEntry={passwordShow ? false : true}
-          onRightIconPress={() => setPasswordShow(!passwordShow)}
           inputContainerStyle={styles.input_container_sty}
           style={styles.text_style}
         />
