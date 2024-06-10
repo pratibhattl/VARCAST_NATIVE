@@ -35,8 +35,6 @@ const PodcastIndex = () => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const token = useSelector(state => state.authData.token);
 
-  console.log('route', route);
-
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -56,27 +54,6 @@ const PodcastIndex = () => {
 
     fetchData();
   }, [token]);
-
-  const addToWatchLater = async podcastData => {
-    try {
-      // Get existing saved videos or initialize empty array
-      const savedVideosString = await AsyncStorage.getItem('savedVideos');
-      const savedVideos = savedVideosString
-        ? JSON.parse(savedVideosString)
-        : [];
-
-      // Add selected data to saved videos
-      savedVideos.push(podcastData);
-
-      // Save updated saved videos to local storage
-      await AsyncStorage.setItem('savedVideos', JSON.stringify(savedVideos));
-
-      // Navigate to Watch Later page
-      NavigationService.navigate('WatchLater', {savedVideos: savedVideos});
-    } catch (error) {
-      console.error('Error adding to Watch Later:', error);
-    }
-  };
 
   return (
     <View style={styles.container}>
@@ -185,7 +162,7 @@ const PodcastIndex = () => {
           style={{
             position: 'absolute',
             bottom: -25,
-            right: 80,
+            right: 20,
             height: 50,
             width: 50,
             borderRadius: 30,
@@ -194,23 +171,6 @@ const PodcastIndex = () => {
             justifyContent: 'center',
           }}>
           <VideoPlayIcon Width={30} Height={30} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => addToWatchLater(podcastData)}
-          style={{
-            position: 'absolute',
-            bottom: -25,
-            right: 10,
-            height: 50,
-            width: 50,
-            borderRadius: 30,
-            backgroundColor: '#fff',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}>
-          <TouchableOpacity onPress={() => addToWatchLater(podcastData)}>
-            <WatchLaterIcon Width={30} Height={30} />
-          </TouchableOpacity>
         </TouchableOpacity>
       </ImageBackground>
       <View style={{padding: 15}}>

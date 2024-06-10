@@ -36,7 +36,7 @@ const HomePage = props => {
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [cat, setCat] = useState(0);
-  const [Loder, setLoader] = useState(false);
+  const [Loder, setLoader] = useState(true);
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
@@ -120,11 +120,12 @@ const HomePage = props => {
   };
 
   useEffect(() => {
+    if(token){
     fetchHomePageData();
     fetchPopularEpisodes();
     fetchOurPicksData();
-    
-  }, []);
+    }
+  }, [token]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}

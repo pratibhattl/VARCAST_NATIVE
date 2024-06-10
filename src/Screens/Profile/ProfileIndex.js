@@ -254,7 +254,7 @@ const ProfileIndex = () => {
                 justifyContent: 'space-between',
                 marginVertical: 5,
               }}>
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={handleFollow}
                 style={{
                   height: 45,
@@ -276,7 +276,7 @@ const ProfileIndex = () => {
                   }}>
                   {following ? t('Unfollow') : t('Follow')}
                 </Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
               <TouchableOpacity
                 onPress={handleShare}
                 style={{

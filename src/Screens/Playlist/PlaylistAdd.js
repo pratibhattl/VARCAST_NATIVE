@@ -1,117 +1,202 @@
-import {View, Text, StyleSheet, Pressable, Dimensions} from 'react-native';
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Dimensions,
+  TextInput,
+  Image,
+  TouchableHighlight,
+} from 'react-native';
+import { useSelector } from 'react-redux';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
-import {useRoute} from '@react-navigation/native';
+import { useRoute, useNavigation } from '@react-navigation/native';
 import Theme from '../../Constants/Theme';
+import HelperFunctions from '../../Constants/HelperFunctions';
+import ImagePicker from 'react-native-image-crop-picker';
 import GallaryIcon from '../../assets/icons/GallaryIcon';
 import NavigationService from '../../Services/Navigation';
-import {Switch} from 'react-native-switch';
-const {width, height} = Dimensions.get('screen');
+import AllSourcePath from '../../Constants/PathConfig';
+import { apiCall } from '../../Services/Service';
+import axios from 'axios';
+const { width, height } = Dimensions.get('screen');
 
 const PlaylistAdd = () => {
   const route = useRoute();
-  // Access the customProp passed from the source screen
+  const navigation = useNavigation();
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
+  const [playlistName, setPlaylistName] = useState('');
+  const [loadingState, setLoadingState] = useState(false);
+  const [image, setImage] = useState(null);
+  console.log("Image", image)
+  const [imageurl, setImageUrl] = useState(null);
+  const [refreshPage, setRefreshPage] = useState(false); // State to indicate whether the page needs to be refreshed
+  const token = useSelector(state => state.authData.token);
+  const baseUrl = AllSourcePath.API_BASE_URL_DEV;
+
+
+  const openGallery = async () => {
+    try {
+      let pickerResult = await ImagePicker.openPicker({
+        width: 300,
+        height: 400,
+        cropping: true,
+      });
+
+      const fileName = pickerResult.path.split('/').pop();
+      const fileType = fileName.split('.').pop();
+
+      const file = {
+        uri: pickerResult.path,
+        name: fileName,
+        type: `image/${fileType}`,
+      };
+      setImage(file);
+      setImageUrl(file.uri); // Update the state with the image URI
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const createPlaylist = async () => {
+    if (!playlistName || !image) {
+      alert('Please enter a playlist name and select an image.');
+      return;
+    }
+else{
+    try {
+      setLoadingState(true);
+
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append('name', playlistName);
+      formData.append('image', {
+        uri: image.uri,
+        name: image.name,
+        type: image.type,
+      });
+
+
+      // API call
+      const response = await axios.post(`${baseUrl}playlist/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      NavigationService.navigate('AddPlaylist')
+      setLoadingState(false);
+      setPlaylistName('');
+      setImage(null);
+      setImageUrl(null);
+      HelperFunctions.showToastMsg('Playlist Created Successfully!');
+      setRefreshPage(true); // Set the state to refresh the page
+    
+    } catch (error) {
+      console.error('Error creating playlist:', error);
+      setLoadingState(false);
+    }
+  }
+  };
+
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
+      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
       showLoading={loadingState}
       isScrollable={true}
-      leftHeading={'New Publication'}
-      // Podcast
-      // right
-      // Live={cat == 'Live' ? true : false}
-      leftHeadingStyle={{color: '#E1D01E'}}
+      leftHeading={'New Playlist'}
+      leftHeadingStyle={{ color: '#E1D01E' }}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
-      <View style={{...styles.container}}>
-        <Pressable
-          style={{
-            height: 130,
-            width: 130,
-            borderRadius: 20,
-            backgroundColor: '#1C1C1C',
-            marginTop: 45,
-            marginBottom: 10,
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderWidth: 2,
-            borderColor: 'rgba(255, 255, 255, 0.14)',
-            alignSelf: 'center',
-          }}>
-          <GallaryIcon />
+      <View style={{ ...styles.container }}>
+        <Pressable onPress={openGallery} style={styles.imagePicker}>
+          {image ? (
+            <Image source={{ uri: imageurl }} style={styles.image} />
+          ) : (
+            <GallaryIcon />
+          )}
         </Pressable>
-        <Text
-          style={{
-            color: 'rgba(255, 255, 255, 0.54)',
-            fontSize: 16,
-            fontFamily: Theme.FontFamily.normal,
-            marginVertical: 20,
-            textAlign: 'center',
-          }}>
-          New Playlist
-        </Text>
-        <View
-          style={{
-            width: width - 30,
-            height: 2,
-            backgroundColor: 'rgba(118, 118, 128, 0.24)',
-            marginTop: 10,
-          }}
+        <Text style={styles.title}>New Playlist</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter playlist name"
+          placeholderTextColor="rgba(255, 255, 255, 0.54)"
+          value={playlistName}
+          onChangeText={text => setPlaylistName(text)}
         />
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            height: 100,
-            paddingVertical: 0,
-          }}>
-          <Text
-            style={{
-              color: '#fff',
-              fontSize: 16,
-              fontFamily: Theme.FontFamily.normal,
-              // marginVertical:20
-            }}>
-            Show in profile and search
-          </Text>
-          <Switch
-            value={true}
-            onValueChange={val => console.log(val)}
-            disabled={false}
-            activeText={'On'}
-            inActiveText={'Off'}
-            circleSize={25}
-            barHeight={25}
-            circleBorderWidth={3}
-            backgroundActive={'#1CB62B'}
-            backgroundInactive={'gray'}
-            circleActiveColor={'#fff'}
-            circleInActiveColor={'#000000'}
-            changeValueImmediately={true} // if rendering inside circle, change state immediately or wait for animation to complete
-            innerCircleStyle={{alignItems: 'center', justifyContent: 'center'}} // style for inner animated circle for what you (may) be rendering inside the circle
-            outerCircleStyle={{}} // style for outer animated circle
-            renderActiveText={false}
-            renderInActiveText={false}
-            switchLeftPx={2} // denominator for logic when sliding to TRUE position. Higher number = more space from RIGHT of the circle to END of the slider
-            switchRightPx={2} // denominator for logic when sliding to FALSE position. Higher number = more space from LEFT of the circle to BEGINNING of the slider
-            switchWidthMultiplier={2} // multiplied by the `circleSize` prop to calculate total width of the Switch
-            switchBorderRadius={30} // Sets the border Radius of the switch slider. If unset, it remains the circleSize.
-          />
-        </View>
+
+        <View style={styles.divider} />
+
+        <TouchableHighlight
+          style={styles.createButton}
+          onPress={createPlaylist}
+          underlayColor="#FFD700">
+          <Text style={styles.createButtonText}>Create Playlist</Text>
+        </TouchableHighlight>
       </View>
     </ScreenLayout>
   );
 };
 
 export default PlaylistAdd;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 15,
     backgroundColor: '#131313',
     height: height,
+  },
+  imagePicker: {
+    height: 130,
+    width: 130,
+    borderRadius: 20,
+    backgroundColor: '#1C1C1C',
+    marginTop: 45,
+    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.14)',
+    alignSelf: 'center',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 20,
+  },
+  title: {
+    color: 'rgba(255, 255, 255, 0.54)',
+    fontSize: 16,
+    fontFamily: Theme.FontFamily.normal,
+    marginVertical: 20,
+    textAlign: 'center',
+  },
+  input: {
+    backgroundColor: '#333',
+    color: '#fff',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginBottom: 20,
+  },
+  divider: {
+    width: width - 30,
+    height: 2,
+    backgroundColor: 'rgba(118, 118, 128, 0.24)',
+    marginTop: 10,
+  },
+  createButton: {
+    backgroundColor: '#FFD700',
+    borderRadius: 8,
+    padding: 12,
+    alignItems: 'center',
+  },
+  createButtonText: {
+    color: '#131313',
+    fontSize: 16,
+    fontFamily: Theme.FontFamily.normal,
   },
 });

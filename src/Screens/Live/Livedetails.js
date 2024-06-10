@@ -462,15 +462,15 @@ const LiveDetails = props => {
                 />
               </View>
               <View style={{marginHorizontal: 10}}>
-                {/* <Text
+                <Text
                   style={{
                     color: '#fff',
                     fontSize: 14,
                     fontFamily: Theme.FontFamily.normal,
                   }}>
-                  {selectedData.created_by_name}
-                </Text> */}
-                {/* <Text
+                   {selectedData?.user?.name}
+                </Text>
+                <Text
                   style={{
                     color: 'rgba(255, 255, 255, 0.54)',
                     fontSize: 13,
@@ -478,8 +478,8 @@ const LiveDetails = props => {
                     textAlign: 'center',
                     marginTop: 1,
                   }}>
-                  {selectedData.views}
-                </Text> */}
+                  {selectedData.countView}{' '} views
+                </Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity
