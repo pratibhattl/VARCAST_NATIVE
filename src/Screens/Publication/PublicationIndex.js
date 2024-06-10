@@ -404,6 +404,7 @@ const PublicationIndex = props => {
   };
 
 
+
   const fileSubmit = async () => {
     let formData = new FormData();
 
@@ -542,9 +543,9 @@ const PublicationIndex = props => {
                         marginRight: index == 2 ? 0 : 7,
                         marginTop: 10,
                       }}>
-                        <Pressable 
-                        onPress={()=>{setPublicationIndex(0),  NavigationService.navigate('Publication02', { DraftItem: item })} }> 
-                      {/* {videoExtensions.includes(extension.toLowerCase()) ? (
+                      <Pressable
+                        onPress={() => { setPublicationIndex(0), NavigationService.navigate('Publication02', { DraftItem: item }) }}>
+                        {/* {videoExtensions.includes(extension.toLowerCase()) ? (
                         <Video
                           source={{ uri: imageUrl + item?.image }} // Provide the video source URI
                           style={{
@@ -565,7 +566,7 @@ const PublicationIndex = props => {
                           }}
                           resizeMode="cover"
                         />
-                        </Pressable>
+                      </Pressable>
                       {/* )} */}
                     </View>
                   );
@@ -630,9 +631,15 @@ const PublicationIndex = props => {
               }}>
               {pickedImg?.uri && (
                 <Image
-                  // source={{ uri: imgUrl?.uri }}
-                  source={{uri: `data:image/jpeg;base64,${imgUrl}`}}
-
+                  source={pickedImg?.uri
+                    ? { uri: pickedImg?.uri }
+                    : require('../../assets/images/addimage.png')
+                  }
+                  style={{
+                    height: pickedImg?.uri ? 130 : 80,
+                    width: pickedImg?.uri ? 130 : 80,
+                    borderRadius: 20,
+                  }}
                   resizeMode="cover"
                 />
               )}

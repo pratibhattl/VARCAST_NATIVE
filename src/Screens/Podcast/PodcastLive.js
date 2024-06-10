@@ -557,14 +557,14 @@ const PodcastLive = props => {
                   resizeMode="cover"
                 />
               </View>
-              {/* <View style={{ marginHorizontal: 10 }}>
+              <View style={{ marginHorizontal: 10 }}>
                 <Text
                   style={{
                     color: '#fff',
                     fontSize: 14,
                     fontFamily: Theme.FontFamily.normal,
                   }}>
-                  {selectedData.created_by_name}
+                   {selectedData?.user?.name}
                 </Text>
                 <Text
                   style={{
@@ -574,9 +574,9 @@ const PodcastLive = props => {
                     textAlign: 'center',
                     marginTop: 1,
                   }}>
-                  {selectedData.views}
+                  {selectedData.countView}{' '} views
                 </Text>
-              </View> */}
+              </View>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {

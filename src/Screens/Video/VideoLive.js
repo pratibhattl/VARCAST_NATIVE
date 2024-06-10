@@ -446,14 +446,14 @@ const VideoLive = props => {
               }}
               resizeMode="cover"
             />
-            {/* <View style={{marginHorizontal: 10}}>
+            <View style={{marginHorizontal: 10}}>
               <Text
                 style={{
                   color: '#fff',
                   fontSize: 14,
                   fontFamily: Theme.FontFamily.normal,
                 }}>
-                {selectedData?.created_by_name}{' '}
+                {selectedData?.user?.name}
               </Text>
               <Text
                 style={{
@@ -463,9 +463,9 @@ const VideoLive = props => {
                   textAlign: 'center',
                   marginTop: 1,
                 }}>
-                {selectedData?.views} views{' '}
+                {selectedData?.countView}{' '} views
               </Text>
-            </View> */}
+            </View>
           </View>
         </TouchableOpacity>
         {isJoined && props.route.params.host ? (
