@@ -26,7 +26,7 @@ const {width, height} = Dimensions.get('screen');
 const AddPlaylist = () => {
   const route = useRoute();
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
+  const [loadingState, changeloadingState] = useState(true);
   const [playlists, setPlaylists] = useState([]);
   const [playArray, setPlayArray] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -129,7 +129,6 @@ const AddPlaylist = () => {
           contentContainerStyle={{paddingBottom: 20, paddingTop: 0}}
           keyExtractor={item => item._id}
           renderItem={({item}) => {
-            console.log("itemitem--",item);
             const mediaCount = item.media ? item.media.length : 0;
             return (
               <LinearGradient
