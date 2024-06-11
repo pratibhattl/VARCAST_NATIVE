@@ -36,7 +36,7 @@ const VideoReels = ({userData}) => {
       video => video._id === videoId,
     );
     if (clickedVideo) {
-      NavigationService.navigate('ReelVideoIndex', {videoData: clickedVideo});
+      NavigationService.navigate('VideoLive', {videoData: clickedVideo});
     }
   };
 
