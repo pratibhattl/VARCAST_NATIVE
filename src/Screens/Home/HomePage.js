@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import {useRoute} from '@react-navigation/native';
-import React, {useCallback, useEffect, useState} from 'react';
+import { useRoute } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,21 +11,21 @@ import {
 } from 'react-native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import {ImageBackground} from 'react-native';
-import {Image} from 'react-native';
-import {BlurView} from '@react-native-community/blur';
+import { ImageBackground } from 'react-native';
+import { Image } from 'react-native';
+import { BlurView } from '@react-native-community/blur';
 import Theme from '../../Constants/Theme';
-import {Icon} from 'react-native-basic-elements';
+import { Icon } from 'react-native-basic-elements';
 import SongPlayComp from '../../Components/Podcast/SongPlayComp';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {apiCall} from '../../Services/Service';
-import {useTranslation} from 'react-i18next';
-const {width, height} = Dimensions.get('screen');
+import { apiCall } from '../../Services/Service';
+import { useTranslation } from 'react-i18next';
+const { width, height } = Dimensions.get('screen');
 import UserDetails from '../Profile/UserDetails';
-import {useNavigation} from '@react-navigation/native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import FollowingUser from './FollowingUser';
-import {useSelector} from 'react-redux';
+import { useSelector } from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import MostPlayed from './MostPlayed';
 import { useIsFocused } from '@react-navigation/native';
@@ -43,12 +43,13 @@ const HomePage = props => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [userData, setUserData] = useState([]);
   const [ourpickData, setourpickData] = useState([]);
-  
-  const [latestPodCast,setLatestPodCast] = useState([])
-  const [liveData, setLiveData] = useState([]);
-  const [latestFollowers,setLatestFollowers] = useState([])
 
-  const {t} = useTranslation();
+  const [latestPodCast, setLatestPodCast] = useState([])
+  const [liveData, setLiveData] = useState([]);
+  const [latestFollowers, setLatestFollowers] = useState([])
+  const [videoByCat, setVideoByCat] = useState([])
+
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const token = useSelector(state => state.authData.token);
 
@@ -67,9 +68,13 @@ const HomePage = props => {
 
   // Function to navigate to UserDetails screen with userData as prop
   const goToUserDetails = () => {
-    navigation.navigate('UserDetails', {userData: userData});
+    navigation.navigate('UserDetails', { userData: userData });
   };
 
+  const onClickCategory = (data, index) => {
+    setVideoByCat(data?.videos);
+    setCat(index);
+  }
 
   //Fetching HomePage Data
   const fetchHomePageData = async () => {
@@ -80,16 +85,16 @@ const HomePage = props => {
       if (response?.status === true) {
         setLoader(false)
         const usermappedData =
-        response?.data?.latest_followings?.length > 0 &&
-        response?.data?.latest_followings?.map(item => ({
-          name: item.followings.name,
-          email: item.followings.email,
-          imageUrl: item.followings.full_path_image,
-          userId: item.followings._id,
-        }));
-      setUserData(usermappedData);
-      // console.log('UserMapData', userData);
-    
+          response?.data?.latest_followings?.length > 0 &&
+          response?.data?.latest_followings?.map(item => ({
+            name: item.followings.name,
+            email: item.followings.email,
+            imageUrl: item.followings.full_path_image,
+            userId: item.followings._id,
+          }));
+        setUserData(usermappedData);
+        // console.log('UserMapData', userData);
+        setVideoByCat(response?.data?.categories[0]?.videos || []);
         setCategorylist(response?.data.categories || []);
         setMostPlayedData(response?.data?.latest_videos);
         setLatestPodCast(response?.data?.latest_podcasts);
@@ -120,15 +125,15 @@ const HomePage = props => {
   };
 
   useEffect(() => {
-    if(token){
-    fetchHomePageData();
-    fetchPopularEpisodes();
-    fetchOurPicksData();
+    if (token) {
+      fetchHomePageData();
+      fetchPopularEpisodes();
+      fetchOurPicksData();
     }
   }, [token]);
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
+      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
       showLoading={Loder}
       isScrollable={true}
       // viewStyle={{backgroundColor:'#131313'}}
@@ -170,12 +175,12 @@ const HomePage = props => {
           data={liveData}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
-          renderItem={({item}) => {
+          contentContainerStyle={{ paddingTop: 20, paddingLeft: 20 }}
+          renderItem={({ item }) => {
             return (
               <Pressable
                 onPress={() =>
-                  NavigationService.navigate('LiveDetails', {id:item?._id})
+                  NavigationService.navigate('LiveDetails', { id: item?._id })
                 }
                 style={{
                   width: 335,
@@ -188,7 +193,7 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={{uri: item?.imageUrl}}
+                  source={{ uri: item?.imageUrl }}
                   style={{
                     width: 335,
                     height: 175,
@@ -302,15 +307,15 @@ const HomePage = props => {
                 data={userData}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
-                renderItem={({item}) => (
+                contentContainerStyle={{ paddingTop: 15, paddingLeft: 20 }}
+                renderItem={({ item }) => (
                   <TouchableOpacity
                     onPress={async () => {
                       try {
                         const response = await apiCall(
                           'user-profile',
                           'POST',
-                          {userId: item.userId},
+                          { userId: item.userId },
                           token,
                         );
 
@@ -339,7 +344,7 @@ const HomePage = props => {
                         backgroundColor: 'transparent',
                       }}>
                       <Image
-                        source={{uri: item?.imageUrl}}
+                        source={{ uri: item?.imageUrl }}
                         style={{
                           width: 128,
                           height: 110,
@@ -388,12 +393,12 @@ const HomePage = props => {
           data={categorylist}
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={{paddingTop: 25, paddingLeft: 20}}
-          renderItem={({item, index}) => {
+          contentContainerStyle={{ paddingTop: 25, paddingLeft: 20 }}
+          renderItem={({ item, index }) => {
             return (
               <Pressable
                 key={index}
-                onPress={() => setCat(index)}
+                onPress={() => onClickCategory(item, index)}
                 style={{
                   height: 45,
                   width: 120,
@@ -420,12 +425,13 @@ const HomePage = props => {
             );
           }}
         />
-        {/* <FlatList
-          data={[1, 2, 3, 4]}
+        <FlatList
+          data={videoByCat}
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={{paddingTop: 25, paddingLeft: 20}}
-          renderItem={({item, index}) => {
+          contentContainerStyle={{ paddingTop: 25, paddingLeft: 20 }}
+          renderItem={({ item, index }) => {
+            // console.log("-----item",item);
             return (
               <View
                 style={{
@@ -440,10 +446,8 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={
-                    index % 2 == 0
-                      ? require('../../assets/images/Rectangle181.png')
-                      : require('../../assets/images/Rectangle182.png')
+                  source={item?.video?.image ? { uri: imageUrl + item?.video?.image }
+                    : require('../../assets/images/Rectangle182.png')
                   }
                   style={{
                     width: 200,
@@ -465,11 +469,11 @@ const HomePage = props => {
                     backgroundColor: 'rgba(200,200,200, 0.5)',
                     opacity: 0.9,
                   }}
-                  // blurType="light"
-                  // overlayColor="transparent"
-                  // blurAmount={20}
-                  // blurRadius={10}
-                  // reducedTransparencyFallbackColor="white"
+                // blurType="light"
+                // overlayColor="transparent"
+                // blurAmount={20}
+                // blurRadius={10}
+                // reducedTransparencyFallbackColor="white"
                 >
                   <View
                     style={{
@@ -484,10 +488,10 @@ const HomePage = props => {
                         marginHorizontal: 5,
                         // textAlign:'auto'
                       }}>
-                      Lorem ipsum dolor sit amet, consectetur elit.
+                      {item?.video?.title}
                     </Text>
 
-                    <Text
+                    {/* <Text
                       style={{
                         color: 'rgba(255, 255, 255, 0.6)',
                         fontSize: 14,
@@ -495,15 +499,15 @@ const HomePage = props => {
                         marginLeft: 5,
                       }}>
                       Duration: 23 mins
-                    </Text>
+                    </Text> */}
                   </View>
                 </View>
               </View>
             );
           }}
-        /> */}
+        />
         <View
-       
+
           style={{
             paddingHorizontal: 20,
             flexDirection: 'row',
@@ -512,7 +516,7 @@ const HomePage = props => {
             marginTop: 25,
           }}>
           <Text
-           
+
             style={{
               color: '#fff',
               fontSize: 19,
@@ -521,7 +525,7 @@ const HomePage = props => {
             {t('Popular Episodes')}
           </Text>
           <Text
-           onPress={() => NavigationService.navigate('PopularEpisode')}
+            onPress={() => NavigationService.navigate('PopularEpisode')}
             style={{
               color: 'rgba(255, 255, 255, 0.54)',
               fontSize: 14,
@@ -535,89 +539,89 @@ const HomePage = props => {
           data={latestPodCast}
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
-          renderItem={({item, index}) => {
+          contentContainerStyle={{ paddingTop: 15, paddingLeft: 20 }}
+          renderItem={({ item, index }) => {
             return (
               <Pressable
-              onPress={() =>
-                NavigationService.navigate('PodcastLive', item)
-              }
-              style={{
-                // width: 335,
-                height: 175,
-                borderRadius: 15,
-                // marginRight: 20,
-                borderTopRightRadius: 0,
-                borderTopLeftRadius: 0,
-                overflow: 'hidden',
-                backgroundColor: 'transparent',
-              }}>
-              <View
+                onPress={() =>
+                  NavigationService.navigate('PodcastLive', item)
+                }
                 style={{
-                  width: 128,
-                  height: 110,
+                  // width: 335,
+                  height: 175,
                   borderRadius: 15,
-                  marginRight: 20,
+                  // marginRight: 20,
                   borderTopRightRadius: 0,
                   borderTopLeftRadius: 0,
                   overflow: 'hidden',
-
                   backgroundColor: 'transparent',
                 }}>
-                 
-                <Image
-                source={{uri: imageUrl+item.image}}
-                  // source={
-                  //   index % 2 == 0
-                  //     ? require('../../assets/images/Rectangle184.png')
-                  //     : require('../../assets/images/Rectangle185.png')
-                  // }
+                <View
                   style={{
                     width: 128,
                     height: 110,
                     borderRadius: 15,
-                    // borderBottomLeftRadius:150
-                    // marginHorizontal:10
-                  }}
-                  resizeMode="cover"
-                />
-                <View
-                  style={{
-                    height: 35,
-                    width: 128,
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    position: 'absolute',
-                    justifyContent: 'center',
-                    bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                    opacity: 0.9,
-                  }}
+                    marginRight: 20,
+                    borderTopRightRadius: 0,
+                    borderTopLeftRadius: 0,
+                    overflow: 'hidden',
+
+                    backgroundColor: 'transparent',
+                  }}>
+
+                  <Image
+                    source={{ uri: imageUrl + item.image }}
+                    // source={
+                    //   index % 2 == 0
+                    //     ? require('../../assets/images/Rectangle184.png')
+                    //     : require('../../assets/images/Rectangle185.png')
+                    // }
+                    style={{
+                      width: 128,
+                      height: 110,
+                      borderRadius: 15,
+                      // borderBottomLeftRadius:150
+                      // marginHorizontal:10
+                    }}
+                    resizeMode="cover"
+                  />
+                  <View
+                    style={{
+                      height: 35,
+                      width: 128,
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      position: 'absolute',
+                      justifyContent: 'center',
+                      bottom: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                      opacity: 0.9,
+                    }}
                   // blurType="light"
                   // overlayColor="transparent"
                   // blurAmount={20}
                   // blurRadius={10}
                   // reducedTransparencyFallbackColor="white"
-                >
-                  <View
-                    style={{
-                      overflow: 'hidden',
-                      // paddingHorizontal: 15,
-                      paddingTop: 5,
-                    }}>
-                    <Text
+                  >
+                    <View
                       style={{
-                        color: '#fff',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.normal,
-                        marginHorizontal: 5,
-                        // textAlign:'center'
+                        overflow: 'hidden',
+                        // paddingHorizontal: 15,
+                        paddingTop: 5,
                       }}>
-                      {item?.title}
-                    </Text>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.normal,
+                          marginHorizontal: 5,
+                          // textAlign:'center'
+                        }}>
+                        {item?.title}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-              </View>
               </Pressable>
             );
           }}
@@ -749,12 +753,12 @@ const HomePage = props => {
             data={mostPlayedData}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
-            renderItem={({item}) => (
+            contentContainerStyle={{ paddingTop: 20, paddingLeft: 20 }}
+            renderItem={({ item }) => (
               <Pressable
                 onPress={() => {
                   // Navigate to Live Detail page
-                  NavigationService.navigate('VideoLive', {id: item._id});
+                  NavigationService.navigate('VideoLive', { id: item._id });
                 }}
                 style={{
                   width: 200,
@@ -765,7 +769,7 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={{uri: `${imageUrl+item.image}`}}
+                  source={{ uri: `${imageUrl + item.image}` }}
                   style={{
                     width: '100%',
                     height: '100%',
