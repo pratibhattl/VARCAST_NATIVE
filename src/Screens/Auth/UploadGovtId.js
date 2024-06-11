@@ -39,9 +39,7 @@ const {width, height} = Dimensions.get('screen');
 const UploadGovtID = props => {
   const form = new FormData();
   const {details} = props.route.params;
-  const {login_status, userDetails, token, deviceid} = useSelector(
-    state => state.authData,
-  );
+
   console.log('details', details);
   const [GovtIdImg, setGovtIdImg] = useState('');
   const [imagesdet, setimagesdet] = useState('');

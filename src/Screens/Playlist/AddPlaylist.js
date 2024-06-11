@@ -26,40 +26,57 @@ const {width, height} = Dimensions.get('screen');
 const AddPlaylist = () => {
   const route = useRoute();
   const customProp = route.params?.showButton;
-  const [loadingState, setLoadingState] = useState(false);
-  const [password, setPassword] = useState('');
-  const [passwordShow, setPasswordShow] = useState(false);
+  const [loadingState, changeloadingState] = useState(true);
   const [playlists, setPlaylists] = useState([]);
+  const [playArray, setPlayArray] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const isFocused = useIsFocused();
+
+
   const fetchPlaylists = async () => {
     try {
-      setLoadingState(true);
+      changeloadingState(true);
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       // Sort playlists by most recently created or updated
-      const sortedPlaylists = response.data.listData.sort((a, b) => {
-        const dateA = new Date(a.updated_at || a.created_at);
-        const dateB = new Date(b.updated_at || b.created_at);
-        return dateB - dateA;
-      });
+      // const sortedPlaylists = response.data.listData.map((a, b) => {
+      //   const dateA = new Date(a.updated_at || a.created_at);
+      //   const dateB = new Date(b.updated_at || b.created_at);
+      //   return dateB - dateA;
+      // });
 
-      setPlaylists(sortedPlaylists);
-      console.log('RawRes', response);
-      setLoadingState(false);
+      setPlaylists(response.data.listData);
+      setPlayArray(response.data.listData);  
+      changeloadingState(false);
     } catch (error) {
       console.error('Error fetching playlists:', error);
-      setLoadingState(false);
+      changeloadingState(false);
     }
   };
-
+  
   useEffect(() => {
-    if (isFocused) {
-      fetchPlaylists();
-    }
+   if(isFocused){
+    fetchPlaylists();
+   }
+   
   }, [isFocused]);
+  
+  const searchData = (text) => {
+    setSearchQuery(text)
+    const data = [...playlists];
+    if (text.length >= 3) {
+    const results = data.filter(item =>
+      item?.name.toLowerCase().includes(text.toLowerCase())
+    );
+    setPlaylists(results);
+  }else{
+    setPlaylists(playArray);
+  }
+  };
+    
 
   return (
     <ScreenLayout
@@ -72,8 +89,9 @@ const AddPlaylist = () => {
       onLeftIconPress={() => NavigationService.openDrawer()}>
       <View style={styles.container}>
         <AppTextInput
-          value={password}
-          onChangeText={setPassword}
+         onChangeText={text => searchData(text)}
+         value={searchQuery}
+         onSubmitEditing={searchData}
           placeholder={t('Search')}
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
           inputStyle={{fontSize: 14}}
@@ -88,8 +106,6 @@ const AddPlaylist = () => {
             color: 'rgba(255, 255, 255, 0.54)',
             size: 21,
           }}
-          secureTextEntry={!passwordShow}
-          onRightIconPress={() => setPasswordShow(!passwordShow)}
           inputContainerStyle={styles.inputContainer}
           style={styles.textStyle}
         />

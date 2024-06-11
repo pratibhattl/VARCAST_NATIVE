@@ -182,7 +182,8 @@ const Wallet = (props) => {
                         fontSize: 16,
                         fontFamily: Theme.FontFamily.medium,
                       }}>
-                      Amount: {transaction.coin_value}
+                    {transaction.type === 'credit' && transaction.giftId ? `Earned (${transaction?.podcast?.title})` : "Credited" }
+                      {transaction.type === 'debited' && "Debited"}
                     </Text>
                     <Text
                       style={{

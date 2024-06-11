@@ -125,14 +125,14 @@ const PodcastIndex = () => {
                 }}>
                 {podcastData.title}
               </Text>
-              <Text
+              {/* <Text
                 style={{
                   fontFamily: Theme.FontFamily.normal,
                   fontSize: 16,
                   color: 'rgba(255, 255, 255, 0.54)',
                 }}>
                 Hosted by: Adrian Reif
-              </Text>
+              </Text> */}
               <View
                 style={{
                   height: 35,
@@ -158,7 +158,7 @@ const PodcastIndex = () => {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => NavigationService.navigate('SongPlayy')}
+          onPress={() => NavigationService.navigate('SongPlayy',podcastData)}
           style={{
             position: 'absolute',
             bottom: -25,
@@ -170,10 +170,7 @@ const PodcastIndex = () => {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <TouchableOpacity
-            onPress={() => NavigationService.navigate('SongPlayy')}>
-            <VideoPlayIcon Width={30} Height={30} />
-          </TouchableOpacity>
+          <VideoPlayIcon Width={30} Height={30} />
         </TouchableOpacity>
       </ImageBackground>
       <View style={{padding: 15}}>
