@@ -110,7 +110,7 @@ const PodcastLive = props => {
 
   const handlePlaylistClick = async playlistId => {
     try {
-      const endpoint = 'playlist/add_media'; // Replace with your actual endpoint
+      const endpoint = 'playlist/add_media';
       console.log('Podcast Data', selectedData);
       const mediaUrl = selectedData.audio;
       const image = selectedData.image;
@@ -865,7 +865,7 @@ const PodcastLive = props => {
             {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
-        {/* <Pressable
+        {/* {/* <Pressable
           onPress={getAllGift}
           style={{
             height: 50,
@@ -877,8 +877,8 @@ const PodcastLive = props => {
             marginBottom: 15,
           }}>
           <GitftIcon />
-        </Pressable>
-        {/* <Pressable
+        </Pressable> */}
+        <Pressable
           onPress={() => setModalState(true)}
           style={{
             height: 50,
@@ -890,7 +890,7 @@ const PodcastLive = props => {
             marginBottom: 15,
           }}>
           <ShareIcon />
-        </Pressable> */}
+        </Pressable>
         <Pressable
           onPress={handleLikePress}
           style={{

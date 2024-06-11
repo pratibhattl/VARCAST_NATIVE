@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
+import ReactNativeModal from 'react-native-modal';
 import NavigationService from '../../Services/Navigation';
 import {useRoute} from '@react-navigation/native';
 import {ImageBackground} from 'react-native';
@@ -30,12 +31,17 @@ import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import DoubleTick from '../../assets/icons/DoubleTick';
 import SendIcon from '../../assets/icons/SendIcon';
 import LinkIcon from '../../assets/icons/LinkIcon';
+import BookmarkIcon from '../../assets/icons/BookmarkIcon';
 import GitftIcon from '../../assets/icons/GiftIcon';
+import SadEmojiIcon from '../../assets/icons/SadEmojiIcon';
+import ShiledIcon from '../../assets/icons/ShiledIcon';
+import Notification from '../../assets/icons/Notification';
 import ShareIcon from '../../assets/icons/ShareIcon';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
 import {PermissionsAndroid, Platform} from 'react-native';
+
 import {useIsFocused} from '@react-navigation/native';
 import Video from 'react-native-video';
 import {
@@ -67,11 +73,15 @@ const VideoLive = props => {
   const imageURL = AllSourcePath?.IMAGE_BASE_URL;
   let id = route.params?.id;
   const isFocused = useIsFocused();
+  const [playlists, setPlaylists] = useState([]);
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(false);
   const {width, height} = Dimensions.get('window');
   const [selectedData, setSelectedData] = useState({});
   console.log('Seleceted Video Data', selectedData);
+  const [ModalState, setModalState] = useState(false);
+
+  const [modalVisible, setModalVisible] = useState(false);
 
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -115,6 +125,70 @@ const VideoLive = props => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
+
+  const fetchPlaylists = async () => {
+    try {
+      changeloadingState(true);
+      const endpoint = 'playlist/index';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      setPlaylists(response.data.listData);
+      console.log('RawRes', response);
+      changeloadingState(false);
+    } catch (error) {
+      console.error('Error fetching playlists:', error);
+      changeloadingState(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlaylists();
+  }, [token]);
+
+  const handlePlaylistClick = async playlistId => {
+    try {
+      const endpoint = 'playlist/add_media';
+      console.log('Podcast Data', selectedData);
+      const mediaUrl = selectedData.image;
+      // const image = selectedData.image;
+      const title = selectedData.title;
+      const overview = selectedData.description;
+      const updated_at = selectedData.updated_at;
+      const created_at = selectedData.created_at;
+
+      const data = {
+        playlistId,
+        mediaUrl,
+        title,
+        overview,
+        updated_at,
+        created_at,
+      }; // The data to be sent in the POST request
+      console.log('Sent Podcast Data ', data);
+      const response = await apiCall(endpoint, 'POST', data, token);
+      console.log('API Response:', response.status);
+      if (response.status === true) {
+        HelperFunctions.showToastMsg('Media added to playlist successfully!');
+        fetchPlaylists();
+        setTimeout(() => {
+          toggleModal();
+        }, 2000);
+      } else {
+        HelperFunctions.showToastMsg(
+          'This media already exists in the playlist.',
+        );
+      }
+      // Handle the response as needed
+    } catch (error) {
+      HelperFunctions.showToastMsg(
+        'This media already exists in the playlist.',
+      );
+      console.error('Error making API call:', error);
+    }
+  };
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
@@ -343,23 +417,80 @@ const VideoLive = props => {
       .catch(err => {});
   };
 
-// ------------------------------------------------------------------------------------------------//
+  // ------------------------------------------------------------------------------------------------//
+  const renderPlaylistModal = () => {
+    return (
+      <ReactNativeModal
+        isVisible={modalVisible}
+        onBackdropPress={toggleModal}
+        backdropOpacity={1}
+        style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <FlatList
+            data={playlists}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{paddingBottom: 20, paddingTop: 0}}
+            keyExtractor={item => item._id}
+            renderItem={({item}) => {
+              const mediaCount = item.media ? item.media.length : 0;
+              return (
+                <LinearGradient
+                  colors={[
+                    'rgba(255, 255, 255, 0.3)',
+                    '#f4c5c5',
+                    'rgba(255, 255, 255, 0.3)',
+                    'rgba(255, 255, 255, 0.15)',
+                    'rgba(255, 255, 255, 0.100)',
+                  ]}
+                  start={{x: 0, y: 0}}
+                  end={{x: 0.4, y: 0}}
+                  style={styles.playlistItem}>
+                  <Pressable
+                    onPress={() => handlePlaylistClick(item._id)}
+                    // onPress={() =>
+                    //   // NavigationService.navigate('WatchLater', {playlist: item})
+                    // }
+                    style={{flexDirection: 'row'}}>
+                    <View style={{marginLeft: 3}}>
+                      <Image
+                        source={{uri: `${imageURL}${item?.image}`}}
+                        style={styles.playlistImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <View style={styles.playlistTextContainer}>
+                      <Text style={styles.playlistName}>{item.name}</Text>
+                      <Text style={styles.trackCount}>
+                        {`${mediaCount} tracks`}
+                      </Text>
+                    </View>
+                  </Pressable>
+                  {/* <Icon
+                  name="dots-three-horizontal"
+                  type="Entypo"
+                  size={16}
+                  color={'#fff'}
+                  style={{ marginTop: 5 }}
+                /> */}
+                </LinearGradient>
+              );
+            }}
+          />
+        </View>
+      </ReactNativeModal>
+    );
+  };
+  /*** Start Video playing ***/
 
-/*** Start Video playing ***/
-
-console.log('route', route);
-console.log('props', props);
-
-
-
-
+  console.log('route', route);
+  console.log('props', props);
 
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
         <Video
           source={{
-            uri: 'http://13.233.165.106/uploads/videos/1717673728_file_example_MP4_640_3MG.mp4',
+            uri: `${imageURL}${selectedData?.image}`,
           }}
           style={styles.video}
           controls={false}
@@ -551,6 +682,7 @@ console.log('props', props);
           <GitftIcon />
         </Pressable>  */}
         <Pressable
+          onPress={() => setModalState(true)}
           style={{
             height: 50,
             width: 50,
@@ -575,6 +707,148 @@ console.log('props', props);
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
+      <ReactNativeModal
+        isVisible={ModalState}
+        // backdropColor={'rgba(228, 14, 104, 1)'}
+        backdropOpacity={0.8}
+        style={{
+          margin: 0,
+          padding: 0,
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+        // animationIn={'zoomInDown'}
+        // animationOut={'zoomOut'}
+        onBackButtonPress={() => {
+          //   setPlay(false)
+          setModalState(false);
+        }}
+        onBackdropPress={() => {
+          //   setPlay(false)
+          setModalState(false);
+        }}>
+        <View
+          style={{
+            width: '100%',
+            height: height / 2.5,
+            backgroundColor: '#1C1C1C',
+            borderTopRightRadius: 20,
+            borderTopLeftRadius: 20,
+            // alignItems: 'center',
+            // padding: 20,
+            paddingHorizontal: 25,
+            // justifyContent:'center',
+            // paddingHorizontal: 10,
+          }}>
+          <View
+            style={{
+              alignSelf: 'center',
+              height: 4,
+              width: 32,
+              backgroundColor: 'rgba(118, 118, 128, 0.24)',
+              marginTop: 10,
+              marginBottom: 15,
+            }}
+          />
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+            <BookmarkIcon />
+            <TouchableOpacity onPress={toggleModal}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 17,
+                  fontFamily: Theme.FontFamily.normal,
+                  marginLeft: 15,
+                  // marginTop:10,
+                }}>
+                Save this Video for Later
+              </Text>
+            </TouchableOpacity>
+            {renderPlaylistModal()}
+          </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <ShareIcon />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 15,
+                // marginTop:10,
+              }}>
+              Share with People
+            </Text>
+          </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <SadEmojiIcon />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 15,
+                // marginTop:10,
+              }}>
+              Not Intrested
+            </Text>
+          </View>
+          <View
+            style={{
+              width: '100%',
+              height: 1.5,
+              backgroundColor: 'rgba(118, 118, 128, 0.34)',
+              marginTop: 25,
+            }}
+          />
+          {/* <View style={{flexDirection:'row',alignItems:'center',
+                marginTop:20,
+          
+          }}>
+              <ReportIcon Color = {'#fff'}/>
+              <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft:15,
+                // marginTop:10,
+              }}>
+            Report
+            </Text>
+            </View> */}
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
+            <ShiledIcon Color={'#fff'} />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 15,
+                // marginTop:10,
+              }}>
+              Unfollow Oseidon Draw
+            </Text>
+          </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <Notification Color={'#fff'} />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 5,
+                // marginTop:10,
+              }}>
+              Turn Off Live Notifications
+            </Text>
+          </View>
+        </View>
+      </ReactNativeModal>
     </View>
   );
 };
@@ -653,6 +927,40 @@ const styles = StyleSheet.create({
 
     padding: 10,
     fontSize: 16,
+  },
+  playlistItem: {
+    flex: 1,
+    height: 89,
+    width: width - 40,
+    borderRadius: 15,
+    marginTop: 10,
+    flexDirection: 'row',
+    padding: 10,
+    paddingRight: 20,
+    justifyContent: 'space-between',
+    alignSelf: 'center',
+  },
+  playlistImage: {
+    height: 68,
+    width: 68,
+  },
+  playlistTextContainer: {
+    marginHorizontal: 12,
+    width: '60%',
+    marginTop: 10,
+  },
+  playlistName: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: Theme.FontFamily.medium,
+    marginLeft: 5,
+  },
+  trackCount: {
+    color: 'rgba(255, 255, 255, 0.54)',
+    fontSize: 14,
+    fontFamily: Theme.FontFamily.light,
+    marginLeft: 5,
+    marginTop: 3,
   },
   button: {
     paddingHorizontal: 25,
