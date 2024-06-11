@@ -1,6 +1,4 @@
-/* eslint-disable prettier/prettier */
-import {BlurView} from '@react-native-community/blur';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,17 +11,17 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
-import {AppTextInput} from 'react-native-basic-elements';
+import { AppTextInput } from 'react-native-basic-elements';
 import Theme from '../../Constants/Theme';
 import LinearGradient from 'react-native-linear-gradient';
 import MicroPhoneIcon from '../../assets/icons/MicrophoneIcon';
 import NavigationService from '../../Services/Navigation';
-import {useSelector} from 'react-redux';
-import {apiCall} from '../../Services/Service';
-import {useTranslation} from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { apiCall } from '../../Services/Service';
+import { useTranslation } from 'react-i18next';
 import AllSourcePath from '../../Constants/PathConfig';
 
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const SearchIndex = props => {
   const token = useSelector(state => state.authData.token);
@@ -32,6 +30,7 @@ const SearchIndex = props => {
   const [cat, setCat] = useState(0);
   const [data, setData] = useState([]);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const staticImage = require('../../assets/images/image96.png');
 
   useEffect(() => {
     console.log('Category changed:', cat);
@@ -58,7 +57,10 @@ const SearchIndex = props => {
             let newData = response.data.listData;
             if (endpoint === 'videos/list') {
               // Filter the data to include only items with '.mp4' in their image URL
-              newData = newData.filter(item => item?.image?.includes('.mp4'));
+              newData = newData.filter(item => item?.image?.includes('.mp4')).map(item => ({
+                ...item,
+                isVideo: true,
+              }));
             }
             setData(newData);
             setFilteredData(newData);
@@ -73,7 +75,7 @@ const SearchIndex = props => {
     fetchData(); // Call fetchData inside the useEffect callback
   }, [cat, token]);
 
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleSearch = query => {
     console.log('Search Query:', query);
@@ -101,6 +103,7 @@ const SearchIndex = props => {
       .toString()
       .padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar
@@ -108,13 +111,13 @@ const SearchIndex = props => {
         barStyle={'light-content'}
         translucent={true}
       />
-      <View style={{flex: 1}}>
+      <View style={{ flex: 1 }}>
         <AppTextInput
           value={searchQuery}
           onChangeText={handleSearch}
           placeholder="Search"
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-          inputStyle={{fontSize: 14}}
+          inputStyle={{ fontSize: 14 }}
           autoCapitalize="none"
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
@@ -142,7 +145,7 @@ const SearchIndex = props => {
             paddingLeft: 20,
             paddingBottom: 35,
           }}
-          renderItem={({item, index}) => {
+          renderItem={({ item, index }) => {
             return (
               <Pressable
                 key={index}
@@ -175,8 +178,12 @@ const SearchIndex = props => {
         <FlatList
           data={filteredData}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{paddingBottom: 20, paddingTop: 5}}
-          renderItem={({item}) => {
+          contentContainerStyle={{ paddingBottom: 20, paddingTop: 5 }}
+          renderItem={({ item }) => {
+            const isVideo = cat === 2 && item.isVideo;
+            const imageSource = isVideo
+              ? staticImage
+              : { uri: cat === 0 ? item.imageUrl : `${imageUrl}${item.image}` };
             return (
               <LinearGradient
                 colors={[
@@ -186,8 +193,8 @@ const SearchIndex = props => {
                   'rgba(255, 255, 255, 0.15)',
                   'rgba(255, 255, 255, 0.1)',
                 ]}
-                start={{x: 0, y: 0}}
-                end={{x: 0.6, y: 0}}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0.6, y: 0 }}
                 style={{
                   flex: 1,
                   height: 120,
@@ -199,13 +206,9 @@ const SearchIndex = props => {
                   alignSelf: 'center',
                 }}>
                 <View
-                  style={{marginLeft: 3, borderRadius: 10, overflow: 'hidden'}}>
+                  style={{ marginLeft: 3, borderRadius: 10, overflow: 'hidden' }}>
                   <Image
-                    source={
-                      cat === 0
-                        ? {uri: item.imageUrl}
-                        : {uri: `${imageUrl}${item?.image}`}
-                    }
+                    source={imageSource}
                     style={{
                       height: 100,
                       width: 100,
@@ -222,7 +225,7 @@ const SearchIndex = props => {
                     } else if (cat === 1) {
                       NavigationService.navigate('PodcastLive', item);
                     } else if (cat === 2) {
-                      NavigationService.navigate('VideoLive', {id: item?._id});
+                      NavigationService.navigate('VideoLive', { id: item?._id });
                     }
                   }}
                   style={{
@@ -250,7 +253,7 @@ const SearchIndex = props => {
                       </Text>
                     </Pressable>
                   )}
-                  <View style={{marginTop: 12}}>
+                  <View style={{ marginTop: 12 }}>
                     <Text
                       style={{
                         color: '#fff',

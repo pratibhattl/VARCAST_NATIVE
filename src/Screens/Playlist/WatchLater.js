@@ -1,14 +1,15 @@
-import { View, Text, StyleSheet, FlatList, Image, Pressable, Dimensions } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, Pressable, Dimensions } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import DownloadIcon from '../../assets/icons/DownloadIcon';
 import ShareIcon from '../../assets/icons/ShareIcon';
 import AllSourcePath from '../../Constants/PathConfig';
 import { Icon } from 'react-native-basic-elements';
+import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
+
 const { width, height } = Dimensions.get('screen');
 
 const WatchLater = () => {
@@ -16,13 +17,23 @@ const WatchLater = () => {
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [playlistData, setPlaylistData] = useState([]);
-  console.log("PlayListData",playlistData)
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+
   useEffect(() => {
     if (route.params?.playlist) {
       setPlaylistData(route.params.playlist.media);
     }
   }, [route.params?.playlist]);
+
+  // Function to handle media navigation based on the media URL
+  const handleMediaNavigation = (item) => {
+    const isAudio = item.mediaUrl.endsWith('.mp3');
+    if (isAudio) {
+      NavigationService.navigate('SongPlayy', { id: item._id });
+    } else {
+      NavigationService.navigate('VideoLive', { id: item._id });
+    }
+  };
 
   return (
     <ScreenLayout
@@ -56,7 +67,7 @@ const WatchLater = () => {
                       borderRadius: 6,
                     }}>
                     <Image
-                      source={{uri: `${imageUrl}${item?.image}`}}
+                      source={{ uri: `${imageUrl}${item?.image}` }}
                       style={{
                         height: 42,
                         width: 42,
@@ -119,6 +130,7 @@ const WatchLater = () => {
                     /> */}
                   </View>
                   <Pressable
+                    onPress={() => handleMediaNavigation(item)}
                     style={{
                       width: 24,
                       height: 24,
@@ -127,7 +139,7 @@ const WatchLater = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
-                    <VideoPlayIcon />
+                   <VideoPlayIcon/>
                   </Pressable>
                 </View>
               </View>

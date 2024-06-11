@@ -144,9 +144,9 @@ const PodcastLive = props => {
       }
       // Handle the response as needed
     } catch (error) {
-      HelperFunctions.showToastMsg(
-        'This media already exists in the playlist.',
-      );
+      // HelperFunctions.showToastMsg(
+      //   'This media already exists in the playlist.',
+      // );
       console.error('Error making API call:', error);
     }
   };

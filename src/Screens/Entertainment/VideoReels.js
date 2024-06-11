@@ -9,6 +9,7 @@ import AllSourcePath from '../../Constants/PathConfig';
 const VideoReels = ({userData}) => {
   const [videoImages, setVideoImages] = useState([]);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const staticImage = require('../../assets/images/image96.png'); // Add your static image here
 
   useEffect(() => {
     if (
@@ -17,7 +18,10 @@ const VideoReels = ({userData}) => {
       userData.latest_videos.length > 0
     ) {
       const userVideos = userData.latest_videos.map(video => ({
-        img: {uri: `${imageUrl}${video.image}`},
+        img:
+          video.image_type === 'image'
+            ? {uri: `${imageUrl}${video.image}`}
+            : staticImage,
         id: video._id,
         title: video.title,
         views: video.views,
@@ -35,7 +39,12 @@ const VideoReels = ({userData}) => {
 
     console.log('cliced', clickedVideo);
     if (clickedVideo.image_type === 'image') {
-      NavigationService.navigate('SongPlayy', {...clickedVideo,audio:clickedVideo.audioUrl});
+      NavigationService.navigate('SongPlayy', {
+        ...clickedVideo,
+        audio: clickedVideo.audioUrl,
+      });
+    } else {
+      NavigationService.navigate('VideoLive', {id: clickedVideo?._id});
     }
   };
 
