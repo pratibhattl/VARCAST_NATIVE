@@ -358,7 +358,7 @@ const [image, setImage] = useState('');
     cat.forEach((category, index) => formData.append(`categoryIds[${index}]`, category));
 
     axios
-      .post(`${baseUrl}videos/save_draft`, formData, {
+      .post(`${baseUrl}videos/save_draft`,formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${tokenData}`,

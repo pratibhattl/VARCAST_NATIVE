@@ -72,28 +72,7 @@ const UploadGovtID = props => {
       ]);
     }
   };
-  // const imageUpload = () => {
-  //   ImagePicker.openPicker({
-  //     width: 300,
-  //     height: 400,
-  //     cropping: true,
-  //   }).then(image => {
-  //     console.log('imaher', image);
-  //     setimagesdet(image);
-  //     let get_originalname = getOriginalname(image.path);
-
-  //     // // form.append('image_for', 'profile_image');
-  //     form.append('govt_id_card', {
-  //       uri: image.path,
-  //       type: image.mime,
-  //       name: get_originalname,
-  //     });
-  //     // console.log('form',form)
-  //     if (form != null && image) {
-  //       UpdateProfileImage();
-  //     }
-  //   });
-  // };
+  
   const imageUpload = async () => {
     try {
       const pickedFile = await DocumentPicker.pickSingle({
