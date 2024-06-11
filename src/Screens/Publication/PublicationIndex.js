@@ -386,9 +386,7 @@ const PublicationIndex = props => {
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
-        // const realPath = await RNFetchBlob.fs.contentUriToPath(pickedFile.uri);
-        // console.log('img', file://${realPath});
-        // console.log("pickedFile----",pickedFile);
+      
         await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
           setImgUrl(data);
         });

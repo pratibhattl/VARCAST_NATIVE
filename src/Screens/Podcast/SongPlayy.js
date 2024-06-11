@@ -12,7 +12,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
@@ -38,13 +38,13 @@ import PauseIcon from '../../assets/icons/PauseIcon';
 import AlarmIcon from '../../assets/icons/AlarmIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
-import { useRoute } from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import AllSourcePath from '../../Constants/PathConfig';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
-import { apiCall } from '../../Services/Service';
+import {apiCall} from '../../Services/Service';
 import axios from 'axios';
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
 const SongPlayy = props => {
   const route = useRoute();
@@ -60,10 +60,13 @@ const SongPlayy = props => {
   const songsSlider = useRef(null);
   const [songIndex, setSongIndex] = useState(0);
   //   const progress = useProgress();
-  const [selectedData, setSelectedData] = useState({})
+  const [selectedData, setSelectedData] = useState({});
   const isFocused = useIsFocused();
-  const { position, duration } = useProgress(0);
+  const {position, duration} = useProgress(0);
   const token = useSelector(state => state.authData.token);
+
+
+  console.log('route123',route.params)
 
   function format(seconds) {
     let mins = parseInt(seconds / 60)
@@ -98,20 +101,7 @@ const SongPlayy = props => {
   // let data=AudioArr.forEach(res=>res.audio)
   // console.log('index>>>>>>>>>>>>>>',data )
   const songsfunc = async () => {
-    // let ind = AudioArr.findIndex(it=>it._id == props.route.params.item._id)
-
-    // let allSongs = [];
-    // AudioArr.forEach(async (element, index) => {
-    //   let data = {
-    //     id: element._id,
-    //     url: element.audio ,
-    //     title: element.name,
-    //     artist: element.director
-    //   };
-
-    //   allSongs.push(data);
-
-    //   if (index == (AudioArr.length - 1)) {
+  
     await TrackPlayer.setupPlayer();
 
     await TrackPlayer.add({
@@ -173,8 +163,6 @@ const SongPlayy = props => {
   //   }
   // };
 
-
-
   useEffect(() => {
     // setIsPlayerReady(false)
     setTimeout(() => {
@@ -204,8 +192,7 @@ const SongPlayy = props => {
     };
   }, []);
 
-
-  const fetchCommentData = async () => {
+  const fetchPodcastDetails = async () => {
     const formData = new FormData();
     formData.append('podcastId', props.route.params._id);
     axios
@@ -216,9 +203,10 @@ const SongPlayy = props => {
         },
       })
       .then(response => {
-
         if (response?.data?.status === true) {
           const like = response?.data?.data?.isLiked == true ? true : false;
+          console.log('podcast', response?.data?.data);
+
           setSelectedData(response?.data?.data);
           setLikeStatus(like);
         } else {
@@ -229,6 +217,7 @@ const SongPlayy = props => {
         console.error('Error fetching Podcast comments:', error);
       });
   };
+
   const handleLikePress = () => {
     const podcastId = props.route.params._id;
     if (!podcastId) {
@@ -257,7 +246,7 @@ const SongPlayy = props => {
 
   useEffect(() => {
     if (isFocused) {
-      fetchCommentData();
+      fetchPodcastDetails();
     }
   }, [isFocused]);
 
@@ -286,11 +275,11 @@ const SongPlayy = props => {
         resizeMode="cover">
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flex: 1 }}>
+          contentContainerStyle={{flex: 1}}>
           <LinearGradient
             colors={['rgba(255,255,255,0.1)', 'rgba(0, 0, 0, 0.35)', '#131313']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
+            start={{x: 0, y: 0}}
+            end={{x: 0, y: 1}}
             // useAngle={true} angle={-290}
             // angleCenter={{ x: 0.5, y: 0.5 }}
             style={{
@@ -308,7 +297,7 @@ const SongPlayy = props => {
                 paddingTop: 10,
               }}>
               <TouchableOpacity
-                onPress={() => { }}
+                onPress={() => {}}
                 style={{
                   height: 40,
                   width: 140,
@@ -342,7 +331,7 @@ const SongPlayy = props => {
                     resizeMode="cover"
                   />
                 </View>
-                <View style={{ marginHorizontal: 10 }}>
+                <View style={{marginHorizontal: 10}}>
                   {/* <Text
                     style={{
                       color: '#fff',
@@ -464,8 +453,8 @@ const SongPlayy = props => {
                   </Text>
                 </View>
                 <Pressable
-                onPress={()=>handleLikePress()}
-                  style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  onPress={() => handleLikePress()}
+                  style={{alignItems: 'center', justifyContent: 'center'}}>
                   {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
                   <Text
                     style={{
@@ -476,7 +465,7 @@ const SongPlayy = props => {
                       marginTop: 5,
                       textAlign: 'center',
                     }}>
-                   {selectedData?.countLike}
+                    {selectedData?.countLike}
                   </Text>
                 </Pressable>
               </View>
@@ -518,7 +507,7 @@ const SongPlayy = props => {
                 }}
                 maximumTrackTintColor={'rgba(255, 255, 255, 0.54)'}
                 minimumTrackTintColor={'#fff'}
-                thumbTouchSize={{ width: 0, height: 0 }}
+                thumbTouchSize={{width: 0, height: 0}}
                 thumbTintColor="transparent"
                 trackStyle={{
                   height: 0,

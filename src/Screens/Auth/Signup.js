@@ -763,7 +763,7 @@ const Signup = props => {
                   key={index}
                   onPress={() => {
                     setCountryCode(item.dial_code.replace('+', ''));
-                    setCountry_id(item.code)
+                    
                     setCountryModal(false);
                     setSearchVal('');
                     setCountryCodeList(countryCodes);

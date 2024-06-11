@@ -11,7 +11,6 @@ const VideoReels = ({userData}) => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
 
   useEffect(() => {
-    console.log('Users:', userData);
     if (
       userData &&
       userData.latest_videos &&
@@ -22,21 +21,21 @@ const VideoReels = ({userData}) => {
         id: video._id,
         title: video.title,
         views: video.views,
+        type: video.image_type,
       }));
 
       setVideoImages(userVideos);
-      console.log('User Videos:', userVideos);
     }
   }, [userData]);
-
-  console.log('Videos:', videoImages);
 
   const handleVideoPress = videoId => {
     const clickedVideo = userData.latest_videos.find(
       video => video._id === videoId,
     );
-    if (clickedVideo) {
-      NavigationService.navigate('VideoLive', {videoData: clickedVideo});
+
+    console.log('cliced', clickedVideo);
+    if (clickedVideo.image_type === 'image') {
+      NavigationService.navigate('SongPlayy', {...clickedVideo,audio:clickedVideo.audioUrl});
     }
   };
 
