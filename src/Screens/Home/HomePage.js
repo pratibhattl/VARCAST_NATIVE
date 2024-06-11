@@ -1,6 +1,6 @@
 /* eslint-disable react-native/no-inline-styles */
-import { useRoute } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
+import {useRoute} from '@react-navigation/native';
+import React, {useCallback, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -11,24 +11,24 @@ import {
 } from 'react-native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import { ImageBackground } from 'react-native';
-import { Image } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
+import {ImageBackground} from 'react-native';
+import {Image} from 'react-native';
+import {BlurView} from '@react-native-community/blur';
 import Theme from '../../Constants/Theme';
-import { Icon } from 'react-native-basic-elements';
+import {Icon} from 'react-native-basic-elements';
 import SongPlayComp from '../../Components/Podcast/SongPlayComp';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import { apiCall } from '../../Services/Service';
-import { useTranslation } from 'react-i18next';
-const { width, height } = Dimensions.get('screen');
+import {apiCall} from '../../Services/Service';
+import {useTranslation} from 'react-i18next';
+const {width, height} = Dimensions.get('screen');
 import UserDetails from '../Profile/UserDetails';
-import { useNavigation } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import FollowingUser from './FollowingUser';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import MostPlayed from './MostPlayed';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 const HomePage = props => {
   const route = useRoute();
   const isFocused = useIsFocused();
@@ -40,16 +40,17 @@ const HomePage = props => {
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
+  console.log('MostPalyed', mostPlayedData);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [userData, setUserData] = useState([]);
   const [ourpickData, setourpickData] = useState([]);
-
-  const [latestPodCast, setLatestPodCast] = useState([])
+  const staticImage = require('../../assets/images/image96.png');
+  const [latestPodCast, setLatestPodCast] = useState([]);
   const [liveData, setLiveData] = useState([]);
-  const [latestFollowers, setLatestFollowers] = useState([])
-  const [videoByCat, setVideoByCat] = useState([])
+  const [latestFollowers, setLatestFollowers] = useState([]);
+  const [videoByCat, setVideoByCat] = useState([]);
 
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const navigation = useNavigation();
   const token = useSelector(state => state.authData.token);
 
@@ -68,22 +69,22 @@ const HomePage = props => {
 
   // Function to navigate to UserDetails screen with userData as prop
   const goToUserDetails = () => {
-    navigation.navigate('UserDetails', { userData: userData });
+    navigation.navigate('UserDetails', {userData: userData});
   };
 
   const onClickCategory = (data, index) => {
     setVideoByCat(data?.videos);
     setCat(index);
-  }
+  };
 
   //Fetching HomePage Data
   const fetchHomePageData = async () => {
-    setLoader(true)
+    setLoader(true);
     try {
       const endpoint = 'home/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       if (response?.status === true) {
-        setLoader(false)
+        setLoader(false);
         const usermappedData =
           response?.data?.latest_followings?.length > 0 &&
           response?.data?.latest_followings?.map(item => ({
@@ -101,10 +102,9 @@ const HomePage = props => {
         setLiveData(response?.data?.latest_lives);
         // setLatestFollowings(response?.data?.latest_followings);
         setLatestFollowers(response?.data?.latest_followers);
-
       }
     } catch (error) {
-      setLoader(false)
+      setLoader(false);
       HelperFunctions.showToastMsg(error?.message);
     }
   };
@@ -124,6 +124,7 @@ const HomePage = props => {
       });
   };
 
+  
   useEffect(() => {
     if (token) {
       fetchHomePageData();
@@ -133,7 +134,7 @@ const HomePage = props => {
   }, [token]);
   return (
     <ScreenLayout
-      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
+      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
       showLoading={Loder}
       isScrollable={true}
       // viewStyle={{backgroundColor:'#131313'}}
@@ -175,12 +176,12 @@ const HomePage = props => {
           data={liveData}
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 20, paddingLeft: 20 }}
-          renderItem={({ item }) => {
+          contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
+          renderItem={({item}) => {
             return (
               <Pressable
                 onPress={() =>
-                  NavigationService.navigate('LiveDetails', { id: item?._id })
+                  NavigationService.navigate('LiveDetails', {id: item?._id})
                 }
                 style={{
                   width: 335,
@@ -193,7 +194,7 @@ const HomePage = props => {
                   backgroundColor: 'transparent',
                 }}>
                 <Image
-                  source={{ uri: item?.imageUrl }}
+                  source={{uri: item?.imageUrl}}
                   style={{
                     width: 335,
                     height: 175,
@@ -307,15 +308,15 @@ const HomePage = props => {
                 data={userData}
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingTop: 15, paddingLeft: 20 }}
-                renderItem={({ item }) => (
+                contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
+                renderItem={({item}) => (
                   <TouchableOpacity
                     onPress={async () => {
                       try {
                         const response = await apiCall(
                           'user-profile',
                           'POST',
-                          { userId: item.userId },
+                          {userId: item.userId},
                           token,
                         );
 
@@ -344,7 +345,7 @@ const HomePage = props => {
                         backgroundColor: 'transparent',
                       }}>
                       <Image
-                        source={{ uri: item?.imageUrl }}
+                        source={{uri: item?.imageUrl}}
                         style={{
                           width: 128,
                           height: 110,
@@ -393,8 +394,8 @@ const HomePage = props => {
           data={categorylist}
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={{ paddingTop: 25, paddingLeft: 20 }}
-          renderItem={({ item, index }) => {
+          contentContainerStyle={{paddingTop: 25, paddingLeft: 20}}
+          renderItem={({item, index}) => {
             return (
               <Pressable
                 key={index}
@@ -429,32 +430,34 @@ const HomePage = props => {
           data={videoByCat}
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={{ paddingTop: 25, paddingLeft: 20 }}
-          renderItem={({ item, index }) => {
-            // console.log("-----item",item);
+          contentContainerStyle={{paddingTop: 25, paddingLeft: 20}}
+          renderItem={({item, index}) => {
+            const isStaticImage = item?.video?.image.endsWith('.mp4');
+            const source = isStaticImage
+              ? staticImage
+              : {uri: `${imageUrl}${item?.video?.image}`};
+
             return (
-              <View
+              <Pressable
+                onPress={() =>
+                  NavigationService.navigate('VideoLive', {id: item?._id})
+                }
                 style={{
                   width: 200,
                   height: 185,
                   borderRadius: 15,
-                  marginRight: 20,
-                  borderTopRightRadius: 0,
-                  borderTopLeftRadius: 0,
+                  marginBottom: 10,
                   overflow: 'hidden',
-
                   backgroundColor: 'transparent',
+                  marginRight: 10,
                 }}>
                 <Image
-                  source={item?.video?.image ? { uri: imageUrl + item?.video?.image }
-                    : require('../../assets/images/Rectangle182.png')
-                  }
+                  source={source}
                   style={{
                     width: 200,
                     height: 185,
+                  
                     borderRadius: 15,
-                    // borderBottomLeftRadius:150
-                    // marginHorizontal:10
                   }}
                   resizeMode="cover"
                 />
@@ -462,19 +465,12 @@ const HomePage = props => {
                   style={{
                     height: 71,
                     width: 200,
-                    // alignItems:'center',
                     alignSelf: 'center',
                     position: 'absolute',
                     bottom: 0,
                     backgroundColor: 'rgba(200,200,200, 0.5)',
                     opacity: 0.9,
-                  }}
-                // blurType="light"
-                // overlayColor="transparent"
-                // blurAmount={20}
-                // blurRadius={10}
-                // reducedTransparencyFallbackColor="white"
-                >
+                  }}>
                   <View
                     style={{
                       overflow: 'hidden',
@@ -486,28 +482,17 @@ const HomePage = props => {
                         fontSize: 14,
                         fontFamily: Theme.FontFamily.semiBold,
                         marginHorizontal: 5,
-                        // textAlign:'auto'
                       }}>
                       {item?.video?.title}
                     </Text>
-
-                    {/* <Text
-                      style={{
-                        color: 'rgba(255, 255, 255, 0.6)',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.normal,
-                        marginLeft: 5,
-                      }}>
-                      Duration: 23 mins
-                    </Text> */}
                   </View>
                 </View>
-              </View>
+              </Pressable>
             );
           }}
         />
-        <View
 
+        <View
           style={{
             paddingHorizontal: 20,
             flexDirection: 'row',
@@ -516,7 +501,6 @@ const HomePage = props => {
             marginTop: 25,
           }}>
           <Text
-
             style={{
               color: '#fff',
               fontSize: 19,
@@ -539,49 +523,39 @@ const HomePage = props => {
           data={latestPodCast}
           showsHorizontalScrollIndicator={false}
           horizontal
-          contentContainerStyle={{ paddingTop: 15, paddingLeft: 20 }}
-          renderItem={({ item, index }) => {
+          contentContainerStyle={{paddingTop: 15, paddingLeft: 20}}
+          renderItem={({item, index}) => {
+            const isStaticImage = item.image.endsWith('.mp4');
+            const source = isStaticImage
+              ? staticImage
+              : {uri: `${imageUrl}${item.image}`};
+
             return (
               <Pressable
-                onPress={() =>
-                  NavigationService.navigate('PodcastLive', item)
-                }
+                onPress={() => NavigationService.navigate('PodcastLive', item)}
                 style={{
-                  // width: 335,
                   height: 175,
                   borderRadius: 15,
-                  // marginRight: 20,
-                  borderTopRightRadius: 0,
-                  borderTopLeftRadius: 0,
                   overflow: 'hidden',
                   backgroundColor: 'transparent',
+                  marginRight: index === latestPodCast.length - 1 ? 20 : 0,
                 }}>
                 <View
                   style={{
                     width: 128,
                     height: 110,
                     borderRadius: 15,
-                    marginRight: 20,
-                    borderTopRightRadius: 0,
-                    borderTopLeftRadius: 0,
                     overflow: 'hidden',
-
+                    marginRight: 10,
                     backgroundColor: 'transparent',
                   }}>
-
                   <Image
-                    source={{ uri: imageUrl + item.image }}
-                    // source={
-                    //   index % 2 == 0
-                    //     ? require('../../assets/images/Rectangle184.png')
-                    //     : require('../../assets/images/Rectangle185.png')
-                    // }
+                    source={source}
                     style={{
                       width: 128,
                       height: 110,
                       borderRadius: 15,
-                      // borderBottomLeftRadius:150
-                      // marginHorizontal:10
+                      marginRight: 10,
                     }}
                     resizeMode="cover"
                   />
@@ -596,17 +570,10 @@ const HomePage = props => {
                       bottom: 0,
                       backgroundColor: 'rgba(0, 0, 0, 0.4)',
                       opacity: 0.9,
-                    }}
-                  // blurType="light"
-                  // overlayColor="transparent"
-                  // blurAmount={20}
-                  // blurRadius={10}
-                  // reducedTransparencyFallbackColor="white"
-                  >
+                    }}>
                     <View
                       style={{
                         overflow: 'hidden',
-                        // paddingHorizontal: 15,
                         paddingTop: 5,
                       }}>
                       <Text
@@ -615,9 +582,8 @@ const HomePage = props => {
                           fontSize: 14,
                           fontFamily: Theme.FontFamily.normal,
                           marginHorizontal: 5,
-                          // textAlign:'center'
                         }}>
-                        {item?.title}
+                        {item.title}
                       </Text>
                     </View>
                   </View>
@@ -626,6 +592,7 @@ const HomePage = props => {
             );
           }}
         />
+
         {/* <View
           style={{
             paddingHorizontal: 20,
@@ -753,59 +720,66 @@ const HomePage = props => {
             data={mostPlayedData}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingTop: 20, paddingLeft: 20 }}
-            renderItem={({ item }) => (
-              <Pressable
-                onPress={() => {
-                  // Navigate to Live Detail page
-                  NavigationService.navigate('VideoLive', { id: item._id });
-                }}
-                style={{
-                  width: 200,
-                  height: 200,
-                  borderRadius: 15,
-                  marginRight: 20,
-                  overflow: 'hidden',
-                  backgroundColor: 'transparent',
-                }}>
-                <Image
-                  source={{ uri: `${imageUrl + item.image}` }}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 15,
+            contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
+            renderItem={({item}) => {
+              const isStaticImage = item.image.endsWith('.mp4');
+              const source = isStaticImage
+                ? staticImage
+                : {uri: `${imageUrl + item.image}`};
+
+              return (
+                <Pressable
+                  onPress={() => {
+                    // Navigate to Live Detail page
+                    NavigationService.navigate('VideoLive', {id: item._id});
                   }}
-                  resizeMode="cover"
-                />
-                <View
                   style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    padding: 10,
+                    width: 200,
+                    height: 200,
+                    borderRadius: 15,
+                    marginRight: 20,
+                    overflow: 'hidden',
+                    backgroundColor: 'transparent',
                   }}>
-                  <Text
+                  <Image
+                    source={source}
                     style={{
-                      color: '#fff',
-                      fontSize: 16,
-                      fontFamily: 'Arial', // Use your desired font family
-                      marginBottom: 5,
-                    }}>
-                    {item.title}
-                  </Text>
-                  <Text
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: 15,
+                    }}
+                    resizeMode="cover"
+                  />
+                  <View
                     style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: 'Arial', // Use your desired font family
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      padding: 10,
                     }}>
-                    Views: {item.views}
-                  </Text>
-                </View>
-              </Pressable>
-            )}
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 16,
+                        fontFamily: 'Arial', // Use your desired font family
+                        marginBottom: 5,
+                      }}>
+                      {item.title}
+                    </Text>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 14,
+                        fontFamily: 'Arial', // Use your desired font family
+                      }}>
+                      Views: {item.views}
+                    </Text>
+                  </View>
+                </Pressable>
+              );
+            }}
           />
         </View>
 

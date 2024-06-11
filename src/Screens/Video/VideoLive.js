@@ -37,6 +37,7 @@ import SadEmojiIcon from '../../assets/icons/SadEmojiIcon';
 import ShiledIcon from '../../assets/icons/ShiledIcon';
 import Notification from '../../assets/icons/Notification';
 import ShareIcon from '../../assets/icons/ShareIcon';
+import Icon from 'react-native-vector-icons/Ionicons';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
@@ -80,8 +81,9 @@ const VideoLive = props => {
   const [selectedData, setSelectedData] = useState({});
   console.log('Seleceted Video Data', selectedData);
   const [ModalState, setModalState] = useState(false);
-
+  const [paused, setPaused] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -123,8 +125,17 @@ const VideoLive = props => {
   // };
 
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+
+
+
+
+ const togglePlayPause = () => {
+    setPaused(!paused);
+  };
+
+  const onVideoPress = () => {
+    setShowControls(!showControls);
+  };
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
@@ -190,17 +201,6 @@ const VideoLive = props => {
     }
   };
 
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-  };
-
-  const onProgress = data => {
-    setCurrentTime(data.currentTime);
-  };
-
-  const onLoad = data => {
-    setDuration(data.duration);
-  };
   useEffect(() => {
     // Initialize Agora engine when the app starts
 
@@ -488,15 +488,31 @@ const VideoLive = props => {
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
+      <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
         <Video
-          source={{
-            uri: `${imageURL}${selectedData?.image}`,
-          }}
+            source={{
+              uri: `${imageURL}${selectedData?.image}`,
+            }}
           style={styles.video}
-          controls={false}
+          paused={paused}
           resizeMode="contain"
+          onBuffer={() => {}}
+          onError={(error) => console.log(error)}
+          controls={false}
         />
-      </View>
+        {showControls && (
+          <View style={styles.controls}>
+            <TouchableOpacity onPress={togglePlayPause}>
+              <Icon
+                name={paused ? 'play-circle-outline' : 'pause-circle-outline'}
+                size={50}
+                color="white"
+              />
+            </TouchableOpacity>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -865,28 +881,25 @@ const styles = StyleSheet.create({
     // paddingTop:100
   },
   videoContainer: {
-    position: 'absolute',
-    top: -400,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0, // Adjust the zIndex as needed
+    position: 'relative',
+    width: '100%',
+    height: 300,
+    backgroundColor: 'black',
+  },
+  touchable: {
+    flex: 1,
   },
   video: {
-    flex: 1,
+    width: '100%',
+    height: '100%',
   },
-  customControls: {
+  controls: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 10,
     left: 0,
     right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-  },
-  slider: {
-    flex: 1,
-    marginHorizontal: 10,
+    justifyContent: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
