@@ -211,6 +211,7 @@ const PodcastIndex = () => {
             {t('Similar Podcasts')}
           </Text>
           <Text
+          onPress={() => NavigationService.navigate('PopularEpisode')}
             style={{
               color: 'rgba(255, 255, 255, 0.54)',
               fontSize: 14,
