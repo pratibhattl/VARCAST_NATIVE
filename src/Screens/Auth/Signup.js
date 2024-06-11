@@ -1,5 +1,5 @@
 import {useRoute} from '@react-navigation/native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -67,6 +67,16 @@ const Signup = props => {
   const [genderDropDown, setGenderDropDown] = useState(false);
 
   const {t, i18n} = useTranslation();
+
+
+  useEffect(()=>{
+    setName('');
+    setDob('');
+    setValue('');
+    setPassword('');
+    setConfirmPassword('');
+    setGender('');
+  },[])
 
   function handleSearchClick(val) {
     if (val === '') {
@@ -189,6 +199,7 @@ const Signup = props => {
         dob: Dob,
         gender: GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O',
       };
+
       NavigationService.navigate('UploadGovtID', {details: data});
       // postApi("api/login", data, "").then(response => {
       //   // console.log('response',response)

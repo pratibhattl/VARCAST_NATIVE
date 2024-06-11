@@ -85,7 +85,7 @@ else{
           Authorization: `Bearer ${token}`,
         },
       });
-      NavigationService.navigate('AddPlaylist')
+      NavigationService.back()
       setLoadingState(false);
       setPlaylistName('');
       setImage(null);

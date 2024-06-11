@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -18,34 +18,35 @@ import {
 import CustomHeader from '../../Components/Header/CustomHeader';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
-import {AppTextInput, Icon} from 'react-native-basic-elements';
-import {BlurView} from '@react-native-community/blur';
+import { AppTextInput, Icon } from 'react-native-basic-elements';
+import { BlurView } from '@react-native-community/blur';
 import ReactNativeModal from 'react-native-modal';
 import OtpInput from '../../Components/EditTextComponent/OtpInputComponent';
-import {moderateScale} from '../../Constants/PixelRatio';
+import { moderateScale } from '../../Constants/PixelRatio';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {apiCall, postApi} from '../../Services/Service';
+import { apiCall, postApi } from '../../Services/Service';
 import ImagePicker from 'react-native-image-crop-picker';
-import {countryCodes} from '../../Constants/countryCodes';
-import {useTranslation} from 'react-i18next';
+import { countryCodes } from '../../Constants/countryCodes';
+import { useTranslation } from 'react-i18next';
 import EditIcon from '../../assets/icons/EditIcon';
-import {PERMISSIONS, requestMultiple} from 'react-native-permissions';
-import {useSelector} from 'react-redux';
+import { PERMISSIONS, requestMultiple } from 'react-native-permissions';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 import AllSourcePath from '../../Constants/PathConfig';
+import DocumentPicker from 'react-native-document-picker';
 
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const UploadGovtID = props => {
   const form = new FormData();
-  const {details} = props.route.params;
-
+  const { details } = props.route.params;
+  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
   console.log('details', details);
   const [GovtIdImg, setGovtIdImg] = useState('');
-  const [imagesdet, setimagesdet] = useState('');
+  const [imagesdet, setimagesdet] = useState(null);
   const [userOtp, setUserOtp] = useState('');
   const [Loder, setLoader] = useState(false);
-  const {t, i18n} = useTranslation();
+  const { t, i18n } = useTranslation();
 
   function getOriginalname(data) {
     let arr = data.split('/');
@@ -71,71 +72,85 @@ const UploadGovtID = props => {
       ]);
     }
   };
-  const imageUpload = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true,
-    }).then(image => {
-      console.log('imaher', image);
-      setimagesdet(image);
-      let get_originalname = getOriginalname(image.path);
+  // const imageUpload = () => {
+  //   ImagePicker.openPicker({
+  //     width: 300,
+  //     height: 400,
+  //     cropping: true,
+  //   }).then(image => {
+  //     console.log('imaher', image);
+  //     setimagesdet(image);
+  //     let get_originalname = getOriginalname(image.path);
 
-      // // form.append('image_for', 'profile_image');
-      form.append('govt_id_card', {
-        uri: image.path,
-        type: image.mime,
-        name: get_originalname,
+  //     // // form.append('image_for', 'profile_image');
+  //     form.append('govt_id_card', {
+  //       uri: image.path,
+  //       type: image.mime,
+  //       name: get_originalname,
+  //     });
+  //     // console.log('form',form)
+  //     if (form != null && image) {
+  //       UpdateProfileImage();
+  //     }
+  //   });
+  // };
+  const imageUpload = async () => {
+    try {
+      const pickedFile = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.allFiles],
       });
-      // console.log('form',form)
-      if (form != null && image) {
-        UpdateProfileImage();
+      // if (pickedFile) {
+      //   UpdateProfileImage();
+      // }
+      setimagesdet(pickedFile);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('err', err);
+      } else {
+        console.log('error', err);
+        throw err;
       }
-    });
+    }
   };
 
- 
-
   const register = async () => {
-    if (imagesdet == null || imagesdet == undefined || imagesdet == '') {
+    if (imagesdet == null || imagesdet == undefined) {
       HelperFunctions.showToastMsg('Please upload any id proof!');
     }
 
-    setLoader(true);
+    else {
+      setLoader(true);
 
-    try {
-      let get_originalname = getOriginalname(imagesdet.path);
-      const payload = {
-        name: details?.name,
-        email: details?.email,
-        password: details?.password,
-        country_id: details?.country_id,
-        phone: details?.phone,
-        dob: details?.dob,
-        gender: details?.gender,
-        register_for: 'app',
-        govt_id_card: {
-          uri: imagesdet.path,
-          type: imagesdet.mime,
-          name: get_originalname,
-        },
-      };
-    
-      const data = await apiCall('register', 'POST', payload);
+      const formData = new FormData();
+      formData.append('name', details?.name);
+      formData.append('email', details?.email);
+      formData.append('password', details?.password);
+      formData.append('country_id', details?.country_id);
+      formData.append('phone', details?.phone);
+      formData.append('dob', details?.dob);
+      formData.append('gender', details?.gender);
+      formData.append('register_for', 'app');
+      formData.append('govt_id_card', imagesdet);
+      axios.post(`${baseUrl}register`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
 
-     
-      if (data.status === 'success') {
-        setimagesdet();
-        HelperFunctions.showToastMsg('Register Successfully');
-        NavigationService.navigate('Login')
-      }
-    } catch (error) {
-      console.log('error', error);
-      HelperFunctions.showToastMsg(error?.message);
-    } finally {
-      setLoader(false);
+        }
+      }).then((response) => {
+        setLoader(false);
+        if (response?.data.status === 'success') {
+          setimagesdet();
+          HelperFunctions.showToastMsg(response?.data?.message);
+          NavigationService.navigate('Login')
+        }
+      }).catch((error) => {
+        setLoader(false);
+        console.log('error', error);
+        HelperFunctions.showToastMsg(error?.message);
+      })
     }
-  };
+  }
+
 
   // const SendOtp = () => {
   //   if (imagesdet == null || imagesdet == undefined || imagesdet == '') {
@@ -230,7 +245,7 @@ const UploadGovtID = props => {
           <Image
             source={
               imagesdet
-                ? {uri: imagesdet.path}
+                ? { uri: imagesdet.uri }
                 : require('../../assets/images/addimage.png')
             }
             style={{
@@ -243,7 +258,7 @@ const UploadGovtID = props => {
         </TouchableOpacity>
         {Loder ? (
           <ActivityIndicator
-            style={{position: 'absolute', top: 0, bottom: 0, right: 0, left: 0}}
+            style={{ position: 'absolute', top: 0, bottom: 0, right: 0, left: 0 }}
             color={'#fff'}
           />
         ) : null}
@@ -254,7 +269,7 @@ const UploadGovtID = props => {
           </TouchableOpacity> */}
       </View>
 
-      <View style={{flex: 1}} />
+      <View style={{ flex: 1 }} />
       <Pressable
         disabled={Loder}
         onPress={
@@ -286,7 +301,7 @@ const UploadGovtID = props => {
         </Text>
         {Loder ? (
           <ActivityIndicator
-            style={{marginHorizontal: 10}}
+            style={{ marginHorizontal: 10 }}
             color={'#000'}
             size={20}
           />
