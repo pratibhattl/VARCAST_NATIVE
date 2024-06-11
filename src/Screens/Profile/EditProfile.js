@@ -46,6 +46,7 @@ const EditProfile = () => {
     state => state.authData,
   );
   const dispatch = useDispatch();
+  console.log('user',userDetails)
 
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;

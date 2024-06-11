@@ -78,7 +78,7 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
-  console.log("SELECTED", selectedData)
+  console.log('SELECTED', selectedData);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -333,7 +333,7 @@ const PodcastLive = props => {
       setRemoteUid(0);
       setIsJoined(false);
       showMessage('You left the channel');
-     SoundPlayer.stop()
+      SoundPlayer.stop();
       HelperFunctions.showToastMsg('You left the channel');
     } catch (e) {
       console.log(e);
@@ -381,7 +381,6 @@ const PodcastLive = props => {
 
   /*** Play Podcast ***/
 
-
   // const playPodcast = async () => {
   //   // Set up the player
   //   await TrackPlayer.setupPlayer();
@@ -398,7 +397,6 @@ const PodcastLive = props => {
   //   await TrackPlayer.play();
   // };
 
-  
   const playPodcast = () => {
     try {
       SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
@@ -521,6 +519,10 @@ const PodcastLive = props => {
     );
   };
 
+  useEffect(() => {
+    setTimeout(() => playPodcast(), 200);
+  }, []);
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -605,14 +607,14 @@ const PodcastLive = props => {
                   resizeMode="cover"
                 />
               </View>
-              <View style={{ marginHorizontal: 10 }}>
+              <View style={{marginHorizontal: 10}}>
                 <Text
                   style={{
                     color: '#fff',
                     fontSize: 14,
                     fontFamily: Theme.FontFamily.normal,
                   }}>
-                   {selectedData?.user?.name}
+                  {selectedData?.user?.name}
                 </Text>
                 <Text
                   style={{
@@ -622,7 +624,7 @@ const PodcastLive = props => {
                     textAlign: 'center',
                     marginTop: 1,
                   }}>
-                  {selectedData.countView}{' '} views
+                  {selectedData.countView} views
                 </Text>
               </View>
             </TouchableOpacity>
@@ -865,7 +867,7 @@ const PodcastLive = props => {
             {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
-        {/* {/* <Pressable
+        <Pressable
           onPress={getAllGift}
           style={{
             height: 50,
@@ -877,7 +879,7 @@ const PodcastLive = props => {
             marginBottom: 15,
           }}>
           <GitftIcon />
-        </Pressable> */}
+        </Pressable>
         <Pressable
           onPress={() => setModalState(true)}
           style={{
