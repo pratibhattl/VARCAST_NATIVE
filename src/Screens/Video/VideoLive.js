@@ -153,7 +153,7 @@ const VideoLive = props => {
       const endpoint = 'playlist/add_media';
       console.log('Podcast Data', selectedData);
       const mediaUrl = selectedData.image;
-      // const image = selectedData.image;
+      const image = selectedData.image;
       const title = selectedData.title;
       const overview = selectedData.description;
       const updated_at = selectedData.updated_at;
@@ -183,9 +183,9 @@ const VideoLive = props => {
       }
       // Handle the response as needed
     } catch (error) {
-      HelperFunctions.showToastMsg(
-        'This media already exists in the playlist.',
-      );
+      // HelperFunctions.showToastMsg(
+      //   'This media already exists in the playlist.',
+      // );
       console.error('Error making API call:', error);
     }
   };
