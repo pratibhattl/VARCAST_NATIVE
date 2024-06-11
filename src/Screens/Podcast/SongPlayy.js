@@ -182,7 +182,7 @@ const SongPlayy = props => {
       scrollX.removeAllListeners();
       TrackPlayer.reset();
     };
-  }, []);
+  }, [route.params._id]);
 
   useEffect(() => {
     return () => {
@@ -331,16 +331,16 @@ const SongPlayy = props => {
                     resizeMode="cover"
                   />
                 </View>
-                <View style={{marginHorizontal: 10}}>
-                  {/* <Text
+                {/* <View style={{marginHorizontal: 10}}>
+                  <Text
                     style={{
                       color: '#fff',
                       fontSize: 14,
                       fontFamily: Theme.FontFamily.normal,
                     }}>
                     Adrian Reif
-                  </Text> */}
-                  {/* <Text
+                  </Text>
+                  <Text
                     style={{
                       color: 'rgba(255, 255, 255, 0.54)',
                       fontSize: 13,
@@ -349,8 +349,8 @@ const SongPlayy = props => {
                       marginTop: 1,
                     }}>
                     32,217 views
-                  </Text> */}
-                </View>
+                  </Text>
+                </View> */}
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => NavigationService.back()}

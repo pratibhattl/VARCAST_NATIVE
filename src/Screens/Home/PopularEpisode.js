@@ -23,13 +23,12 @@ const {width, height} = Dimensions.get('screen');
 
 const PopularEpisode = () => {
   const route = useRoute();
-  const imageUrl = AllSourcePath.IMAGE_BASE_URL
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const token = useSelector(state => state.authData.token);
-
 
   const fetchEpisodeData = useCallback(async () => {
     try {
@@ -37,17 +36,16 @@ const PopularEpisode = () => {
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       if (response?.status === true) {
-        
         setPopularEpisodes(response?.data?.listData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-    } 
+    }
   }, [token]);
 
-  useEffect(()=>{
-    fetchEpisodeData()
-  },[]);
+  useEffect(() => {
+    fetchEpisodeData();
+  }, []);
 
   return (
     <ScreenLayout
@@ -68,7 +66,6 @@ const PopularEpisode = () => {
         />
 
         <FlatList
-        
           data={popularEpisodes}
           keyExtractor={item => item.title}
           showsHorizontalScrollIndicator={false}
@@ -78,90 +75,92 @@ const PopularEpisode = () => {
           renderItem={({item, index}) => {
             return (
               <Pressable
-              onPress={() =>
-                NavigationService.navigate('PodcastLive', {id:item?._id})
-              }
-              style={{
-                width: 335,
-                height: 175,
-                borderRadius: 15,
-                marginRight: 20,
-                borderTopRightRadius: 0,
-                borderTopLeftRadius: 0,
-                overflow: 'hidden',
-                backgroundColor: 'transparent',
-              }}>
-              <View
-              
+                key={index}
+                onPress={() =>
+                  NavigationService.navigate('PodcastLive', {id: item?._id})
+                }
                 style={{
-                  width: '46%',
-                  height: 165,
+                  width: '100%',
+                  height: 175,
                   borderRadius: 15,
-                  marginRight: 20,
-                  borderTopRightRadius: 10,
-                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 0,
+                  borderTopLeftRadius: 0,
                   overflow: 'hidden',
-
                   backgroundColor: 'transparent',
-                  marginTop: 20,
+                  flex: 1,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
                 }}>
-                <Image
-                  source={{uri: imageUrl+item.image}}
+                <View
                   style={{
-                    width: 200,
-                    height: 180,
+                    width: '95%',
+                    height: 165,
                     borderRadius: 15,
-                    // borderBottomLeftRadius:150
-                    // marginHorizontal:10
-                  }}
-                  resizeMode="cover"
-                />
-                <BlurView
-                  style={{
-                    height: 71,
-                    width: 200,
-                    // alignItems:'center',
-                    alignSelf: 'center',
-                    position: 'absolute',
-                    bottom: 0,
-                    //  padding:5
-                    //  borderRadius:15,
-                  }}
-                  blurType="light"
-                  overlayColor="transparent"
-                  blurAmount={20}
-                  blurRadius={10}
-                  reducedTransparencyFallbackColor="white">
-                  <View
-                    style={{
-                      overflow: 'hidden',
-                      padding: 5,
-                      marginLeft: 13,
-                      textAlign: 'auto',
-                    }}>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.normal,
-                        marginHorizontal: 5,
-                        // textAlign: 'auto',
-                      }}>
-                      {item.title}
-                    </Text>
+                    // marginRight: 20,
+                    borderTopRightRadius: 10,
+                    borderTopLeftRadius: 10,
+                    overflow: 'hidden',
 
-                    <Text
+                    backgroundColor: 'transparent',
+                    marginTop: 20,
+                  }}>
+                  <Image
+                    source={{uri: imageUrl + item.image}}
+                    style={{
+                      width: 200,
+                      height: 180,
+                      borderRadius: 15,
+                      // borderBottomLeftRadius:150
+                      // marginHorizontal:10
+                    }}
+                    resizeMode="cover"
+                  />
+                  <BlurView
+                    style={{
+                      height: 71,
+                      width: 200,
+                      // alignItems:'center',
+                      alignSelf: 'center',
+                      position: 'absolute',
+                      bottom: 0,
+                      paddingLeft: 5,
+                      //  borderRadius:15,
+                    }}
+                    blurType="light"
+                    overlayColor="transparent"
+                    blurAmount={20}
+                    blurRadius={10}
+                    reducedTransparencyFallbackColor="white">
+                    <View
                       style={{
-                        color: 'rgba(255, 255, 255, 0.54)',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.light,
-                        marginLeft: 5,
+                        overflow: 'hidden',
+                        // padding: 5,
+                        marginLeft: 13,
+                        textAlign: 'auto',
                       }}>
-                      Duration: {item.views}
-                    </Text>
-                  </View>
-                </BlurView>
-              </View>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.normal,
+                          marginHorizontal: 5,
+                          // textAlign: 'auto',
+                        }}>
+                        {item.title}
+                      </Text>
+
+                      <Text
+                        style={{
+                          color: 'rgba(255, 255, 255, 0.54)',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.light,
+                          marginLeft: 5,
+                        }}>
+                        Views: {item.views}
+                      </Text>
+                    </View>
+                  </BlurView>
+                </View>
               </Pressable>
             );
           }}
