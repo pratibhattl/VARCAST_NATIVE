@@ -37,7 +37,7 @@ const ProfileIndex = () => {
   const token = useSelector(state => state.authData.token);
   const [loadingState, setLoadingState] = useState(false);
   const [userDetails, setUserDetails] = useState([]);
-  console.log('useD', userDetails);
+  
   const {following} = useSelector(state => state.commonData); // Get following state from the store
   const dispatch = useDispatch(); // Initialize useDispatch
 
