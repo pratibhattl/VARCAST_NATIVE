@@ -20,19 +20,21 @@ import {t} from 'i18next';
 import AllSourcePath from '../../Constants/PathConfig';
 import {apiCall} from '../../Services/Service';
 import {useIsFocused} from '@react-navigation/native';
+import Pagination from '@cherry-soft/react-native-basic-pagination';
 
 const {width, height} = Dimensions.get('screen');
 
 const AddPlaylist = () => {
   const route = useRoute();
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(true);
+  const [loadingState, changeloadingState] = useState(false);
   const [playlists, setPlaylists] = useState([]);
   const [playArray, setPlayArray] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const isFocused = useIsFocused();
+  const [page, setPage] = useState(1);
 
 
   const fetchPlaylists = async () => {
@@ -40,14 +42,6 @@ const AddPlaylist = () => {
       changeloadingState(true);
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
-
-      // Sort playlists by most recently created or updated
-      // const sortedPlaylists = response.data.listData.map((a, b) => {
-      //   const dateA = new Date(a.updated_at || a.created_at);
-      //   const dateB = new Date(b.updated_at || b.created_at);
-      //   return dateB - dateA;
-      // });
-
       setPlaylists(response.data.listData);
       setPlayArray(response.data.listData);  
       changeloadingState(false);
@@ -61,7 +55,6 @@ const AddPlaylist = () => {
    if(isFocused){
     fetchPlaylists();
    }
-   
   }, [isFocused]);
   
   const searchData = (text) => {
@@ -165,6 +158,13 @@ const AddPlaylist = () => {
             );
           }}
         />
+         {/* <Pagination
+          totalItems={playlists.length}
+          pageSize={15}
+          pagesToDisplay={5}
+          currentPage={page}
+          onPageChange={setPage}
+        /> */}
       </View>
     </ScreenLayout>
   );

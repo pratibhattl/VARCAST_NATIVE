@@ -172,7 +172,6 @@ const Login = props => {
   };
 
   const storeToLocalAndRedux = userDataa => {
-    console.log('userDataa', userDataa?.data);
 
     setData('account', userDataa?.data);
     setData('token', userDataa?.auth_token);

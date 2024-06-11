@@ -12,7 +12,7 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
@@ -20,7 +20,8 @@ import CrossIcon from '../../assets/icons/CrossIcon';
 import ShareIcon from '../../assets/icons/ShareIcon';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import Slider from '@react-native-community/slider';
-
+import DislikeIcon from '../../assets/icons/DislikeIcon';
+import HelperFunctions from '../../Constants/HelperFunctions';
 import TrackPlayer, {
   AppKilledPlaybackBehavior,
   Capability,
@@ -37,15 +38,19 @@ import PauseIcon from '../../assets/icons/PauseIcon';
 import AlarmIcon from '../../assets/icons/AlarmIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
-import {useRoute} from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import AllSourcePath from '../../Constants/PathConfig';
-const {width, height} = Dimensions.get('screen');
+import { useIsFocused } from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import { apiCall } from '../../Services/Service';
+import axios from 'axios';
+const { width, height } = Dimensions.get('screen');
 
 const SongPlayy = props => {
   const route = useRoute();
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
-
+  const [likeStatus, setLikeStatus] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(true);
   const [truefalse, setTruefalse] = useState(false);
   const [playingLoader, setPlayingLoader] = useState(true);
@@ -55,7 +60,11 @@ const SongPlayy = props => {
   const songsSlider = useRef(null);
   const [songIndex, setSongIndex] = useState(0);
   //   const progress = useProgress();
-  const {position, duration} = useProgress(0);
+  const [selectedData, setSelectedData] = useState({})
+  const isFocused = useIsFocused();
+  const { position, duration } = useProgress(0);
+  const token = useSelector(state => state.authData.token);
+
   function format(seconds) {
     let mins = parseInt(seconds / 60)
       .toString()
@@ -107,7 +116,7 @@ const SongPlayy = props => {
 
     await TrackPlayer.add({
       id: route?.params?._id,
-      url:`${baseUrl}${route?.params?.audio}`,
+      url: `${imageUrl}${route?.params?.audio}`,
       title: route?.params?.title,
       artwork: route?.params?.image,
     });
@@ -134,7 +143,6 @@ const SongPlayy = props => {
   //   var mindT = progress.duration % (60 * 60)
   const togglePlayback = async playbackState => {
     let currentTrack = await TrackPlayer.getActiveTrackIndex();
-    console.log('object>>>>>>>sdsd>>>>', playbackState);
     if (currentTrack != null) {
       if (playbackState.state == State.Paused) {
         await TrackPlayer.play();
@@ -147,7 +155,6 @@ const SongPlayy = props => {
   const skipTo = async trackId => {
     await TrackPlayer.skip(trackId);
     await TrackPlayer.play();
-    console.log('track>>>>>>', trackId);
   };
 
   //   var mind = progress.position % (60 * 60);
@@ -196,6 +203,64 @@ const SongPlayy = props => {
       // onRegisterPlayback()
     };
   }, []);
+
+
+  const fetchCommentData = async () => {
+    const formData = new FormData();
+    formData.append('podcastId', props.route.params._id);
+    axios
+      .post(`${baseUrl}podcast/details`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(response => {
+
+        if (response?.data?.status === true) {
+          const like = response?.data?.data?.isLiked == true ? true : false;
+          setSelectedData(response?.data?.data);
+          setLikeStatus(like);
+        } else {
+          console.error('Unexpected API response structure:', response);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching Podcast comments:', error);
+      });
+  };
+  const handleLikePress = () => {
+    const podcastId = props.route.params._id;
+    if (!podcastId) {
+      console.error('Podcast ID is missing');
+      return;
+    }
+    const payload = {
+      podcastId: podcastId,
+    };
+
+    apiCall('podcast/like', 'POST', payload, token)
+      .then(response => {
+        fetchCommentData();
+        if (response.message === 'Liked') {
+          setLikeStatus(true);
+          HelperFunctions.showToastMsg('Podcast liked');
+        } else {
+          setLikeStatus(false);
+          HelperFunctions.showToastMsg('Podcast Disliked');
+        }
+      })
+      .catch(error => {
+        console.error('Error while liking the podcast:', error);
+      });
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchCommentData();
+    }
+  }, [isFocused]);
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -221,11 +286,11 @@ const SongPlayy = props => {
         resizeMode="cover">
         <ScrollView
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{flex: 1}}>
+          contentContainerStyle={{ flex: 1 }}>
           <LinearGradient
             colors={['rgba(255,255,255,0.1)', 'rgba(0, 0, 0, 0.35)', '#131313']}
-            start={{x: 0, y: 0}}
-            end={{x: 0, y: 1}}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
             // useAngle={true} angle={-290}
             // angleCenter={{ x: 0.5, y: 0.5 }}
             style={{
@@ -243,7 +308,7 @@ const SongPlayy = props => {
                 paddingTop: 10,
               }}>
               <TouchableOpacity
-                onPress={() => {}}
+                onPress={() => { }}
                 style={{
                   height: 40,
                   width: 140,
@@ -277,7 +342,7 @@ const SongPlayy = props => {
                     resizeMode="cover"
                   />
                 </View>
-                <View style={{marginHorizontal: 10}}>
+                <View style={{ marginHorizontal: 10 }}>
                   {/* <Text
                     style={{
                       color: '#fff',
@@ -399,8 +464,9 @@ const SongPlayy = props => {
                   </Text>
                 </View>
                 <Pressable
-                  style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <RedHeartIcon />
+                onPress={()=>handleLikePress()}
+                  style={{ alignItems: 'center', justifyContent: 'center' }}>
+                  {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
                   <Text
                     style={{
                       color: '#fff',
@@ -410,7 +476,7 @@ const SongPlayy = props => {
                       marginTop: 5,
                       textAlign: 'center',
                     }}>
-                    32
+                   {selectedData?.countLike}
                   </Text>
                 </Pressable>
               </View>
@@ -452,7 +518,7 @@ const SongPlayy = props => {
                 }}
                 maximumTrackTintColor={'rgba(255, 255, 255, 0.54)'}
                 minimumTrackTintColor={'#fff'}
-                thumbTouchSize={{width: 0, height: 0}}
+                thumbTouchSize={{ width: 0, height: 0 }}
                 thumbTintColor="transparent"
                 trackStyle={{
                   height: 0,
