@@ -50,7 +50,7 @@ const ProfileIndex = () => {
         const endpoint = 'get-user';
         const response = await apiCall(endpoint, 'GET', {}, token);
         const data = response.data;
-        console.log('user222', data);
+
         // const mappedData = data?.map(item => ({
         //   name: item.name,
         //   email: item.email,
@@ -81,9 +81,6 @@ const ProfileIndex = () => {
     }
   };
 
-
-
-
   return (
     <View style={styles.container}>
       <StatusBar
@@ -107,7 +104,7 @@ const ProfileIndex = () => {
             headerStyle={{paddingTop: 0}}
             Edit
             EditIconPress={() => NavigationService.navigate('EditProfile')}
-            // leftHeading={'Book an Appointment'}
+            NotiIconPress={() => NavigationService.navigate('NotificationIndex')}
             onLeftIconPress={() => NavigationService.openDrawer()}
           />
           <View
@@ -161,7 +158,12 @@ const ProfileIndex = () => {
                 marginVertical: 10,
               }}>
               <TouchableOpacity
-                onPress={() => NavigationService.navigate('Followers',userDetails.latest_followers)}>
+                onPress={() =>
+                  NavigationService.navigate(
+                    'Followers',
+                    userDetails.latest_followers,
+                  )
+                }>
                 <Text
                   style={{
                     color: '#fff',
@@ -225,7 +227,13 @@ const ProfileIndex = () => {
                 </Text>
               </View>
 
-              <TouchableOpacity  onPress={() => NavigationService.navigate('FollowingUsers',userDetails.latest_followings)}>
+              <TouchableOpacity
+                onPress={() =>
+                  NavigationService.navigate(
+                    'FollowingUsers',
+                    userDetails.latest_followings,
+                  )
+                }>
                 <Text
                   style={{
                     color: '#fff',
