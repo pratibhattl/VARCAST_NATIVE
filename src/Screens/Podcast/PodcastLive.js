@@ -84,7 +84,7 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
-
+  console.log("SELECTED", selectedData)
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
