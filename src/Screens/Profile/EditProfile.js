@@ -13,7 +13,7 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useRoute} from '@react-navigation/native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
@@ -37,7 +37,9 @@ import moment from 'moment';
 import {setData} from '../../Services/LocalStorage';
 import {setToken, setUserDetails} from '../../Store/Reducers/AuthReducer';
 import {apiCall} from '../../Services/Service';
-
+import AllSourcePath from '../../Constants/PathConfig';
+import DocumentPicker from 'react-native-document-picker';
+import axios from 'axios';
 const {width, height} = Dimensions.get('screen');
 
 const EditProfile = () => {
@@ -46,7 +48,8 @@ const EditProfile = () => {
     state => state.authData,
   );
   const dispatch = useDispatch();
-
+const imageUrl = AllSourcePath?.IMAGE_BASE_URL
+const baseUrl = AllSourcePath?.API_BASE_URL_DEV
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -70,9 +73,7 @@ const EditProfile = () => {
       ? 'Male'
       : 'Others',
   );
-  const [idProof, setIdProof] = useState(
-    userDetails?.full_path_gov_id_card ?? '',
-  );
+  const [idProof, setIdProof] = useState({});
   const [idImg, setIdImg] = useState();
   const [genderDropDown, setGenderDropDown] = useState(false);
   const [password, setPassword] = useState('');
@@ -82,9 +83,7 @@ const EditProfile = () => {
   const [ConfirmPassword, setConfirmPassword] = useState('');
   const [ConfirmpasswordShow, setConfirmPasswordShow] = useState(false);
   const form = new FormData();
-  const [imagesdet, setimagesdet] = useState(
-    userDetails?.full_path_image ?? '',
-  );
+  const [imagesdet, setimagesdet] = useState({});
   const [profileImg, setProfileImg] = useState();
   const [userOtp, setUserOtp] = useState('');
   const [Loder, setLoader] = useState(false);
@@ -182,54 +181,43 @@ const EditProfile = () => {
       ]);
     }
   };
-  const imageUpload = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true,
-    }).then(image => {
-      console.log('imaher', image);
-      let get_originalname = getOriginalname(image.path);
-
-      // form.append('image_for', 'profile_image');
-      form.append('image', {
-        uri: image.path,
-        type: image.mime,
-        name: get_originalname,
+  const imageUpload = async () => {
+    
+    try {
+      const pickedFile = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.allFiles],
       });
-      setProfileImg(image);
-      setimagesdet(image.path);
-      // console.log('form',form)
-      if (form != null && image) {
-        UpdateProfileImage();
+     console.log("pickedFile1-----", pickedFile);
+
+      setimagesdet(pickedFile);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('err', err);
+      } else {
+        console.log('error', err);
+        throw err;
       }
-    });
+    }
+ 
   };
 
-  const idUpload = () => {
-    ImagePicker.openPicker({
-      width: 300,
-      height: 400,
-      cropping: true,
-    }).then(image => {
-      console.log('imaher', image);
-      setIdImg(image);
-      setIdProof(image.path);
-      let get_originalname = getOriginalname(image.path);
-
-      // // form.append('image_for', 'profile_image');
-      form.append('govt_id_card', {
-        uri: image.path,
-        type: image.mime,
-        name: get_originalname,
+  const idUpload = async () => {
+    try {
+      const pickedFile = await DocumentPicker.pickSingle({
+        type: [DocumentPicker.types.allFiles],
       });
-      // console.log('form',form)
-      if (form != null && image) {
-        UpdateProfileImage();
+     console.log("pickedFile2-----", pickedFile);
+      setIdProof(pickedFile);
+    } catch (err) {
+      if (DocumentPicker.isCancel(err)) {
+        console.log('err', err);
+      } else {
+        console.log('error', err);
+        throw err;
       }
-    });
+    }
+   
   };
-
   const UpdateProfile = async () => {
     console.log('runninggg');
 
@@ -248,14 +236,14 @@ const EditProfile = () => {
         dob: DOB,
         gender,
         image: {
-          uri: profileImg?.path,
-          type: profileImg?.mime,
-          name: get_originalname,
+          uri: imagesdet?.uei,
+          type: imagesdet?.type,
+          name: imagesdet.name,
         },
         govt_id_card: {
-          uri: idImg?.path,
-          type: idImg?.mime,
-          name: idProofName,
+          uri: idProof?.uri,
+          type: idProof?.type,
+          name: idProof.name,
         },
       };
 
@@ -263,6 +251,7 @@ const EditProfile = () => {
 
       const data = await apiCall('edit-profile', 'POST', payload, token);
 
+      console.log("DATA----", data);
       if (data?.status === 'success') {
         storeToLocalAndRedux(data?.data);
         HelperFunctions.showToastMsg('Profile Updated Successfully');
@@ -275,7 +264,35 @@ const EditProfile = () => {
       changeloadingState(false);
     }
   };
+//   const UpdateProfile =async () => {
+//     let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
+//     let gender =
+//       GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O';
 
+//     setLoader(true);
+//     try {
+//       const payload = {
+//         name: Name,
+//         dob: DOB,
+//         gender,
+//         image: imagesdet? imagesdet: userDetails?.image,
+//         govt_id_card: idProof ? idProof :userDetails?.govt_id_card,
+//       };
+//       const data = await apiCall('edit-profile', 'POST', payload, token);
+// console.log("DATA----", data);
+//       if (data?.status === 'success') {
+//         storeToLocalAndRedux(data?.data);
+//         HelperFunctions.showToastMsg('Profile Updated Successfully');
+//         NavigationService.back();
+//         setLoader(false);
+//       }
+//     } catch (error) {
+//       HelperFunctions.showToastMsg(error?.message);
+//     } finally {
+//       setLoader(false);
+//     }
+    
+//   };
   
   const UpdatePassword = async () => {
     if (
@@ -334,7 +351,6 @@ const EditProfile = () => {
     }
   };
   const storeToLocalAndRedux = userDataa => {
-    console.log('userDataa', userDataa?.data);
 
     setData('account', userDataa?.data);
     // setData('token', userDataa?.auth_token)
@@ -363,7 +379,7 @@ const EditProfile = () => {
           }}>
           <Image
             source={{
-              uri: imagesdet,
+              uri: imagesdet?.uri ?  imagesdet?.uri :  imageUrl+userDetails?.image,
             }}
             style={{
               height: 90,
@@ -550,7 +566,7 @@ const EditProfile = () => {
           />
         </TouchableOpacity>
         <View style={{marginHorizontal: 20, marginTop: 20}}>
-          <View style={{}}>
+          <View >
             <MyDropDownComponent
               onBlur={() => setGenderDropDown(false)}
               onFocus={() => setGenderDropDown(true)}
@@ -620,10 +636,10 @@ const EditProfile = () => {
           onPress={idUpload}
           style={{marginHorizontal: 20, marginTop: 20}}>
           <Image
-            source={idProof && {uri: idProof}}
+            source={{uri: idProof?.uri ? idProof?.uri : imageUrl+userDetails?.govt_id_card }}
             style={{
-              height: imagesdet ? 250 : 110,
-              width: imagesdet ? width - 40 : 110,
+              height: idProof ? 250 : 110,
+              width: idProof ? width - 40 : 110,
               borderRadius: 10,
             }}
             resizeMode="cover"

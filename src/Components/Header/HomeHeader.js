@@ -85,7 +85,9 @@ const HomeHeader = props => {
         </View>
       ) : props.Edit ? (
         <View style={{flexDirection: 'row'}}>
+          <Pressable onPress={props.NotiIconPress}>
           <Notification />
+          </Pressable>
           <Pressable onPress={props.EditIconPress}>
             <EditIcon />
           </Pressable>
