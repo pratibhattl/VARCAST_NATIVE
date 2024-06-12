@@ -68,7 +68,7 @@ const PodcastLive = props => {
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
-  console.log("ID",id);
+  // console.log("ID",id);
   const token = useSelector(state => state.authData.token);
 
   const isFocused = useIsFocused();
@@ -79,7 +79,7 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
-  console.log('SELECTED', selectedData);
+  // console.log('SELECTED', selectedData);
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -97,7 +97,7 @@ const PodcastLive = props => {
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       setPlaylists(response.data.listData);
-      console.log('RawRes', response);
+      // console.log('RawRes', response);
       changeloadingState(false);
     } catch (error) {
       console.error('Error fetching playlists:', error);
@@ -112,7 +112,7 @@ const PodcastLive = props => {
   const handlePlaylistClick = async playlistId => {
     try {
       const endpoint = 'playlist/add_media';
-      console.log('Podcast Data', selectedData);
+      // console.log('Podcast Data', selectedData);
       const mediaUrl = selectedData.audio;
       const image = selectedData.image;
       const title = selectedData.title;
@@ -129,9 +129,9 @@ const PodcastLive = props => {
         updated_at,
         created_at,
       }; // The data to be sent in the POST request
-      console.log('Sent Podcast Data ', data);
+      // console.log('Sent Podcast Data ', data);
       const response = await apiCall(endpoint, 'POST', data, token);
-      console.log('API Response:', response.status);
+      // console.log('API Response:', response.status);
       if (response.status === true) {
         HelperFunctions.showToastMsg('Media added to playlist successfully!');
         fetchPlaylists();

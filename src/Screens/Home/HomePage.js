@@ -49,7 +49,6 @@ const HomePage = props => {
   const [liveData, setLiveData] = useState([]);
   const [latestFollowers, setLatestFollowers] = useState([]);
   const [videoByCat, setVideoByCat] = useState([]);
-  4;
   console.log('Video Cat', videoByCat);
 
   const {t} = useTranslation();
@@ -446,7 +445,7 @@ const HomePage = props => {
                       id: item?.video?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', {item: item?.video});
+                    NavigationService.navigate('PodcastLive', item?.video);
                   }
                 }}
                 style={{
@@ -467,21 +466,6 @@ const HomePage = props => {
                   }}
                   resizeMode="cover"
                 />
-                {isStaticImage && (
-                  <View
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: [{translateX: -15}, {translateY: -15}], // Adjust the position of the icon as per your preference
-                    }}>
-                    <Icon
-                      name="play-circle"
-                      size={50}
-                      color="rgba(0, 0, 0, 0.7)"
-                    />
-                  </View>
-                )}
                 <View
                   style={{
                     height: 71,
@@ -553,14 +537,14 @@ const HomePage = props => {
 
             return (
               <Pressable
-                onPress={() => {
-                  console.log('itemmm:-------------->', item._id);
+                 onPress={() => {
+                  console.log("itemmm:-------------->" ,item._id)
                   if (isStaticImage) {
                     NavigationService.navigate('VideoLive', {
                       id: item?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', {_id: item?._id});
+                    NavigationService.navigate('PodcastLive', item);
                   }
                 }}
                 style={{
@@ -589,21 +573,6 @@ const HomePage = props => {
                     }}
                     resizeMode="cover"
                   />
-                  {isStaticImage && (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: [{translateX: -15}, {translateY: -15}], // Adjust the position of the icon as per your preference
-                      }}>
-                      <Icon
-                        name="play-circle"
-                        size={50}
-                        color="rgba(0, 0, 0, 0.7)"
-                      />
-                    </View>
-                  )}
                   <View
                     style={{
                       height: 35,
@@ -795,21 +764,6 @@ const HomePage = props => {
                     }}
                     resizeMode="cover"
                   />
-                  {isStaticImage && (
-                    <View
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: [{translateX: -15}, {translateY: -15}], // Adjust the position of the icon as per your preference
-                      }}>
-                      <Icon
-                        name="play-circle"
-                        size={50}
-                        color="rgba(0, 0, 0, 0.7)"
-                      />
-                    </View>
-                  )}
                   <View
                     style={{
                       position: 'absolute',

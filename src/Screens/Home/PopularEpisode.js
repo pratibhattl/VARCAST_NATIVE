@@ -29,7 +29,7 @@ const PopularEpisode = () => {
   const [loadingState, changeloadingState] = useState(false);
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const token = useSelector(state => state.authData.token);
-
+  const staticImage = require('../../assets/images/image96.png');
   const fetchEpisodeData = useCallback(async () => {
     try {
       const endpoint = 'podcast/list';
@@ -73,12 +73,16 @@ const PopularEpisode = () => {
           numColumns={2}
           contentContainerStyle={{marginHorizontal: 20, paddingBottom: 20}}
           renderItem={({item, index}) => {
+            const isStaticImage = item.image.endsWith('.mp4');
+            const source = isStaticImage
+              ? staticImage
+              : {uri: `${imageUrl}${item.image}`};
             return (
               <Pressable
                 key={index}
-                onPress={() =>
-                  NavigationService.navigate('PodcastLive', {id: item?._id})
-                }
+                onPress={() => {
+                  NavigationService.navigate('PodcastLive', item);
+                }}
                 style={{
                   width: '100%',
                   height: 175,
@@ -105,7 +109,7 @@ const PopularEpisode = () => {
                     marginTop: 20,
                   }}>
                   <Image
-                    source={{uri: imageUrl + item.image}}
+                    source={source}
                     style={{
                       width: 200,
                       height: 180,
