@@ -730,7 +730,7 @@ const HomePage = props => {
               return (
                 <Pressable
                   onPress={() => {
-                    // Navigate to Live Detail page
+                    // Navigate to Video Detail page
                     NavigationService.navigate('VideoLive', {id: item._id});
                   }}
                   style={{
