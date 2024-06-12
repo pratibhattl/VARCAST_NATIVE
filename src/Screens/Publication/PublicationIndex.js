@@ -127,12 +127,23 @@ const PublicationIndex = props => {
   };
 
   useEffect(() => {
-    if (publicationIndex == 0) {
       fetchAllPublicationList();
-    } else if (publicationIndex == 1) {
-      fetchDraftPublicationList()
+  }, []);
+
+  const onChagePublishIndex = (index) => {
+    setPublicationIndex(index)
+    if (index === 0) {
+      openPhotoFromLocalPathExample();
+    } else if (index === 1) {
+      fetchAllPublicationList();
     }
-  }, [publicationIndex]);
+    else if (index === 2) {
+      fetchDraftPublicationList();
+    }
+    //  else {
+    //   openVideoFromRemoteUrlExample();
+    // }
+  }
 
   const openPhotoFromLocalPathExample = async () => {
     try {
@@ -386,7 +397,7 @@ const PublicationIndex = props => {
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
-      
+
         await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
           setImgUrl(data);
         });
@@ -473,16 +484,7 @@ const PublicationIndex = props => {
                 renderItem={({ item, index }) => {
                   return (
                     <Pressable
-                      onPress={() => {
-                        setPublicationIndex(index)
-                        if (index === 0) {
-                          openPhotoFromLocalPathExample();
-                        } else if (index === 1) {
-                          fetchDraftPublicationList();
-                        } else {
-                          openVideoFromRemoteUrlExample();
-                        }
-                      }}
+                      onPress={() => { onChagePublishIndex(index) }}
                       key={index}
                       style={{
                         height: 80,
@@ -498,8 +500,12 @@ const PublicationIndex = props => {
                       ) : index == 1 ? (
                         <PlayBackIcon Size={32} Color={'#fff'} />
                       ) : (
-                        <TemplateIcon />
-                      )}
+                        <PlayBackIcon Size={32} Color={'#fff'} />
+                      )
+                        // (
+                        //   <TemplateIcon />
+                        // )
+                      }
                       <Text
                         style={{
                           color: '#fff',
@@ -509,8 +515,10 @@ const PublicationIndex = props => {
                         {index == 0
                           ? 'Camera'
                           : index == 1
-                            ? 'Drafts'
-                            : 'Templates'}
+                            ? 'Published'
+                            : 'Drafts'
+                          // : 'Templates'
+                        }
                       </Text>
                     </Pressable>
                   );
