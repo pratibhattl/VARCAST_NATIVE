@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  Animated,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -58,8 +59,19 @@ import {
 import HelperFunctions from '../../Constants/HelperFunctions';
 import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
 import axios from 'axios';
-import TrackPlayer from 'react-native-track-player';
+import TrackPlayer, {
+  State,
+  usePlaybackState,
+  useProgress,
+} from 'react-native-track-player';
 import SoundPlayer from 'react-native-sound-player';
+import PauseIcon from '../../assets/icons/PauseIcon';
+import Slider from '@react-native-community/slider';
+import {
+  setupPlayer,
+  addTrack,
+  playbackService,
+} from '../../Services/MusicPlayService';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -69,6 +81,7 @@ const PodcastLive = props => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
   const token = useSelector(state => state.authData.token);
+  const {position, duration} = useProgress(0);
 
   const isFocused = useIsFocused();
   const [likeStatus, setLikeStatus] = useState(false);
@@ -78,13 +91,18 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
-  console.log('SELECTED', selectedData);
+
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
   const [GiftData, setGiftData] = useState();
   const [newComment, setNewComment] = useState([]);
   const [playlists, setPlaylists] = useState([]);
+  const [isPlayerReady, setIsPlayerReady] = useState(true);
+  const [playingLoader, setPlayingLoader] = useState(true);
+
+  let current = format(position);
+  let max = format(duration);
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
@@ -194,6 +212,9 @@ const PodcastLive = props => {
   const [podcasts, setPodcasts] = useState([]);
   const [totalCoins, setTotalCoins] = useState();
   const [modalVisible, setModalVisible] = useState(false);
+
+  const playbackState = usePlaybackState();
+  const scrollX = useRef(new Animated.Value(0)).current;
 
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
@@ -333,7 +354,7 @@ const PodcastLive = props => {
       setRemoteUid(0);
       setIsJoined(false);
       showMessage('You left the channel');
-      SoundPlayer.stop();
+      await TrackPlayer.stop()
       HelperFunctions.showToastMsg('You left the channel');
     } catch (e) {
       console.log(e);
@@ -381,29 +402,57 @@ const PodcastLive = props => {
 
   /*** Play Podcast ***/
 
-  // const playPodcast = async () => {
-  //   // Set up the player
-  //   await TrackPlayer.setupPlayer();
+  const songsfunc = () => {
+    // Set up the player
+    setupPlayer();
 
-  //   // Add a track to the queue
-  //   await TrackPlayer.add({
-  //     id: route?.params?._id,
-  //     url: route?.params?.audio,
-  //     title: route?.params?.title,
-  //     artwork: route?.params?.image,
-  //   });
+    // Add a track to the queue
+    addTrack({
+      id: route?.params?._id,
+      url: `${imageUrl}${route?.params?.audio}`,
+      title: route?.params?.title,
+      artwork: route?.params?.image,
+    });
 
-  //   // Start playing it
-  //   await TrackPlayer.play();
+    // Start playing it
+    TrackPlayer.play().then(() => {
+      setPlayingLoader(false);
+    });
+  };
+
+  // const playPodcast = () => {
+  //   try {
+  //     SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
+  //   } catch (error) {
+  //     console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
+  //   }
   // };
 
-  const playPodcast = () => {
-    try {
-      SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
-    } catch (error) {
-      console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
+  function format(seconds) {
+    let mins = parseInt(seconds / 60)
+      .toString()
+      .padStart(2, '0');
+    let secs = (Math.trunc(seconds) % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+  }
+
+  const togglePlayback = async playbackState => {
+   
+    let currentTrack = await TrackPlayer.getActiveTrackIndex();
+    if (currentTrack != null) {
+      if (playbackState.state == State.Paused) {
+        await TrackPlayer.play();
+      } else {
+        await TrackPlayer.pause();
+      }
+    }
+
+    if(playbackState.state == State.Stopped){
+      songsfunc()
     }
   };
+
+  
 
   //-----------------------------------------------------------------------------------------------------------//
 
@@ -519,9 +568,29 @@ const PodcastLive = props => {
     );
   };
 
+  // useEffect(() => {
+  //   setTimeout(() => playPodcast(), 200);
+  // }, []);
+
   useEffect(() => {
-    setTimeout(() => playPodcast(), 200);
-  }, []);
+    if (playbackState.state === 'ended') {
+      scrollX.removeAllListeners();
+      TrackPlayer.reset();
+    }
+  }, [playbackState]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsPlayerReady(false);
+      playbackService();
+      songsfunc();
+    }, 200);
+
+    return () => {
+      scrollX.removeAllListeners();
+      TrackPlayer.reset();
+    };
+  }, [route.params._id]);
 
   return (
     <View style={styles.container}>
@@ -594,7 +663,6 @@ const PodcastLive = props => {
                   height: 38,
                   width: 38,
                   borderRadius: 10,
-                  backgroundColor: 'red',
                 }}>
                 <Image
                   source={{uri: `${imageUrl}${selectedData?.image}`}}
@@ -607,6 +675,7 @@ const PodcastLive = props => {
                   resizeMode="cover"
                 />
               </View>
+
               <View style={{marginHorizontal: 10}}>
                 <Text
                   style={{
@@ -668,6 +737,7 @@ const PodcastLive = props => {
                 height: 140,
                 width: 140,
                 overflow: 'hidden',
+                position: 'relative',
               }}>
               <Image
                 source={{uri: `${imageUrl}${selectedData?.image}`}}
@@ -677,8 +747,100 @@ const PodcastLive = props => {
                 }}
                 resizeMode="cover"
               />
+
+              <Pressable
+                style={{
+                  height: 55,
+                  width: 55,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#f2f890',
+                  shadowColor: '#000',
+                  shadowOffset: {width: 10, height: 10},
+                  shadowOpacity: 0.26,
+                  shadowRadius: 3,
+                  borderRadius: 50,
+                  position: 'absolute',
+                  top: 40,
+                  left: 45,
+                  zIndex: 50,
+                }}
+                onPress={() => {
+                  if (!playingLoader) {
+                    togglePlayback(playbackState);
+                  }
+                }}>
+                {playbackState.state == State.Paused ||
+                playbackState.state == State.Stopped ? (
+                  <VideoPlayIcon Width={32} Height={32} />
+                ) : (
+                  <PauseIcon />
+                )}
+              </Pressable>
             </View>
           </View>
+
+          <View
+            style={{
+              alignItems: 'center',
+              flexDirection: 'row',
+              alignSelf: 'center',
+              width: width,
+              paddingHorizontal: 20,
+              // marginTop: 45,
+            }}>
+            <Text
+              style={{
+                color: 'rgba(255, 255, 255, 0.54)',
+                fontFamily: Theme.FontFamily.medium,
+                fontSize: 13,
+              }}>
+              {format(position)}
+            </Text>
+            <Slider
+              minimumValue={0}
+              value={current
+                .split(':')
+                .reverse()
+                .reduce((prev, curr, i) => prev + curr * Math.pow(60, i), 0)}
+              maximumValue={max
+                .split(':')
+                .reverse()
+                .reduce((prev, curr, i) => prev + curr * Math.pow(60, i), 0)}
+              // tapToSeek={true}
+              onValueChange={val => {
+                TrackPlayer.seekTo(val);
+              }}
+              style={{
+                width: width - 130,
+                alignSelf: 'center',
+                marginHorizontal: Platform.OS === 'ios' ? 5 : 0,
+                height: 0,
+              }}
+              maximumTrackTintColor={'rgba(255, 255, 255, 0.54)'}
+              minimumTrackTintColor={'#fff'}
+              thumbTouchSize={{width: 0, height: 0}}
+              thumbTintColor="transparent"
+              trackStyle={{
+                height: 0,
+                borderRadius: 0,
+              }}
+              thumbStyle={{
+                height: 0,
+                width: 0,
+                borderRadius: 0,
+              }}
+            />
+            <Text
+              style={{
+                color: 'rgba(255, 255, 255, 0.54)',
+                fontFamily: Theme.FontFamily.medium,
+                fontSize: 13,
+              }}>
+              {format(duration)}
+            </Text>
+          </View>
+
           <View
             style={{
               paddingTop: 5,
@@ -687,7 +849,7 @@ const PodcastLive = props => {
               // height:70,
               // backgroundColor:'rgba(0,0,0,0.05)',
               width: width,
-              marginTop: 10,
+              // marginTop: 10,
               // borderRadius:15,
               shadowColor: '#131313',
               // shadowOffset: { width: 0, height: 30 },
@@ -721,7 +883,7 @@ const PodcastLive = props => {
                   color: '#fff',
                   fontSize: 18,
                   fontFamily: Theme.FontFamily.semiBold,
-                  marginTop: 10,
+                  marginTop: 5,
                   // fontWeight:'600',
                 }}>
                 {selectedData.title}
