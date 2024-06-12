@@ -44,6 +44,13 @@ import {useIsFocused} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import axios from 'axios';
+import {
+  setupPlayer,
+  addTrack,
+  playbackService,
+} from '../../Services/MusicPlayService';
+
+
 const {width, height} = Dimensions.get('screen');
 
 const SongPlayy = props => {
@@ -65,8 +72,7 @@ const SongPlayy = props => {
   const {position, duration} = useProgress(0);
   const token = useSelector(state => state.authData.token);
 
-
-  console.log('route123',route.params)
+  console.log('route123', route.params);
 
   function format(seconds) {
     let mins = parseInt(seconds / 60)
@@ -100,21 +106,20 @@ const SongPlayy = props => {
 
   // let data=AudioArr.forEach(res=>res.audio)
   // console.log('index>>>>>>>>>>>>>>',data )
-  const songsfunc = async () => {
-  
-    await TrackPlayer.setupPlayer();
+  const songsfunc = () => {
+    // Set up the player
+    setupPlayer();
 
-    await TrackPlayer.add({
+    // Add a track to the queue
+    addTrack({
       id: route?.params?._id,
       url: `${imageUrl}${route?.params?.audio}`,
       title: route?.params?.title,
       artwork: route?.params?.image,
     });
 
+    // Start playing it
     TrackPlayer.play().then(() => {
-      // songsSlider.current.scrollToOffset({
-      //   offset: (ind) * width,
-      // });
       setPlayingLoader(false);
     });
   };
@@ -140,6 +145,10 @@ const SongPlayy = props => {
         await TrackPlayer.pause();
       }
     }
+
+    if (playbackState.state == State.Stopped) {
+      songsfunc();
+    }
   };
 
   const skipTo = async trackId => {
@@ -162,35 +171,6 @@ const SongPlayy = props => {
   //     console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
   //   }
   // };
-
-  useEffect(() => {
-    // setIsPlayerReady(false)
-    setTimeout(() => {
-      setIsPlayerReady(false);
-      onRegisterPlayback();
-      songsfunc();
-      // playPodcast()
-    }, 500);
-
-    // scrollX.addListener(({ value }) => {
-    //   console.log('scrollx', scrollX)
-    //   const index = Math.round(value / width);
-    //   skipTo(index);
-    //   setSongIndex(index);
-    // });
-    return () => {
-      scrollX.removeAllListeners();
-      TrackPlayer.reset();
-    };
-  }, [route.params._id]);
-
-  useEffect(() => {
-    return () => {
-      TrackPlayer.pause();
-      TrackPlayer.reset();
-      // onRegisterPlayback()
-    };
-  }, []);
 
   const fetchPodcastDetails = async () => {
     const formData = new FormData();
@@ -249,6 +229,26 @@ const SongPlayy = props => {
       fetchPodcastDetails();
     }
   }, [isFocused]);
+
+  useEffect(() => {
+    if (playbackState.state === 'ended') {
+      scrollX.removeAllListeners();
+      TrackPlayer.reset();
+    }
+  }, [playbackState]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsPlayerReady(false);
+      playbackService();
+      songsfunc();
+    }, 200);
+
+    return () => {
+      scrollX.removeAllListeners();
+      TrackPlayer.reset();
+    };
+  }, [route.params._id]);
 
   return (
     <View style={styles.container}>
@@ -470,6 +470,8 @@ const SongPlayy = props => {
                 </Pressable>
               </View>
             </View>
+            {/* Slider start*/}
+
             <View
               style={{
                 alignItems: 'center',
@@ -528,6 +530,9 @@ const SongPlayy = props => {
                 {format(duration)}
               </Text>
             </View>
+
+            {/* Slider end*/}
+
             <View
               style={{
                 alignItems: 'center',
@@ -535,6 +540,7 @@ const SongPlayy = props => {
                 marginTop: 40,
                 justifyContent: 'space-between',
                 marginHorizontal: 20,
+                backgroundColor: 'black',
               }}>
               <Pressable
                 onPress={() => {
@@ -560,7 +566,8 @@ const SongPlayy = props => {
                     togglePlayback(playbackState);
                   }
                 }}>
-                {playbackState.state == State.Paused ? (
+                {playbackState.state == State.Paused ||
+                playbackState.state == State.Stopped ? (
                   <VideoPlayIcon Width={32} Height={32} />
                 ) : (
                   <PauseIcon />
