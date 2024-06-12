@@ -11,45 +11,56 @@ import {
   StatusBar,
   Platform,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
-import { useRoute } from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import CameraIcon from '../../assets/icons/CameraIcon';
 import Theme from '../../Constants/Theme';
 import PlayBackIcon from '../../assets/icons/PlaybackIcon';
 import TemplateIcon from '../../assets/icons/TemplateIcon';
-import { BlurView } from '@react-native-community/blur';
+import {BlurView} from '@react-native-community/blur';
 import LiveHeader from '../../Components/Header/LiveHeader';
 import LiveEditIcon from '../../assets/icons/LiveEditIcon';
 import LiveIcon from '../../assets/icons/LiveIcon';
 import RefressIcon from '../../assets/icons/RefressIcon';
 import GallaryIcon from '../../assets/icons/GallaryIcon';
-import { AppTextInput } from 'react-native-basic-elements';
-import { useTranslation } from 'react-i18next';
+import {AppTextInput} from 'react-native-basic-elements';
+import {useTranslation} from 'react-i18next';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   PESDK,
   PhotoEditorModal,
   Configuration,
 } from 'react-native-photoeditorsdk';
 import ImagePicker from 'react-native-image-crop-picker';
-import { VESDK, CanvasAction, AudioClip } from 'react-native-videoeditorsdk';
-import { requestMultiple, PERMISSIONS } from 'react-native-permissions';
-import { PermissionsAndroid } from 'react-native';
-import { apiCall } from '../../Services/Service';
+import {VESDK, CanvasAction, AudioClip} from 'react-native-videoeditorsdk';
+import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
+import {PermissionsAndroid} from 'react-native';
+import {apiCall} from '../../Services/Service';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import { useSelector } from 'react-redux';
+import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import RNFS from 'react-native-fs';
 import DocumentPicker from 'react-native-document-picker';
 import axios from 'axios';
-import { Video } from 'react-native';
+import {Video} from 'react-native';
 // import { loadingState } from "../../../../../../../../";
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
 const PublicationIndex = props => {
   const route = useRoute();
-  const videoExtensions = ["mp4", "mov", "wmv", "avi", "flv", "avchd", "f4v", "swf", "mkv"];
+  const videoExtensions = [
+    'mp4',
+    'mov',
+    'wmv',
+    'avi',
+    'flv',
+    'avchd',
+    'f4v',
+    'swf',
+    'mkv',
+  ];
   // var RNFS = require('react-native-fs');
   var result = null;
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
@@ -62,7 +73,8 @@ const PublicationIndex = props => {
   const [audio, setAudio] = useState();
   const [imgUrl, setImgUrl] = useState('');
   const [allImage, setAllImage] = useState([]);
-  const [publicationIndex, setPublicationIndex] = useState(0)
+  console.log('All Image', allImage);
+  const [publicationIndex, setPublicationIndex] = useState(0);
   const token = useSelector(state => state.authData.token);
   const audioToken =
     '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
@@ -71,10 +83,11 @@ const PublicationIndex = props => {
   const [name, setName] = useState('');
   const [overView, setOverView] = useState('');
   const [Loder, setLoader] = useState(false);
-  const { t } = useTranslation();
+  const {t} = useTranslation();
   const [Musiclist, setMusiclist] = useState([]);
   const licenseAndroid = require('../../assets/vesdk_license/vesdk_license.android.json');
   const licenseIos = require('../../assets/vesdk_license/vesdk_license.ios.json');
+  const staticImage = require('../../assets/images/image96.png');
   const getPermission = async () => {
     if (Platform.OS === 'android') {
       await PermissionsAndroid.requestMultiple([
@@ -130,7 +143,7 @@ const PublicationIndex = props => {
     if (publicationIndex == 0) {
       fetchAllPublicationList();
     } else if (publicationIndex == 1) {
-      fetchDraftPublicationList()
+      fetchDraftPublicationList();
     }
   }, [publicationIndex]);
 
@@ -152,7 +165,7 @@ const PublicationIndex = props => {
         name: fileName,
         type: `image/${fileType}`,
       };
-      NavigationService.navigate('Publication01', { croppedImage: file });
+      NavigationService.navigate('Publication01', {croppedImage: file});
     } catch (error) {
       console.log(error);
     }
@@ -386,7 +399,6 @@ const PublicationIndex = props => {
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
-      
         await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
           setImgUrl(data);
         });
@@ -400,8 +412,6 @@ const PublicationIndex = props => {
       }
     }
   };
-
-
 
   const fileSubmit = async () => {
     let formData = new FormData();
@@ -444,13 +454,12 @@ const PublicationIndex = props => {
     }
   }, []);
 
-
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{flex: 1}}>
       {/* {console.log('sdsdsdsdsd>>>>>>',allImage)} */}
       {cat == 'Publication' ? (
         <ScreenLayout
-          headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96)' }}
+          headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
           showLoading={loadingStates || Loder}
           isScrollable={true}
           leftHeading={'New Publication'}
@@ -458,23 +467,23 @@ const PublicationIndex = props => {
           // right
           onRightTextPress={() => NavigationService.navigate('Publication01')}
           Live={cat == 'Live' ? true : false}
-          leftHeadingStyle={{ color: '#E1D01E' }}
+          leftHeadingStyle={{color: '#E1D01E'}}
           hideLeftIcon={customProp ? false : true}
           onLeftIconPress={() => NavigationService.back()}>
           <View style={styles.container}>
-            <View style={{ alignSelf: 'center' }}>
+            <View style={{alignSelf: 'center'}}>
               <FlatList
                 data={[1, 2, 3]}
                 //    horizontal
                 numColumns={3}
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 0, paddingTop: 20 }}
-                renderItem={({ item, index }) => {
+                contentContainerStyle={{paddingHorizontal: 0, paddingTop: 20}}
+                renderItem={({item, index}) => {
                   return (
                     <Pressable
                       onPress={() => {
-                        setPublicationIndex(index)
+                        setPublicationIndex(index);
                         if (index === 0) {
                           openPhotoFromLocalPathExample();
                         } else if (index === 1) {
@@ -509,8 +518,8 @@ const PublicationIndex = props => {
                         {index == 0
                           ? 'Camera'
                           : index == 1
-                            ? 'Drafts'
-                            : 'Templates'}
+                          ? 'Drafts'
+                          : 'Templates'}
                       </Text>
                     </Pressable>
                   );
@@ -527,13 +536,17 @@ const PublicationIndex = props => {
                   paddingHorizontal: 0,
                   paddingVertical: 10,
                 }}
-                renderItem={({ item, index }) => {
+                renderItem={({item, index}) => {
                   // const imageParts = item?.image.split('/');
                   // const imageName = imageParts[imageParts?.length - 1];
                   // const [videoName, extension] = imageName.split('.');
 
                   // const isVideo = videoExtensions.includes(extension.toLowerCase()); // Check if the extension is in the videoExtensions array
-
+                  const isStaticImage =
+                    item.image && item.image.endsWith('.mp4');
+                  const imageSource = isStaticImage
+                    ? staticImage
+                    : {uri: imageUrl + item?.image};
                   return (
                     <View
                       key={index}
@@ -542,30 +555,38 @@ const PublicationIndex = props => {
                         marginTop: 10,
                       }}>
                       <Pressable
-                        onPress={() => { setPublicationIndex(0), NavigationService.navigate('Publication02', { DraftItem: item }) }}>
-                        {/* {videoExtensions.includes(extension.toLowerCase()) ? (
-                        <Video
-                          source={{ uri: imageUrl + item?.image }} // Provide the video source URI
-                          style={{
-                            height: 180,
-                            width: 120,
-                            borderRadius: 15,
-                          }}
-                          resizeMode="cover"
-                          controls={true} // Show video controls
-                        />
-                      ) : ( */}
-                        <Image
-                          source={{ uri: imageUrl + item?.image }}
-                          style={{
-                            height: 180,
-                            width: 120,
-                            borderRadius: 15,
-                          }}
-                          resizeMode="cover"
-                        />
+                        onPress={() => {
+                          setPublicationIndex(0);
+                          NavigationService.navigate('Publication02', {
+                            DraftItem: item,
+                          });
+                        }}>
+                        <View style={{position: 'relative'}}>
+                          <Image
+                            source={imageSource}
+                            style={{
+                              height: 180,
+                              width: 120,
+                              borderRadius: 15,
+                            }}
+                            resizeMode="cover"
+                          />
+                          {isStaticImage && (
+                            <View
+                              style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: [
+                                  {translateX: -15},
+                                  {translateY: -15},
+                                ], // Adjust the position of the icon as per your preference
+                              }}>
+                              <Icon name="play-circle" size={50} color="rgba(0, 0, 0, 0.7)" />
+                            </View>
+                          )}
+                        </View>
                       </Pressable>
-                      {/* )} */}
                     </View>
                   );
                 }}
@@ -578,7 +599,7 @@ const PublicationIndex = props => {
           </View>
         </ScreenLayout>
       ) : cat == 'Live' ? (
-        <View style={{ flex: 1 }}>
+        <View style={{flex: 1}}>
           <StatusBar
             backgroundColor={'transparent'}
             // animated={true}
@@ -601,18 +622,18 @@ const PublicationIndex = props => {
         </View>
       ) : (
         <ScreenLayout
-          headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
+          headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
           showLoading={loadingStates}
           isScrollable={true}
           leftHeading={t('New Publication')}
           Podcast
           right
           Live={cat == 'Live' ? true : false}
-          leftHeadingStyle={{ color: '#E1D01E' }}
+          leftHeadingStyle={{color: '#E1D01E'}}
           hideLeftIcon={customProp ? false : true}
           onLeftIconPress={() => NavigationService.back()}>
           <View
-            style={{ ...styles.container, alignItems: 'center', height: height }}>
+            style={{...styles.container, alignItems: 'center', height: height}}>
             <Pressable
               onPress={async () => await uploadFileOnPressHandler()}
               style={{
@@ -629,9 +650,10 @@ const PublicationIndex = props => {
               }}>
               {pickedImg?.uri && (
                 <Image
-                  source={pickedImg?.uri
-                    ? { uri: pickedImg?.uri }
-                    : require('../../assets/images/addimage.png')
+                  source={
+                    pickedImg?.uri
+                      ? {uri: pickedImg?.uri}
+                      : require('../../assets/images/addimage.png')
                   }
                   style={{
                     height: pickedImg?.uri ? 130 : 80,
@@ -649,7 +671,7 @@ const PublicationIndex = props => {
               onChangeText={a => setName(a)}
               placeholder="Name Podcast"
               placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-              inputStyle={{ fontSize: 14 }}
+              inputStyle={{fontSize: 14}}
               titleStyle={{
                 fontFamily: Theme.FontFamily.semiBold,
                 fontSize: Theme.sizes.s16,
@@ -667,7 +689,7 @@ const PublicationIndex = props => {
               onChangeText={a => setOverView(a)}
               placeholder="Overview"
               placeholderTextColor={'rgba(255, 255, 255, 0.44)'}
-              inputStyle={{ fontSize: 15 }}
+              inputStyle={{fontSize: 15}}
               titleStyle={{
                 fontFamily: Theme.FontFamily.semiBold,
                 fontSize: Theme.sizes.s16,
@@ -713,7 +735,7 @@ const PublicationIndex = props => {
 
             <Pressable
               onPress={fileSubmit}
-              style={{ ...styles.upload_btn, width: 350, marginTop: 20 }}>
+              style={{...styles.upload_btn, width: 350, marginTop: 20}}>
               <Text style={styles.upload_text}>SUBMIT</Text>
             </Pressable>
           </View>
@@ -776,7 +798,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Live');
-                NavigationService.navigate('VideoLive', { host: true });
+                NavigationService.navigate('VideoLive', {host: true});
               }}
               style={{
                 height: 54,
@@ -809,7 +831,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Refress');
-                NavigationService.navigate('PodcastLive', { host: true });
+                NavigationService.navigate('PodcastLive', {host: true});
               }}
               style={{
                 height: 54,
@@ -849,7 +871,7 @@ const PublicationIndex = props => {
             paddingHorizontal: 5,
             alignItems: 'center',
           }}
-          renderItem={({ item, index }) => {
+          renderItem={({item, index}) => {
             return (
               <Pressable
                 key={index}

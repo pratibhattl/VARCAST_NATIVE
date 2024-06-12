@@ -49,6 +49,8 @@ const HomePage = props => {
   const [liveData, setLiveData] = useState([]);
   const [latestFollowers, setLatestFollowers] = useState([]);
   const [videoByCat, setVideoByCat] = useState([]);
+  4;
+  console.log('Video Cat', videoByCat);
 
   const {t} = useTranslation();
   const navigation = useNavigation();
@@ -124,7 +126,6 @@ const HomePage = props => {
       });
   };
 
-  
   useEffect(() => {
     if (token) {
       fetchHomePageData();
@@ -439,9 +440,15 @@ const HomePage = props => {
 
             return (
               <Pressable
-                onPress={() =>
-                  NavigationService.navigate('VideoLive', {id: item?._id})
-                }
+                onPress={() => {
+                  if (isStaticImage) {
+                    NavigationService.navigate('VideoLive', {
+                      id: item?.video?._id,
+                    });
+                  } else {
+                    NavigationService.navigate('PodcastLive', {item: item?.video});
+                  }
+                }}
                 style={{
                   width: 200,
                   height: 185,
@@ -456,11 +463,25 @@ const HomePage = props => {
                   style={{
                     width: 200,
                     height: 185,
-                  
                     borderRadius: 15,
                   }}
                   resizeMode="cover"
                 />
+                {isStaticImage && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: [{translateX: -15}, {translateY: -15}], // Adjust the position of the icon as per your preference
+                    }}>
+                    <Icon
+                      name="play-circle"
+                      size={50}
+                      color="rgba(0, 0, 0, 0.7)"
+                    />
+                  </View>
+                )}
                 <View
                   style={{
                     height: 71,
@@ -532,7 +553,16 @@ const HomePage = props => {
 
             return (
               <Pressable
-                onPress={() => NavigationService.navigate('PodcastLive', item)}
+                onPress={() => {
+                  console.log('itemmm:-------------->', item._id);
+                  if (isStaticImage) {
+                    NavigationService.navigate('VideoLive', {
+                      id: item?._id,
+                    });
+                  } else {
+                    NavigationService.navigate('PodcastLive', {_id: item?._id});
+                  }
+                }}
                 style={{
                   height: 175,
                   borderRadius: 15,
@@ -559,6 +589,21 @@ const HomePage = props => {
                     }}
                     resizeMode="cover"
                   />
+                  {isStaticImage && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: [{translateX: -15}, {translateY: -15}], // Adjust the position of the icon as per your preference
+                      }}>
+                      <Icon
+                        name="play-circle"
+                        size={50}
+                        color="rgba(0, 0, 0, 0.7)"
+                      />
+                    </View>
+                  )}
                   <View
                     style={{
                       height: 35,
@@ -750,6 +795,21 @@ const HomePage = props => {
                     }}
                     resizeMode="cover"
                   />
+                  {isStaticImage && (
+                    <View
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: [{translateX: -15}, {translateY: -15}], // Adjust the position of the icon as per your preference
+                      }}>
+                      <Icon
+                        name="play-circle"
+                        size={50}
+                        color="rgba(0, 0, 0, 0.7)"
+                      />
+                    </View>
+                  )}
                   <View
                     style={{
                       position: 'absolute',

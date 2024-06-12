@@ -61,12 +61,13 @@ const SongPlayy = props => {
   const [songIndex, setSongIndex] = useState(0);
   //   const progress = useProgress();
   const [selectedData, setSelectedData] = useState({});
+  console.log('Selected Data', selectedData);
+
   const isFocused = useIsFocused();
   const {position, duration} = useProgress(0);
   const token = useSelector(state => state.authData.token);
 
-
-  console.log('route123',route.params)
+  console.log('route123', route.params);
 
   function format(seconds) {
     let mins = parseInt(seconds / 60)
@@ -101,7 +102,6 @@ const SongPlayy = props => {
   // let data=AudioArr.forEach(res=>res.audio)
   // console.log('index>>>>>>>>>>>>>>',data )
   const songsfunc = async () => {
-  
     await TrackPlayer.setupPlayer();
 
     await TrackPlayer.add({
