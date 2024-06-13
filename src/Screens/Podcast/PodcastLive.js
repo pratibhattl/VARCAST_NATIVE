@@ -80,6 +80,7 @@ const PodcastLive = props => {
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
+  // console.log("ID",id);
   const token = useSelector(state => state.authData.token);
   const {position, duration} = useProgress(0);
 
@@ -91,7 +92,6 @@ const PodcastLive = props => {
   const [comment, setComment] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [selectedData, setSelectedData] = useState({});
-
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
   const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
@@ -114,7 +114,7 @@ const PodcastLive = props => {
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       setPlaylists(response.data.listData);
-      console.log('RawRes', response);
+      // console.log('RawRes', response);
       changeloadingState(false);
     } catch (error) {
       console.error('Error fetching playlists:', error);
@@ -129,7 +129,7 @@ const PodcastLive = props => {
   const handlePlaylistClick = async playlistId => {
     try {
       const endpoint = 'playlist/add_media';
-      console.log('Podcast Data', selectedData);
+      // console.log('Podcast Data', selectedData);
       const mediaUrl = selectedData.audio;
       const image = selectedData.image;
       const title = selectedData.title;
@@ -146,9 +146,9 @@ const PodcastLive = props => {
         updated_at,
         created_at,
       }; // The data to be sent in the POST request
-      console.log('Sent Podcast Data ', data);
+      // console.log('Sent Podcast Data ', data);
       const response = await apiCall(endpoint, 'POST', data, token);
-      console.log('API Response:', response.status);
+      // console.log('API Response:', response.status);
       if (response.status === true) {
         HelperFunctions.showToastMsg('Media added to playlist successfully!');
         fetchPlaylists();
@@ -227,124 +227,7 @@ const PodcastLive = props => {
 
   //-----------------------------------------------------------------------------------------------------------//
 
-  // const getPermission = async () => {
-  //   if (Platform.OS === 'android') {
-  //     await PermissionsAndroid.requestMultiple([
-  //       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-  //     ]);
-  //   }
-  // };
-  // const getPermissionIos = async () => {
-  //   if (Platform.OS === 'ios') {
-  //     requestMultiple([
-  //       PERMISSIONS.IOS.CAMERA,
-  //       PERMISSIONS.IOS.MICROPHONE,
-  //     ]).then(statuses => {
-  //       console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
-  //       console.log('MICROPHONE', statuses[PERMISSIONS.IOS.MICROPHONE]);
-  //     });
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // Initialize Agora engine when the app starts
-  //   setupAudioSDKEngine(appId, channelName);
-  //   setTimeout(() => {
-  //     if (props?.route?.params?.host) {
-  //       joinHost(channelName, token);
-  //     } else {
-  //       joinAudience(channelName, token);
-  //     }
-  //   }, 300);
-  //   return () => {
-  //     leave();
-  //   };
-  // }, []);
-
-  // const setupAudioSDKEngine = async (idd, channel) => {
-  //   try {
-  //     // use the helper function to get permissions
-  //     if (Platform.OS === 'android') {
-  //       await getPermission();
-  //     }
-  //     if (Platform.OS === 'ios') {
-  //       await getPermissionIos();
-  //     }
-
-  //     agoraEngineRef.current = createAgoraRtcEngine();
-  //     const agoraEngine = agoraEngineRef.current;
-  //     agoraEngine.registerEventHandler({
-  //       onJoinChannelSuccess: (_connection, Uid) => {
-  //         HelperFunctions.showToastMsg(
-  //           'Successfully joined the channel ' + channelName,
-  //         );
-  //         setIsJoined(true);
-  //       },
-  //       onUserJoined: (_connection, Uid) => {
-  //         HelperFunctions.showToastMsg('Remote user joined with uid ' + Uid);
-  //         console.log('user joined');
-  //         console.log('user IDsdsd?>>>>>>>>', Uid);
-  //         setRemoteUid(Uid);
-  //       },
-  //       onUserOffline: (_connection, Uid) => {
-  //         console.log('user left');
-  //         console.log('user ID offline?>>>>>>>>', Uid, _connection.localUid);
-  //         HelperFunctions.showToastMsg(
-  //           'Remote user left the channel. uid: ' + Uid,
-  //         );
-  //         setRemoteUid(0);
-  //       },
-  //     });
-  //     agoraEngine.initialize({
-  //       appId: appId,
-  //       channelProfile: ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     });
-  //     //  agoraEngineRef.current?.setEnableSpeakerphone(true);
-  //     // await agoraEngineRef.current?.adjustPlaybackSignalVolume(100)
-  //     // agoraEngine.enableVideo();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  // const joinAudience = async (channel, tok) => {
-  //   const agoraEngine = agoraEngineRef.current;
-
-  //   try {
-  //     agoraEngineRef.current?.setChannelProfile(
-  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     );
-
-  //     // Use low level latency
-  //     var channeloptions = new ChannelMediaOptions();
-  //     // channeloptions.audienceLatencyLevel =
-  //     // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
-  //     agoraEngine.updateChannelMediaOptions(channeloptions);
-  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-  //       clientRoleType: ClientRoleType.ClientRoleAudience,
-  //     });
-  //     HelperFunctions.showToastMsg('Joined Successfully');
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
-  // const joinHost = async (channel, tok) => {
-  //   const agoraEngine = agoraEngineRef.current;
-  //   if (isJoined) {
-  //     return;
-  //   }
-  //   try {
-  //     agoraEngineRef.current?.setChannelProfile(
-  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     );
-  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-  //       clientRoleType: ClientRoleType.ClientRoleBroadcaster,
-  //     });
-  //     HelperFunctions.showToastMsg('Joined Successfully');
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+  
 
   //-----------------------------------------------------------------------------------------------------------//
 
@@ -449,6 +332,12 @@ const PodcastLive = props => {
 
     if(playbackState.state == State.Stopped){
       songsfunc()
+  
+  const playPodcast = () => {
+    try {
+      SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
+    } catch (error) {
+      console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
     }
   };
 
@@ -552,13 +441,7 @@ const PodcastLive = props => {
                       </Text>
                     </View>
                   </Pressable>
-                  {/* <Icon
-                  name="dots-three-horizontal"
-                  type="Entypo"
-                  size={16}
-                  color={'#fff'}
-                  style={{ marginTop: 5 }}
-                /> */}
+                  
                 </LinearGradient>
               );
             }}
@@ -858,26 +741,7 @@ const PodcastLive = props => {
               elevation: 20,
             }}>
             <>
-              {/* <View
-                style={{
-                  height: 25,
-                  width: 44,
-                  borderRadius: 20,
-                  backgroundColor: '#fff',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}>
-                {/* <Text
-                  style={{
-                    color: '#2648D1',
-                    fontSize: 13,
-                    fontFamily: Theme.FontFamily.medium,
-                    // fontWeight:'400',
-                    //   marginLeft: 5,
-                  }}>
-                  LIVE
-                </Text>
-              </View> */}
+              
               <Text
                 style={{
                   color: '#fff',
@@ -1164,22 +1028,7 @@ const PodcastLive = props => {
               marginTop: 25,
             }}
           />
-          {/* <View style={{flexDirection:'row',alignItems:'center',
-                marginTop:20,
           
-          }}>
-              <ReportIcon Color = {'#fff'}/>
-              <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft:15,
-                // marginTop:10,
-              }}>
-            Report
-            </Text>
-            </View> */}
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
             <ShiledIcon Color={'#fff'} />

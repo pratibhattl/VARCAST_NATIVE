@@ -49,6 +49,7 @@ const HomePage = props => {
   const [liveData, setLiveData] = useState([]);
   const [latestFollowers, setLatestFollowers] = useState([]);
   const [videoByCat, setVideoByCat] = useState([]);
+  console.log('Video Cat', videoByCat);
 
   const {t} = useTranslation();
   const navigation = useNavigation();
@@ -124,7 +125,6 @@ const HomePage = props => {
       });
   };
 
-  
   useEffect(() => {
     if (token) {
       fetchHomePageData();
@@ -439,9 +439,15 @@ const HomePage = props => {
 
             return (
               <Pressable
-                onPress={() =>
-                  NavigationService.navigate('VideoLive', {id: item?._id})
-                }
+                onPress={() => {
+                  if (isStaticImage) {
+                    NavigationService.navigate('VideoLive', {
+                      id: item?.video?._id,
+                    });
+                  } else {
+                    NavigationService.navigate('PodcastLive', item?.video);
+                  }
+                }}
                 style={{
                   width: 200,
                   height: 185,
@@ -456,7 +462,6 @@ const HomePage = props => {
                   style={{
                     width: 200,
                     height: 185,
-                  
                     borderRadius: 15,
                   }}
                   resizeMode="cover"
@@ -532,7 +537,16 @@ const HomePage = props => {
 
             return (
               <Pressable
-                onPress={() => NavigationService.navigate('PodcastLive', item)}
+                 onPress={() => {
+                  console.log("itemmm:-------------->" ,item._id)
+                  if (isStaticImage) {
+                    NavigationService.navigate('VideoLive', {
+                      id: item?._id,
+                    });
+                  } else {
+                    NavigationService.navigate('PodcastLive', item);
+                  }
+                }}
                 style={{
                   height: 175,
                   borderRadius: 15,
@@ -730,7 +744,7 @@ const HomePage = props => {
               return (
                 <Pressable
                   onPress={() => {
-                    // Navigate to Live Detail page
+                    // Navigate to Video Detail page
                     NavigationService.navigate('VideoLive', {id: item._id});
                   }}
                   style={{
