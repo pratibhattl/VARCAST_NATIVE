@@ -331,8 +331,11 @@ const PodcastLive = props => {
     }
 
     if(playbackState.state == State.Stopped){
+    
       songsfunc()
-  
+    }
+  }
+
   const playPodcast = () => {
     try {
       SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);

@@ -141,8 +141,17 @@ const PublicationIndex = props => {
 
   useEffect(() => {
       fetchAllPublicationList();
-    } else if (publicationIndex == 1) {
-      fetchDraftPublicationList()
+  }, []);
+
+  const onChagePublishIndex = (index) => {
+    setPublicationIndex(index)
+    if (index === 0) {
+      openPhotoFromLocalPathExample();
+    } else if (index === 1) {
+      fetchAllPublicationList();
+    }
+    else if (index === 2) {
+      fetchDraftPublicationList();
     }
     //  else {
     //   openVideoFromRemoteUrlExample();
@@ -401,7 +410,6 @@ const PublicationIndex = props => {
         : setPickedImg(pickedFile);
 
       if (pickedFile.type === 'image/jpeg') {
-      
         await RNFS.readFile(pickedFile.uri, 'base64').then(data => {
           setImgUrl(data);
         });
@@ -485,16 +493,7 @@ const PublicationIndex = props => {
                 renderItem={({item, index}) => {
                   return (
                     <Pressable
-                      onPress={() => {
-                        setPublicationIndex(index)
-                        if (index === 0) {
-                          openPhotoFromLocalPathExample();
-                        } else if (index === 1) {
-                          fetchDraftPublicationList();
-                        } else {
-                          openVideoFromRemoteUrlExample();
-                        }
-                      }}
+                      onPress={() => { onChagePublishIndex(index) }}
                       key={index}
                       style={{
                         height: 80,
@@ -525,8 +524,10 @@ const PublicationIndex = props => {
                         {index == 0
                           ? 'Camera'
                           : index == 1
-                            ? 'Drafts'
-                            : 'Templates'}
+                            ? 'Published'
+                            : 'Drafts'
+                          // : 'Templates'
+                        }
                       </Text>
                     </Pressable>
                   );
