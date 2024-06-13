@@ -70,7 +70,7 @@ const PodcastIndex = () => {
         const response = await apiCall('podcast/list', 'GET', null, token);
         const podcastList = response.data.listData;
         setData(podcastList); // Adjust according to the actual data structure
-        console.log('podcastlisr', podcastList);
+      
       } catch (error) {
         console.error('Error fetching data:', error);
       }

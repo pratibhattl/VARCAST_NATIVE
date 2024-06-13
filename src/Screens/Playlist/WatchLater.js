@@ -29,7 +29,7 @@ const WatchLater = () => {
   const handleMediaNavigation = (item) => {
     const isAudio = item.mediaUrl.endsWith('.mp3');
     if (isAudio) {
-      NavigationService.navigate('SongPlayy', { id: item._id });
+      NavigationService.navigate('SongPlayy', {...item,audio:item.mediaUrl});
     } else {
       NavigationService.navigate('VideoLive', { id: item._id });
     }
@@ -50,6 +50,7 @@ const WatchLater = () => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 0 }}
           renderItem={({ item, index }) => {
+           
             return (
               <View
                 key={index}

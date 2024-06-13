@@ -72,7 +72,7 @@ const SongPlayy = props => {
   const {position, duration} = useProgress(0);
   const token = useSelector(state => state.authData.token);
 
-  console.log('route123', route.params);
+ 
 
   function format(seconds) {
     let mins = parseInt(seconds / 60)
@@ -96,16 +96,8 @@ const SongPlayy = props => {
     });
     // TrackPlayer.skipToPrevious()
   };
-  const onRegisterPlayback = async () => {
-    TrackPlayer.addEventListener('remote-play', () => TrackPlayer.play());
-
-    TrackPlayer.addEventListener('remote-pause', () => TrackPlayer.pause());
-
-    TrackPlayer.addEventListener('remote-stop', () => TrackPlayer.destroy());
-  };
-
-  // let data=AudioArr.forEach(res=>res.audio)
-  // console.log('index>>>>>>>>>>>>>>',data )
+ 
+  
   const songsfunc = () => {
     // Set up the player
     setupPlayer();
@@ -124,10 +116,7 @@ const SongPlayy = props => {
     });
   };
 
-  //   console.log('sobngurl>',data.url)
-  //     }
-  //     );
-  //   };
+
   var current = format(position);
   var max = format(duration);
 
@@ -136,8 +125,11 @@ const SongPlayy = props => {
   // minutes are worth 60 seconds. Hours are worth 60 minutes.
   var seconds = +a[0] * 60 * 60 + +a[1] * 60 + +a[2];
   //   var mindT = progress.duration % (60 * 60)
+ 
+ 
   const togglePlayback = async playbackState => {
     let currentTrack = await TrackPlayer.getActiveTrackIndex();
+    
     if (currentTrack != null) {
       if (playbackState.state == State.Paused) {
         await TrackPlayer.play();
@@ -164,13 +156,7 @@ const SongPlayy = props => {
   //   var secondsT = progress.duration - minutesT * 60;
   //   console.log('truer', progress);
 
-  // const playPodcast = () => {
-  //   try {
-  //     SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
-  //   } catch (error) {
-  //     console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
-  //   }
-  // };
+  
 
   const fetchPodcastDetails = async () => {
     const formData = new FormData();
@@ -185,7 +171,7 @@ const SongPlayy = props => {
       .then(response => {
         if (response?.data?.status === true) {
           const like = response?.data?.data?.isLiked == true ? true : false;
-          console.log('podcast', response?.data?.data);
+          console.log('podcast123', response?.data?.data);
 
           setSelectedData(response?.data?.data);
           setLikeStatus(like);
@@ -540,7 +526,7 @@ const SongPlayy = props => {
                 marginTop: 40,
                 justifyContent: 'space-between',
                 marginHorizontal: 20,
-                backgroundColor: 'black',
+                // backgroundColor: 'black',
               }}>
               <Pressable
                 onPress={() => {
