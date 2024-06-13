@@ -13,43 +13,44 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {useRoute} from '@react-navigation/native';
+import React, { useEffect, useState } from 'react';
+import { useRoute } from '@react-navigation/native';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import EditIcon from '../../assets/icons/EditIcon';
 import EditProfileIcon from '../../assets/icons/EditProfileIcon';
-import {AppTextInput, Icon} from 'react-native-basic-elements';
+import { AppTextInput, Icon } from 'react-native-basic-elements';
 import Theme from '../../Constants/Theme';
 import EyeOpen from '../../assets/icons/EyeOpen';
 import EyeClose from '../../assets/icons/EyeClose';
-import {useDispatch, useSelector} from 'react-redux';
-import {PERMISSIONS} from 'react-native-permissions';
-import {useTranslation} from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { PERMISSIONS } from 'react-native-permissions';
+import { useTranslation } from 'react-i18next';
 import ImagePicker from 'react-native-image-crop-picker';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import {postApi} from '../../Services/Service';
-import {countryCodes} from '../../Constants/countryCodes';
+import { postApi } from '../../Services/Service';
+import { countryCodes } from '../../Constants/countryCodes';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import ReactNativeModal from 'react-native-modal';
 import MyDropDownComponent from '../../Components/MyDropDownComponent/MyDropDownComponent';
 import moment from 'moment';
-import {setData} from '../../Services/LocalStorage';
-import {setToken, setUserDetails} from '../../Store/Reducers/AuthReducer';
-import {apiCall} from '../../Services/Service';
+import { setData } from '../../Services/LocalStorage';
+import { setToken, setUserDetails } from '../../Store/Reducers/AuthReducer';
+import { apiCall } from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
 import DocumentPicker from 'react-native-document-picker';
 import axios from 'axios';
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const EditProfile = () => {
   const route = useRoute();
-  const {login_status, userDetails, token, deviceid} = useSelector(
+  const { login_status, userDetails, deviceid } = useSelector(
     state => state.authData,
   );
+  const token = useSelector(state => state?.authData?.token)
   const dispatch = useDispatch();
-const imageUrl = AllSourcePath?.IMAGE_BASE_URL
-const baseUrl = AllSourcePath?.API_BASE_URL_DEV
+  const imageUrl = AllSourcePath?.IMAGE_BASE_URL
+  const baseUrl = AllSourcePath?.API_BASE_URL_DEV
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
@@ -70,8 +71,8 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
     userDetails?.gender == 'F'
       ? 'Female'
       : userDetails?.gender == 'M'
-      ? 'Male'
-      : 'Others',
+        ? 'Male'
+        : 'Others',
   );
   const [idProof, setIdProof] = useState({});
   const [idImg, setIdImg] = useState();
@@ -82,12 +83,11 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
   const [OldpasswordShow, setOldPasswordShow] = useState(false);
   const [ConfirmPassword, setConfirmPassword] = useState('');
   const [ConfirmpasswordShow, setConfirmPasswordShow] = useState(false);
-  const form = new FormData();
-  const [imagesdet, setimagesdet] = useState({});
+  const [imagesdet, setimagesdet] = useState(null);
   const [profileImg, setProfileImg] = useState();
   const [userOtp, setUserOtp] = useState('');
   const [Loder, setLoader] = useState(false);
-  const {t, i18n} = useTranslation();
+  const { t, i18n } = useTranslation();
   const [value, setValue] = useState(userDetails?.phone ?? '');
 
   function handleSearchClick(val) {
@@ -182,12 +182,11 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
     }
   };
   const imageUpload = async () => {
-    
+
     try {
       const pickedFile = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-     console.log("pickedFile1-----", pickedFile);
 
       setimagesdet(pickedFile);
     } catch (err) {
@@ -198,7 +197,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
         throw err;
       }
     }
- 
+
   };
 
   const idUpload = async () => {
@@ -206,7 +205,6 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
       const pickedFile = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-     console.log("pickedFile2-----", pickedFile);
       setIdProof(pickedFile);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
@@ -216,84 +214,88 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
         throw err;
       }
     }
-   
+
   };
   const UpdateProfile = async () => {
-    console.log('runninggg');
-
-    changeloadingState(true);
-
+    setLoader(true);
     try {
       let get_originalname = getOriginalname(profileImg?.path);
       let idProofName = getOriginalname(idImg?.path);
       let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
-      let gender =
-        GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O';
+      let userGender = GenderNew ? Gender : GenderNew
+      let gender = userGender == 'Male' ? 'M' : userGender == 'Female' ? 'F' : 'O';
 
-      console.log('runninggg2222');
-      const payload = {
+      let bodyWithImage = {
+        gender,
         name: Name,
         dob: DOB,
+        image: imagesdet
+      }
+      let bodyWithId ={
         gender,
-        image: {
-          uri: imagesdet?.uei,
-          type: imagesdet?.type,
-          name: imagesdet.name,
-        },
-        govt_id_card: {
-          uri: idProof?.uri,
-          type: idProof?.type,
-          name: idProof.name,
-        },
+        name: Name,
+        dob: DOB,
+        govt_id_card: idProof
+      }
+      let bodyWithImageId = {
+        gender,
+        name: Name,
+        dob: DOB,
+        image: imagesdet,
+        govt_id_card: idProof
       };
-
-      console.log(payload);
+      let bodyWithoutImage ={
+        gender,
+        name: Name,
+        dob: DOB,
+      }
+      const payload = imagesdet?.uri && idProof?.uri ?  bodyWithImageId : imagesdet?.uri ? bodyWithImage : idProof?.uri ? bodyWithId : bodyWithoutImage
 
       const data = await apiCall('edit-profile', 'POST', payload, token);
 
       console.log("DATA----", data);
       if (data?.status === 'success') {
-        storeToLocalAndRedux(data?.data);
+        // storeToLocalAndRedux(data?.data);
         HelperFunctions.showToastMsg('Profile Updated Successfully');
-        NavigationService.back();
-        changeloadingState(false);
+        // NavigationService.back();
+        setLoader(false);
+        (false);
       }
     } catch (error) {
       HelperFunctions.showToastMsg(error?.message);
     } finally {
-      changeloadingState(false);
+      setLoader(false);
     }
   };
-//   const UpdateProfile =async () => {
-//     let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
-//     let gender =
-//       GenderNew == 'Male' ? 'M' : GenderNew == 'Female' ? 'F' : 'O';
+  // const UpdateProfile = async () => {
+  //   let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
+  //   let userGender =  GenderNew? Gender : GenderNew 
+  //   let gender = userGender == 'Male' ? 'M' : userGender == 'Female' ? 'F' : 'O';
 
-//     setLoader(true);
-//     try {
-//       const payload = {
-//         name: Name,
-//         dob: DOB,
-//         gender,
-//         image: imagesdet? imagesdet: userDetails?.image,
-//         govt_id_card: idProof ? idProof :userDetails?.govt_id_card,
-//       };
-//       const data = await apiCall('edit-profile', 'POST', payload, token);
-// console.log("DATA----", data);
-//       if (data?.status === 'success') {
-//         storeToLocalAndRedux(data?.data);
-//         HelperFunctions.showToastMsg('Profile Updated Successfully');
-//         NavigationService.back();
-//         setLoader(false);
-//       }
-//     } catch (error) {
-//       HelperFunctions.showToastMsg(error?.message);
-//     } finally {
-//       setLoader(false);
-//     }
-    
-//   };
-  
+  //   const formData = new FormData();
+  //   formData.append('name', Name);
+  //   formData.append('dob', DOB);
+  //   formData.append('gender', gender);
+  //   formData.append('image', imagesdet ? imagesdet : userDetails?.image);
+  //   formData.append('govt_id_card', idProof ? idProof : userDetails?.govt_id_card);
+
+  //   setLoader(true);
+
+  //   await axios.post(`${baseUrl}edit-profile`, formData, {
+  //     headers: {
+  //       'Content-Type': 'multipart/form-data',
+  //       Authorization: `Bearer ${token}`,
+  //     },
+  //   }).then((response) => {
+  //     setLoader(false);
+  //     console.log("--------", response?.json());
+
+  //   }).catch((error) => {
+  //     setLoader(false);
+  //     HelperFunctions.showToastMsg(error?.message);
+  //   })
+  // };
+
   const UpdatePassword = async () => {
     if (
       Oldpassword == null ||
@@ -359,14 +361,14 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
   };
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
+      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
       showLoading={Loder}
       isScrollable={true}
       leftHeading={'Edit Profile'}
       Save
       onRightTextPress={async () => UpdateProfile()}
       // Publish
-      leftHeadingStyle={{color: '#E1D01E'}}
+      leftHeadingStyle={{ color: '#E1D01E' }}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
@@ -379,7 +381,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           }}>
           <Image
             source={{
-              uri: imagesdet?.uri ?  imagesdet?.uri :  imageUrl+userDetails?.image,
+              uri: imagesdet?.uri ? imagesdet?.uri : imageUrl + userDetails?.image,
             }}
             style={{
               height: 90,
@@ -411,7 +413,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           onChangeText={a => setName(a)}
           placeholder="David Beckham"
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-          inputStyle={{fontSize: 14}}
+          inputStyle={{ fontSize: 14 }}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
@@ -432,7 +434,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
         />
         <AppTextInput
           value={email}
-          inputStyle={{fontSize: 14}}
+          inputStyle={{ fontSize: 14 }}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
@@ -476,8 +478,8 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
                 countryCode.length > 3
                   ? '17%'
                   : I18nManager.isRTL
-                  ? '13%'
-                  : '13%',
+                    ? '13%'
+                    : '13%',
               marginLeft:
                 countryCode.length > 3 ? 25 : I18nManager.isRTL ? 5 : 15,
             }}>
@@ -494,7 +496,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
               type="AntDesign"
               color="#fff"
               size={8}
-              style={{marginHorizontal: 5}}
+              style={{ marginHorizontal: 5 }}
             />
           </TouchableOpacity>
 
@@ -524,8 +526,8 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
               isEmailMode
                 ? 'email-address'
                 : isMobileMode
-                ? 'number-pad'
-                : 'default'
+                  ? 'number-pad'
+                  : 'default'
             }
           />
         </View>
@@ -540,13 +542,13 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
             justifyContent: 'space-between',
           }}>
           <View
-            style={{flexDirection: 'row', alignItems: 'center', width: '80%'}}>
+            style={{ flexDirection: 'row', alignItems: 'center', width: '80%' }}>
             <Icon
               name="calendar"
               type="Entypo"
               color={'#fff'}
               size={20}
-              style={{marginRight: 15}}
+              style={{ marginRight: 15 }}
             />
             <Text
               style={{
@@ -562,69 +564,68 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
             type="Feather"
             color={'#fff'}
             size={18}
-            style={{marginLeft: I18nManager.isRTL ? 10 : 0}}
+            style={{ marginLeft: I18nManager.isRTL ? 10 : 0 }}
           />
         </TouchableOpacity>
-        <View style={{marginHorizontal: 20, marginTop: 20}}>
+        <View style={{ marginHorizontal: 20, marginTop: 20 }}>
           <View >
             <MyDropDownComponent
               onBlur={() => setGenderDropDown(false)}
               onFocus={() => setGenderDropDown(true)}
-              itemTextStyle={{color: '#000'}}
-              selectedTextStyle={{color: '#fff'}}
+              itemTextStyle={{ color: '#000' }}
+              selectedTextStyle={{ color: '#fff' }}
               itemTestIDField="English"
               placeholder="Select gender"
-              placeholderStyle={{color: 'rgba(255, 255, 255, 0.54)'}}
+              placeholderStyle={{ color: 'rgba(255, 255, 255, 0.54)' }}
               renderLeftIcon={
                 genderDropDown
                   ? undefined
                   : () => (
-                      <Icon
-                        name={
-                          GenderNew == 'Male'
-                            ? 'male'
-                            : GenderNew == 'Female'
+                    <Icon
+                      name={
+                        GenderNew == 'Male'
+                          ? 'male'
+                          : GenderNew == 'Female'
                             ? 'female'
                             : GenderNew == 'Others'
-                            ? 'transgender-outline'
-                            : 'help-circle-outline'
-                        }
-                        type="Ionicon"
-                        color={'#fff'}
-                        size={GenderNew ? 21 : 23}
-                        style={{
-                          alignSelf: 'center',
-                          marginHorizontal: 4,
-                          marginRight: 12,
-                        }}
-                      />
-                    )
+                              ? 'transgender-outline'
+                              : 'help-circle-outline'
+                      }
+                      type="Ionicon"
+                      color={'#fff'}
+                      size={GenderNew ? 21 : 23}
+                      style={{
+                        alignSelf: 'center',
+                        marginHorizontal: 4,
+                        marginRight: 12,
+                      }}
+                    />
+                  )
               }
               renderRightIcon={
                 genderDropDown
                   ? undefined
                   : () => (
-                      <Icon
-                        name={
-                          I18nManager.isRTL ? 'chevron-left' : 'chevron-right'
-                        }
-                        type="Feather"
-                        color={'#fff'}
-                        size={18}
-                        style={{alignSelf: 'center', marginRight: 8}}
-                      />
-                    )
+                    <Icon
+                      name={
+                        I18nManager.isRTL ? 'chevron-left' : 'chevron-right'
+                      }
+                      type="Feather"
+                      color={'#fff'}
+                      size={18}
+                      style={{ alignSelf: 'center', marginRight: 8 }}
+                    />
+                  )
               }
               style={{
                 ...styles.category_view,
                 backgroundColor: 'rgba(255, 255, 255, 0.15)',
               }}
-              data={[{type: 'Male'}, {type: 'Female'}, {type: 'Others'}]}
+              data={[{ type: 'Male' }, { type: 'Female' }, { type: 'Others' }]}
               labelField="type"
               valueField="type"
               value={GenderNew}
               onChange={e => {
-                console.log('rtrt', e);
                 setGender(e);
                 setGenderNew(e.type);
               }}
@@ -634,9 +635,9 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
 
         <TouchableOpacity
           onPress={idUpload}
-          style={{marginHorizontal: 20, marginTop: 20}}>
+          style={{ marginHorizontal: 20, marginTop: 20 }}>
           <Image
-            source={{uri: idProof?.uri ? idProof?.uri : imageUrl+userDetails?.govt_id_card }}
+            source={{ uri: idProof?.uri ? idProof?.uri : imageUrl + userDetails?.govt_id_card }}
             style={{
               height: idProof ? 250 : 110,
               width: idProof ? width - 40 : 110,
@@ -663,7 +664,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           onChangeText={a => setOldPassword(a)}
           placeholder="Old Password"
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-          inputStyle={{fontSize: 14}}
+          inputStyle={{ fontSize: 14 }}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
@@ -690,7 +691,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           onChangeText={a => setPassword(a)}
           placeholder="New Password"
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-          inputStyle={{fontSize: 14}}
+          inputStyle={{ fontSize: 14 }}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
@@ -718,7 +719,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           onChangeText={a => setConfirmPassword(a)}
           placeholder="Confirm"
           placeholderTextColor={'rgba(255, 255, 255, 0.54)'}
-          inputStyle={{fontSize: 14}}
+          inputStyle={{ fontSize: 14 }}
           titleStyle={{
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
@@ -767,7 +768,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           </Text>
           {loadingState ? (
             <ActivityIndicator
-              style={{marginHorizontal: 10}}
+              style={{ marginHorizontal: 10 }}
               color={'#000'}
               size={20}
             />
@@ -816,7 +817,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
             onChangeText={handleSearchClick}
             placeholder="Search"
             placeholderTextColor={'rgba(0, 0, 0, 0.54)'}
-            inputStyle={{fontSize: 14}}
+            inputStyle={{ fontSize: 14 }}
             titleStyle={{
               fontFamily: Theme.FontFamily.semiBold,
               fontSize: Theme.sizes.s16,
@@ -854,7 +855,7 @@ const baseUrl = AllSourcePath?.API_BASE_URL_DEV
           <FlatList
             data={countryCodeList}
             showsVerticalScrollIndicator={false}
-            renderItem={({item, index}) => {
+            renderItem={({ item, index }) => {
               return (
                 <Pressable
                   onPress={() => {
