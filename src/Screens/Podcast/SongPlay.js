@@ -174,7 +174,7 @@ const SongPlay = props => {
        clearTimeout(timeOut)
        scrollX.removeAllListeners();
      }
-   }, [route.params._id,playbackService, songsfunc]);
+   }, [route.params._id]);
  
    useEffect(() => {
         
@@ -479,7 +479,12 @@ const SongPlay = props => {
                     togglePlayback(playbackState);
                   }
                 }}>
-                {playingLoader ? <VideoPlayIcon /> : <PauseIcon />}
+                {playbackState.state == State.Paused ||
+                playbackState.state == State.None? (
+                  <VideoPlayIcon Width={32} Height={32} />
+                ) : (
+                  <PauseIcon />
+                )}
               </Pressable>
               <PlayNext />
               <BookmarkIcon Color={'#8A8A8A'} />

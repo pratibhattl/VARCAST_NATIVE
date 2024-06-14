@@ -453,7 +453,7 @@ const PodcastLive = props => {
       clearTimeout(timeOut)
       scrollX.removeAllListeners();
     }
-  }, [route.params._id,playbackService, songsfunc]);
+  }, [route.params._id]);
 
   useEffect(() => {
        
