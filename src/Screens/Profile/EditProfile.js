@@ -35,18 +35,20 @@ import ReactNativeModal from 'react-native-modal';
 import MyDropDownComponent from '../../Components/MyDropDownComponent/MyDropDownComponent';
 import moment from 'moment';
 import { setData } from '../../Services/LocalStorage';
-import { setToken, setUserDetails } from '../../Store/Reducers/AuthReducer';
+// import { setToken, setUserDetails } from '../../Store/Reducers/AuthReducer';
 import { apiCall } from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
 import DocumentPicker from 'react-native-document-picker';
+import { useIsFocused } from '@react-navigation/native';
+
 import axios from 'axios';
 const { width, height } = Dimensions.get('screen');
 
 const EditProfile = () => {
   const route = useRoute();
-  const { login_status, userDetails, deviceid } = useSelector(
-    state => state.authData,
-  );
+  // const { login_status, userDetails, deviceid } = useSelector(
+  //   state => state.authData,
+  // );
   const token = useSelector(state => state?.authData?.token)
   const dispatch = useDispatch();
   const imageUrl = AllSourcePath?.IMAGE_BASE_URL
@@ -54,26 +56,18 @@ const EditProfile = () => {
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const [loadingState, changeloadingState] = useState(false);
-  const [email, setEmail] = useState(userDetails?.email);
-  const [Name, setName] = useState(userDetails?.name ?? '');
-  const [Dob, setDob] = useState(
-    moment(userDetails?.dob, 'YYYY-MM-DD').format('MMM Do YYYY'),
-  );
+  const [email, setEmail] = useState('');
+  const [Name, setName] = useState('');
+  const [Dob, setDob] = useState('');
   const [CountryModal, setCountryModal] = useState(false);
-  const [countryCode, setCountryCode] = useState(userDetails?.country_id ?? '');
+  const [countryCode, setCountryCode] = useState('');
   const [countryCodeList, setCountryCodeList] = useState(countryCodes);
   const [isEmailMode, setIsEmailMode] = useState(true);
   const [isMobileMode, setIsMobileMode] = useState(false);
   const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
   const [searchVal, setSearchVal] = useState('');
   const [Gender, setGender] = useState();
-  const [GenderNew, setGenderNew] = useState(
-    userDetails?.gender == 'F'
-      ? 'Female'
-      : userDetails?.gender == 'M'
-        ? 'Male'
-        : 'Others',
-  );
+  const [GenderNew, setGenderNew] = useState('');
   const [idProof, setIdProof] = useState({});
   const [idImg, setIdImg] = useState();
   const [genderDropDown, setGenderDropDown] = useState(false);
@@ -88,7 +82,9 @@ const EditProfile = () => {
   const [userOtp, setUserOtp] = useState('');
   const [Loder, setLoader] = useState(false);
   const { t, i18n } = useTranslation();
-  const [value, setValue] = useState(userDetails?.phone ?? '');
+  const [value, setValue] = useState('');
+  const isFocused = useIsFocused();
+  const [userDetails, setUserDetails] = useState({});
 
   function handleSearchClick(val) {
     if (val === '') {
@@ -181,6 +177,53 @@ const EditProfile = () => {
       ]);
     }
   };
+
+  const fetchUser = async () => {
+    try {
+      const { data } = await apiCall('get-user', 'GET', null, token);
+      let gender = data?.gender == 'F' ? 'Female' : data?.gender == 'M' ? 'Male' : 'Others';
+      setEmail(data?.email);
+      setName(data?.name);
+      setValue(data?.phone);
+      setGenderNew(gender);
+      setDob(data?.dob);
+      setCountryCode(data?.country_id);
+      setUserDetails(data);
+    } catch (error) {
+      console.log("ERROR WHILE FETCHING USER DETAILS :", error)
+    }
+  };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchUser();
+    }
+  }, [isFocused]);
+
+
+  const profileImageSubmit = async (file) => {
+    let formData = new FormData();
+    formData.append('image', file);
+
+    setLoader(true);
+
+    try {
+      const { data } = await axios.post(`${baseUrl}uploadProfilePicture`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setimagesdet(file);
+      setLoader(false);
+      HelperFunctions.showToastMsg('sucessfully uploaded');
+      // NavigationService.back();
+      return data;
+    } catch (error) {
+      HelperFunctions.showToastMsg(error?.message);
+      setLoader(false);
+    }
+  };
   const imageUpload = async () => {
 
     try {
@@ -188,7 +231,7 @@ const EditProfile = () => {
         type: [DocumentPicker.types.allFiles],
       });
 
-      setimagesdet(pickedFile);
+      profileImageSubmit(pickedFile);
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         console.log('err', err);
@@ -200,12 +243,37 @@ const EditProfile = () => {
 
   };
 
+  const govtfileSubmit = async (file) => {
+    let formData = new FormData();
+    formData.append('govt_id_card', file);
+
+    setLoader(true);
+
+    try {
+      const { data } = await axios.post(`${baseUrl}uploadGovtId`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setLoader(false);
+      setIdProof(file);
+
+      HelperFunctions.showToastMsg('sucessfully uploaded');
+      // NavigationService.back();
+      return data;
+    } catch (error) {
+      HelperFunctions.showToastMsg(error?.message);
+      setLoader(false);
+    }
+  };
   const idUpload = async () => {
     try {
       const pickedFile = await DocumentPicker.pickSingle({
         type: [DocumentPicker.types.allFiles],
       });
-      setIdProof(pickedFile);
+
+      govtfileSubmit(pickedFile)
     } catch (err) {
       if (DocumentPicker.isCancel(err)) {
         console.log('err', err);
@@ -217,84 +285,33 @@ const EditProfile = () => {
 
   };
   const UpdateProfile = async () => {
-    setLoader(true);
+    // setLoader(true);
+
+    let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
+    let userGender = GenderNew ? Gender : GenderNew
+    let gender = userGender == 'Male' ? 'M' : userGender == 'Female' ? 'F' : 'O';
+
+    const payload = {
+      gender,
+      name: Name,
+      dob: DOB,
+    }
     try {
-      let get_originalname = getOriginalname(profileImg?.path);
-      let idProofName = getOriginalname(idImg?.path);
-      let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
-      let userGender = GenderNew ? Gender : GenderNew
-      let gender = userGender == 'Male' ? 'M' : userGender == 'Female' ? 'F' : 'O';
+      const data = await axios.post(`${baseUrl}edit-profile`, payload, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      let bodyWithImage = {
-        gender,
-        name: Name,
-        dob: DOB,
-        image: imagesdet
-      }
-      let bodyWithId ={
-        gender,
-        name: Name,
-        dob: DOB,
-        govt_id_card: idProof
-      }
-      let bodyWithImageId = {
-        gender,
-        name: Name,
-        dob: DOB,
-        image: imagesdet,
-        govt_id_card: idProof
-      };
-      let bodyWithoutImage ={
-        gender,
-        name: Name,
-        dob: DOB,
-      }
-      const payload = imagesdet?.uri && idProof?.uri ?  bodyWithImageId : imagesdet?.uri ? bodyWithImage : idProof?.uri ? bodyWithId : bodyWithoutImage
-
-      const data = await apiCall('edit-profile', 'POST', payload, token);
-
-      console.log("DATA----", data);
-      if (data?.status === 'success') {
-        // storeToLocalAndRedux(data?.data);
-        HelperFunctions.showToastMsg('Profile Updated Successfully');
-        // NavigationService.back();
-        setLoader(false);
-        (false);
-      }
+      HelperFunctions.showToastMsg('Profile Updated Successfully');
+      NavigationService.back();
+      return data;
     } catch (error) {
       HelperFunctions.showToastMsg(error?.message);
-    } finally {
       setLoader(false);
     }
   };
-  // const UpdateProfile = async () => {
-  //   let DOB = moment(Dob, 'MMM Do YYYY').format('YYYY-MM-DD');
-  //   let userGender =  GenderNew? Gender : GenderNew 
-  //   let gender = userGender == 'Male' ? 'M' : userGender == 'Female' ? 'F' : 'O';
-
-  //   const formData = new FormData();
-  //   formData.append('name', Name);
-  //   formData.append('dob', DOB);
-  //   formData.append('gender', gender);
-  //   formData.append('image', imagesdet ? imagesdet : userDetails?.image);
-  //   formData.append('govt_id_card', idProof ? idProof : userDetails?.govt_id_card);
-
-  //   setLoader(true);
-
-  //   await axios.post(`${baseUrl}edit-profile`, formData, {
-  //     headers: {
-  //       'Content-Type': 'multipart/form-data',
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   }).then((response) => {
-  //     setLoader(false);
-  //     console.log("--------", response?.json());
-
-  //   }).catch((error) => {
-  //     setLoader(false);
-  //     HelperFunctions.showToastMsg(error?.message);
-  //   })
-  // };
 
   const UpdatePassword = async () => {
     if (
@@ -470,7 +487,7 @@ const EditProfile = () => {
             borderRadius: 10,
           }}>
           <TouchableOpacity
-            onPress={() => setCountryModal(true)}
+            onPress={() => setCountryModal(false)}
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -515,7 +532,7 @@ const EditProfile = () => {
               width: '85%',
               paddingRight: I18nManager.isRTL ? 15 : 0,
             }}
-            editable={true}
+            editable={false}
             blurOnSubmit={true}
             placeholder="Phone Number"
             placeholderTextColor={'rgba(255, 255, 255, 0.54)'}

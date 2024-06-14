@@ -40,7 +40,6 @@ const HomePage = props => {
   const [popularEpisodes, setPopularEpisodes] = useState([]);
   const [categorylist, setCategorylist] = useState([]);
   const [mostPlayedData, setMostPlayedData] = useState([]);
-  console.log('MostPalyed', mostPlayedData);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const [userData, setUserData] = useState([]);
   const [ourpickData, setourpickData] = useState([]);
@@ -49,7 +48,6 @@ const HomePage = props => {
   const [liveData, setLiveData] = useState([]);
   const [latestFollowers, setLatestFollowers] = useState([]);
   const [videoByCat, setVideoByCat] = useState([]);
-  console.log('Video Cat', videoByCat);
 
   const {t} = useTranslation();
   const navigation = useNavigation();

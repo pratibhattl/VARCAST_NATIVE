@@ -23,12 +23,13 @@ import {resetAuthData} from '../../Store/Reducers/AuthReducer';
 import {useTranslation} from 'react-i18next';
 import {apiCall} from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
-
+import { useIsFocused } from '@react-navigation/native';
 // create a component
 const DrawerNavigationCard = () => {
   const {t} = useTranslation();
   const colors = useTheme();
   const dispatch = useDispatch();
+  const isFocused = useIsFocused();
   const {login_status, token, deviceid} = useSelector(state => state.authData);
   const [userDetails, setUserDetails] = useState();
 const imageUrl = AllSourcePath?.IMAGE_BASE_URL
@@ -47,7 +48,6 @@ const imageUrl = AllSourcePath?.IMAGE_BASE_URL
       {text: 'Yes', onPress: () => logout()},
     ]);
 
-  useEffect(() => {
     const fetchUser = async () => {
       try {
         const {data} = await apiCall('get-user', 'GET', null, token);
@@ -56,8 +56,12 @@ const imageUrl = AllSourcePath?.IMAGE_BASE_URL
         console.log("ERROR WHILE FETCHING USER DETAILS :",error)
       }
     };
+
+  useEffect(() => {
+   if(isFocused){
     fetchUser();
-  }, []);
+   }
+  }, [isFocused]);
 
   return (
     <View

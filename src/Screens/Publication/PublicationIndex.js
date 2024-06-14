@@ -440,6 +440,7 @@ const PublicationIndex = props => {
           Authorization: `Bearer ${token}`,
         },
       });
+      setLoader(false);
       setName('');
       setOverView('');
       setPickedImg();
