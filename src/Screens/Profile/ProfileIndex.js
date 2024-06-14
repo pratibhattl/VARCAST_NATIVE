@@ -27,16 +27,18 @@ import ShareIcon from '../../assets/icons/ShareIcon';
 import AudioReelsIcon from '../../assets/icons/AudioReelsIcon';
 import VideoReelsIcon from '../../assets/icons/VideoReelsIcon';
 import {followUser} from '../../Store/Reducers/CommonReducer';
+import { useIsFocused } from '@react-navigation/native';
 import {t} from 'i18next';
 const {width, height} = Dimensions.get('screen');
 
 const ProfileIndex = () => {
   const Tab = createMaterialTopTabNavigator();
   const route = useRoute();
+  const isFocused = useIsFocused()
   // const {userDetails} = useSelector(state => state.authData);
   const token = useSelector(state => state.authData.token);
   const [loadingState, setLoadingState] = useState(false);
-  const [userDetails, setUserDetails] = useState([]);
+  const [userDetails, setUserDetails] = useState({});
   
   const {following} = useSelector(state => state.commonData); // Get following state from the store
   const dispatch = useDispatch(); // Initialize useDispatch
@@ -44,26 +46,21 @@ const ProfileIndex = () => {
   const handleFollow = () => {
     dispatch(followUser()); // Dispatch the followUser action when the button is pressed
   };
+  const fetchLoggedInUserData = async () => {
+    try {
+      const endpoint = 'get-user';
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      const data = response.data;
+      setUserDetails(data);
+    } catch (error) {
+      console.error('Error fetching My profile data:', error);
+    }
+  };
   useEffect(() => {
-    const fetchLoggedInUserData = async () => {
-      try {
-        const endpoint = 'get-user';
-        const response = await apiCall(endpoint, 'GET', {}, token);
-        const data = response.data;
-
-        // const mappedData = data?.map(item => ({
-        //   name: item.name,
-        //   email: item.email,
-        //   imageUrl: item.imageUrl,
-        //   videoUrl: item.videoUrl,
-        // }));
-        setUserDetails(data);
-      } catch (error) {
-        console.error('Error fetching My profile data:', error);
-      }
-    };
+   if(isFocused){
     fetchLoggedInUserData();
-  }, []);
+   }
+  }, [isFocused]);
 
   const handleShare = async () => {
     try {

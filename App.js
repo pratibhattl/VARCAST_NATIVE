@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, Text, View ,AppState} from 'react-native';
 import React, {createRef, useEffect, useState} from 'react';
 import {Provider, useDispatch, useSelector} from 'react-redux';
 import {store} from './src/Store/AppStore';
@@ -99,6 +99,7 @@ useEffect(()=>{
   if (LoderStatus) return <SplashScreen />;
 
   return (
+
     <View style={{flex: 1}}>
       <AutocompleteDropdownContextProvider>
         <I18nextProvider i18n={i18next}>

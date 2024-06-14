@@ -277,10 +277,13 @@ const [image, setImage] = useState('');
       const catArr = DraftItem?.categories?.map(item => item.categoryId)
       setCat(catArr || []);
     }else{
-      setAudioUrl(DraftItem?.audio)
-      setImage(selectedata?.file.uri)
+      setAudioUrl(selectedata?.audio)
+      setImage(selectedata?.file)
     }
   },[])
+
+  console.log("DraftItem?.image----", DraftItem?.image);
+
   const publishVideoFunc = () => {
     setLoader(true);
     const formData = new FormData();
@@ -387,6 +390,15 @@ const [image, setImage] = useState('');
       publishVideoFunc();
     }
   }
+
+  const goBackFunction=()=>{
+    if(selectedata?.image){
+      NavigationService.back()
+    }else{
+    NavigationService.navigate('PublicationIndex')
+    }
+  }
+
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
@@ -399,7 +411,7 @@ const [image, setImage] = useState('');
       Publish
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
-      onLeftIconPress={() => NavigationService.back()}>
+      onLeftIconPress={() =>goBackFunction()}>
       <Pressable
         onPress={() => dropdownController.current.toggle()}
         style={{...styles.container}}>

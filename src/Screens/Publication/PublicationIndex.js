@@ -158,6 +158,15 @@ const PublicationIndex = props => {
     // }
   }
 
+  const onGoDraft=(item)=>{
+    if(publicationIndex == 2){
+    // setPublicationIndex(0);
+    NavigationService.navigate('Publication02', {
+      DraftItem: item,
+    });
+    }
+  }
+
   const openPhotoFromLocalPathExample = async () => {
     try {
       let pickerResult = await ImagePicker.openCamera({
@@ -440,6 +449,7 @@ const PublicationIndex = props => {
           Authorization: `Bearer ${token}`,
         },
       });
+      setLoader(false);
       setName('');
       setOverView('');
       setPickedImg();
@@ -563,12 +573,7 @@ const PublicationIndex = props => {
                         marginTop: 10,
                       }}>
                       <Pressable
-                        onPress={() => {
-                          setPublicationIndex(0);
-                          NavigationService.navigate('Publication02', {
-                            DraftItem: item,
-                          });
-                        }}>
+                        onPress={() => {onGoDraft(item)}}>
                         <View style={{position: 'relative'}}>
                           <Image
                             source={imageSource}
