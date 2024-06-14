@@ -103,6 +103,7 @@ const Publication01 = () => {
   const [audioIndex, setAudioIndex] = useState(null);
 
   const selectAudioFunc = (data, index) => {
+    console.log("data?.fileurl---", data?.fileurl);
     setAudioIndex(index);
     setSelectedata({...selectedata, audio: data?.fileurl});
   };
@@ -163,11 +164,12 @@ const Publication01 = () => {
   };
 
   const goToNext = selectedata => {
-    if (!audioIndex) {
+    if (!selectedata?.audio) {
       HelperFunctions.showToastMsg('Please choose audio to proceed!');
       return;
-    }
+    }else{
     NavigationService.navigate('Publication02', {selectedata: selectedata});
+    }
   };
 
   return (
