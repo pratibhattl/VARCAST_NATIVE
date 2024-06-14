@@ -1558,12 +1558,12 @@ PODS:
   - react-native-simple-toast (3.0.2):
     - React-Core
     - Toast (~> 4)
-  - react-native-slider (4.5.0):
+  - react-native-slider (4.5.2):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
-  - react-native-track-player (4.0.1):
+  - react-native-track-player (4.1.1):
     - React-Core
-    - SwiftAudioEx (= 1.0.0)
+    - SwiftAudioEx (= 1.1.0)
   - react-native-video (5.2.1):
     - React-Core
     - react-native-video/Video (= 5.2.1)
@@ -1763,9 +1763,11 @@ PODS:
     - React-Core
   - RNSnackbar (2.6.2):
     - React-Core
+  - RNSoundPlayer (0.14.2):
+    - React-Core
   - RNSVG (13.14.0):
     - React-Core
-  - RNVectorIcons (10.0.1):
+  - RNVectorIcons (10.1.0):
     - RCT-Folly (= 2021.07.22.00)
     - React-Core
   - RNVideoEditorSDK (2.13.0):
@@ -1773,7 +1775,7 @@ PODS:
     - React-RCTImage
     - VideoEditorSDK (~> 10.29)
   - SocketRocket (0.6.1)
-  - SwiftAudioEx (1.0.0)
+  - SwiftAudioEx (1.1.0)
   - Toast (4.0.0)
   - TOCropViewController (2.6.1)
   - VideoEditorSDK (10.30.1):
@@ -1859,6 +1861,7 @@ DEPENDENCIES:
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSnackbar (from `../node_modules/react-native-snackbar`)
+  - RNSoundPlayer (from `../node_modules/react-native-sound-player`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNVideoEditorSDK (from `../node_modules/react-native-videoeditorsdk`)
@@ -2045,6 +2048,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-share"
   RNSnackbar:
     :path: "../node_modules/react-native-snackbar"
+  RNSoundPlayer:
+    :path: "../node_modules/react-native-sound-player"
   RNSVG:
     :path: "../node_modules/react-native-svg"
   RNVectorIcons:
@@ -2115,8 +2120,8 @@ SPEC CHECKSUMS:
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: 7aa8e6d9d0f3100a820efb1a98af68aa747f9284
   react-native-simple-toast: d54bd028da3e842e6b1b7a60f407e29df589229f
-  react-native-slider: 23deba5866c8d2325f4f4d3e7b42d2471a0a4d4e
-  react-native-track-player: 97d76dbbd35f27cc709e5f04540615e54264b3f9
+  react-native-slider: 904bce3c4c1d520d8544c66b226429766d7f7b27
+  react-native-track-player: 82ef1756ffeea61140fea17519ecd6d64ec3cf3e
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
   React-NativeModulesApple: 30a72273f7fcf81d47742c1edc998ea88d34739a
   React-perflogger: 63606aeab27683112e1bd4ef25bd099ec1cb03f8
@@ -2155,11 +2160,12 @@ SPEC CHECKSUMS:
   RNScreens: a79430706d7d993b1e5c0dde8b51fd1af41ad432
   RNShare: b674d9f1cb0dc11116983bebd8712908a226a3ee
   RNSnackbar: 3727b42bf6c4314a53c18185b5203e915a4ab020
+  RNSoundPlayer: 917b6e9d8e440b5a5070f714df3b6179def12414
   RNSVG: d00c8f91c3cbf6d476451313a18f04d220d4f396
-  RNVectorIcons: 2a592116f3d96aefd3937a38c648d122d26eabcf
+  RNVectorIcons: 82be274d00be231e5eee45f7c73d4a516aed50ab
   RNVideoEditorSDK: 48fa846e91be5d1309aa430efdaf61791dfa0af0
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
-  SwiftAudioEx: 6f511018b7a0fdfd14ed1bb4081f953588245cc0
+  SwiftAudioEx: f6aa653770f3a0d3851edaf8d834a30aee4a7646
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
   TOCropViewController: edfd4f25713d56905ad1e0b9f5be3fbe0f59c863
   VideoEditorSDK: 8248852e4288a996119a099ad985e36fdcb58d87

@@ -80,10 +80,10 @@ const PodcastLive = props => {
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
-  // console.log("ID",id);
-  const token = useSelector(state => state.authData.token);
+ 
+  const {token ,userDetails}= useSelector(state => state.authData);
   const {position, duration} = useProgress(0);
-
+  
   const isFocused = useIsFocused();
   const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
@@ -303,14 +303,7 @@ const PodcastLive = props => {
     });
   };
 
-  // const playPodcast = () => {
-  //   try {
-  //     SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
-  //   } catch (error) {
-  //     console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
-  //   }
-  // };
-
+  
   function format(seconds) {
     let mins = parseInt(seconds / 60)
       .toString()
@@ -330,21 +323,12 @@ const PodcastLive = props => {
       }
     }
 
-    if(playbackState.state == State.Stopped){
-    
-      songsfunc()
+    if(playbackState.state == State.None){
+           songsfunc()
     }
   }
 
-  const playPodcast = () => {
-    try {
-      SoundPlayer.playUrl(`${imageUrl}${route?.params?.audio}`);
-    } catch (error) {
-      console.error('ERROR WHILE PLAYING THRE AUDIO :', error);
-    }
-  };
-
-  
+   
 
   //-----------------------------------------------------------------------------------------------------------//
 
@@ -454,29 +438,30 @@ const PodcastLive = props => {
     );
   };
 
-  // useEffect(() => {
-  //   setTimeout(() => playPodcast(), 200);
-  // }, []);
+  console.log('song',playbackState)
+  
+  
 
   useEffect(() => {
-    if (playbackState.state === 'ended') {
-      scrollX.removeAllListeners();
-      TrackPlayer.reset();
-    }
-  }, [playbackState]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsPlayerReady(false);
+   const timeOut= setTimeout(() => {
       playbackService();
       songsfunc();
     }, 200);
 
-    return () => {
+   
+    return()=>{
+      clearTimeout(timeOut)
       scrollX.removeAllListeners();
-      TrackPlayer.reset();
-    };
+    }
   }, [route.params._id]);
+
+  useEffect(() => {
+       
+        if (playbackState.state === 'ended') {
+          scrollX.removeAllListeners();
+          TrackPlayer.reset();
+        }
+      }, [playbackState.state]);
 
   return (
     <View style={styles.container}>
@@ -657,7 +642,7 @@ const PodcastLive = props => {
                   }
                 }}>
                 {playbackState.state == State.Paused ||
-                playbackState.state == State.Stopped ? (
+                playbackState.state == State.None? (
                   <VideoPlayIcon Width={32} Height={32} />
                 ) : (
                   <PauseIcon />
@@ -896,7 +881,7 @@ const PodcastLive = props => {
             {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
-        <Pressable
+       {route.params.userId !== userDetails._id && <Pressable
           onPress={getAllGift}
           style={{
             height: 50,
@@ -908,7 +893,7 @@ const PodcastLive = props => {
             marginBottom: 15,
           }}>
           <GitftIcon />
-        </Pressable>
+        </Pressable>}
         <Pressable
           onPress={() => setModalState(true)}
           style={{
