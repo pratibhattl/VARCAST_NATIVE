@@ -139,16 +139,21 @@ const SongPlay = props => {
   //   };
 
   const togglePlayback = async playbackState => {
-    let currentTrack = await TrackPlayer.getCurrentTrack();
-    // console.log('object>>>>>>>>>>>', playbackState);
+   
+    let currentTrack = await TrackPlayer.getActiveTrackIndex();
     if (currentTrack != null) {
-      if (playbackState == State.Paused) {
+      if (playbackState.state == State.Paused) {
         await TrackPlayer.play();
       } else {
         await TrackPlayer.pause();
       }
     }
-  };
+
+    if(playbackState.state == State.None){
+           songsfunc()
+    }
+  }
+
 
   const skipTo = async trackId => {
     await TrackPlayer.skip(trackId);
@@ -156,39 +161,28 @@ const SongPlay = props => {
     console.log('track>>>>>>', trackId);
   };
 
-  //   var mind = progress.position % (60 * 60);
-  //   var minutes = Math.floor(mind / 60);
-  //   var seconds = progress.position - minutes * 60;
-
-  //   var minutesT = Math.floor(mindT/60);
-  //   var secondsT = progress.duration - minutesT * 60;
-  //   console.log('truer', progress);
+ 
+  
   useEffect(() => {
-    // setIsPlayerReady(false)
-    setTimeout(() => {
-      setIsPlayerReady(false);
-      songsfunc();
-    }, 1000);
-    console.log('scrollx>>>>>>>>>>>>>>>>>', songsfunc());
-
-    // scrollX.addListener(({ value }) => {
-    //   console.log('scrollx', scrollX)
-    //   const index = Math.round(value / width);
-    //   skipTo(index);
-    //   setSongIndex(index);
-    // });
-    return () => {
-      scrollX.removeAllListeners();
-      //   TrackPlayer.reset();
-    };
-  }, []);
-
-  useEffect(() => {
-    return () => {
-      TrackPlayer.pause();
-      TrackPlayer.reset();
-    };
-  }, []);
+    const timeOut= setTimeout(() => {
+       playbackService();
+       songsfunc();
+     }, 200);
+ 
+    
+     return()=>{
+       clearTimeout(timeOut)
+       scrollX.removeAllListeners();
+     }
+   }, [route.params._id,playbackService, songsfunc]);
+ 
+   useEffect(() => {
+        
+         if (playbackState.state === 'ended') {
+           scrollX.removeAllListeners();
+           TrackPlayer.reset();
+         }
+       }, [playbackState.state]);
   return (
     <View style={styles.container}>
       <StatusBar

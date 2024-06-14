@@ -150,7 +150,7 @@ const Login = props => {
       };
       apiCall('login', 'POST', data)
         .then(response => {
-          // console.log('response',response)
+          console.log('LOG IN',response)
           if (response?.status == 'success') {
             storeToLocalAndRedux(response);
             HelperFunctions.showToastMsg('Logged In Successfully');
@@ -162,6 +162,7 @@ const Login = props => {
           }
         })
         .catch(error => {
+          console.log('log in error', error)
           HelperFunctions.showToastMsg(error?.message);
           setLoader(false);
         })
