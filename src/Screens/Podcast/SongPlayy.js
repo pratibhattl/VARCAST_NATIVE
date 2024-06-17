@@ -100,26 +100,7 @@ const SongPlayy = props => {
   };
  
   
-  const songsfunc = () => {
-    // Set up the player
-    setupPlayer();
-
-    // Add a track to the queue
-    addTrack({
-      id: route?.params?._id,
-      url: `${imageUrl}${route?.params?.audio}`,
-      title: route?.params?.title,
-      artwork: route?.params?.image,
-    });
-
-    // Start playing it
-    TrackPlayer.play().then(() => {
-      setPlayingLoader(false);
-    });
-  };
-
-
-  var current = format(position);
+ var current = format(position);
   var max = format(duration);
 
   var a = max.split(':'); // split it at the colons
@@ -129,21 +110,7 @@ const SongPlayy = props => {
   //   var mindT = progress.duration % (60 * 60)
  
  
-  const togglePlayback = async playbackState => {
-    let currentTrack = await TrackPlayer.getActiveTrackIndex();
-    
-    if (currentTrack != null) {
-      if (playbackState.state == State.Paused) {
-        await TrackPlayer.play();
-      } else {
-        await TrackPlayer.pause();
-      }
-    }
 
-    if (playbackState.state == State.Stopped) {
-      songsfunc();
-    }
-  };
 
   const skipTo = async trackId => {
     await TrackPlayer.skip(trackId);
@@ -212,6 +179,41 @@ const SongPlayy = props => {
       });
   };
 
+  const songsfunc = async() => {
+    // Set up the player
+    await setupPlayer();
+
+    // Add a track to the queue
+   await  addTrack({
+      id: route?.params?._id,
+      url: `${imageUrl}${route?.params?.audio}`,
+      title: route?.params?.title,
+      artwork: route?.params?.image,
+    });
+
+    // Start playing it
+    TrackPlayer.play().then(() => {
+      setPlayingLoader(false);
+    });
+  };
+
+
+  const togglePlayback = async playbackState => {
+    let currentTrack = await TrackPlayer.getActiveTrackIndex();
+    
+    if (currentTrack != null) {
+      if (playbackState.state == State.Paused) {
+        await TrackPlayer.play();
+      } else {
+        await TrackPlayer.pause();
+      }
+    }
+
+    if (playbackState.state == State.Stopped) {
+      songsfunc();
+    }
+  };
+
   useEffect(() => {
     if (isFocused) {
       fetchPodcastDetails();
@@ -226,12 +228,9 @@ const SongPlayy = props => {
   }, [playbackState]);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsPlayerReady(false);
-      playbackService();
-      songsfunc();
-    }, 200);
-
+    playbackService();
+    songsfunc();
+  
     return () => {
       scrollX.removeAllListeners();
       TrackPlayer.reset();
