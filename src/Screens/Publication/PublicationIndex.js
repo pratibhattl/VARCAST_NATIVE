@@ -73,7 +73,6 @@ const PublicationIndex = props => {
   const [audio, setAudio] = useState();
   const [imgUrl, setImgUrl] = useState('');
   const [allImage, setAllImage] = useState([]);
-  console.log('All Image', allImage);
   const [publicationIndex, setPublicationIndex] = useState(0);
   const token = useSelector(state => state.authData.token);
   const audioToken =
@@ -811,6 +810,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Live');
+                // NavigationService.navigate('LiveScreen', {host: true});
                 NavigationService.navigate('VideoLive', {host: true});
               }}
               style={{

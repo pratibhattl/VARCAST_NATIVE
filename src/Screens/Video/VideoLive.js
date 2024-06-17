@@ -482,8 +482,6 @@ const VideoLive = props => {
   };
   /*** Start Video playing ***/
 
-  console.log('route', route);
-  console.log('props', props);
 
   return (
     <View style={styles.container}>

@@ -10,18 +10,19 @@ import {
   FlatList,
   Image,
 } from 'react-native';
-import React, {useState, useEffect,useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
-import {useRoute} from '@react-navigation/native';
-import {BlurView} from '@react-native-community/blur';
-import {apiCall} from '../../Services/Service';
-import {useSelector} from 'react-redux';
+import { useRoute } from '@react-navigation/native';
+import { BlurView } from '@react-native-community/blur';
+import { apiCall } from '../../Services/Service';
+import { useSelector } from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 
-const {width, height} = Dimensions.get('screen');
+const { width, height } = Dimensions.get('screen');
 
 const MostPlayed = () => {
   const route = useRoute();
@@ -31,6 +32,7 @@ const MostPlayed = () => {
   const [mostPlayedEpisodes, setMostPlayedEpisodes] = useState([]);
   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL
+  const staticImage = require('../../assets/images/image96.png');
 
   const fetchMostPlayedData = useCallback(async () => {
     try {
@@ -38,23 +40,23 @@ const MostPlayed = () => {
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       if (response?.status === true) {
-        
+
         setMostPlayedEpisodes(response?.data?.listData);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
-    } 
+    }
   }, [token]);
 
-  useEffect(()=>{
+  useEffect(() => {
     fetchMostPlayedData()
-  },[]);
+  }, []);
   return (
     <ScreenLayout
-      headerStyle={{backgroundColor: '#131313'}}
+      headerStyle={{ backgroundColor: '#131313' }}
       showLoading={loadingState}
       isScrollable={true}
-      viewStyle={{backgroundColor: '#131313'}}
+      viewStyle={{ backgroundColor: '#131313' }}
       leftHeading={'Most Played Of The Week'}
       // ChatIconPress={()=>NavigationService.navigate('ChatList')}
       // Home
@@ -73,70 +75,93 @@ const MostPlayed = () => {
           showsHorizontalScrollIndicator={false}
           //   horizontal
           numColumns={2}
-          contentContainerStyle={{marginHorizontal: 20, paddingBottom: 20}}
-          renderItem={({item, index}) => {
+          contentContainerStyle={{ marginHorizontal: 20, paddingBottom: 20 }}
+          renderItem={({ item, index }) => {
+            const isStaticImage =
+            item.image && item.image.endsWith('.mp4');
+          const imageSource = isStaticImage
+            ? staticImage
+            : {uri: imageUrl + item?.image};
             return (
               <View>
-                {mostPlayedEpisodes && ( // Check if mostPlayedData is not null or undefined
-                  <FlatList
-                    data={mostPlayedEpisodes}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{paddingTop: 20, paddingLeft: 20}}
-                    renderItem={({item}) => (
-                      <Pressable
-                        onPress={() => {
-                          // Navigate to Live Detail page
-                          NavigationService.navigate('VideoLive', {id: item?._id});
-                        }}
-                        style={{
-                          width: 200,
-                          height: 200,
-                          borderRadius: 15,
-                          marginRight: 20,
-                          overflow: 'hidden',
-                          backgroundColor: 'transparent',
-                        }}>
-                        <Image
-                          source={{uri: imageUrl+item.image}}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            borderRadius: 15,
-                          }}
-                          resizeMode="cover"
-                        />
-                        <View
-                          style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                            padding: 10,
-                          }}>
-                          <Text
+
+                <Pressable
+                  onPress={() => {
+                    if (isStaticImage) {
+                      NavigationService.navigate('VideoLive', {
+                        id: item?._id,
+                      });
+                    } else {
+                      NavigationService.navigate('PodcastLive', item?.image);
+                    }
+                  }}
+                  // onPress={() => {
+                  //   NavigationService.navigate('VideoLive', {id: item?._id});
+                  // }}
+                  style={{
+                    width: 'auto',
+                    height: 200,
+                    borderRadius: 15,
+                    marginRight: 20,
+                    marginBottom: 20,
+                    overflow: 'hidden',
+                    backgroundColor: 'transparent',
+                  }}
+                  >
+                   <View style={{position: 'relative'}}>
+                          <Image
+                            source={imageSource}
                             style={{
-                              color: '#fff',
-                              fontSize: 16,
-                              fontFamily: 'Arial', // Use your desired font family
-                              marginBottom: 5,
-                            }}>
-                            {item.title}
-                          </Text>
-                          <Text
-                            style={{
-                              color: '#fff',
-                              fontSize: 14,
-                              fontFamily: 'Arial', // Use your desired font family
-                            }}>
-                            Views: {item.views}
-                          </Text>
+                              height: 180,
+                              width: 180,
+                              borderRadius: 15,
+                            }}
+                            resizeMode="cover"
+                          />
+                          {isStaticImage && (
+                            <View
+                              style={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: [
+                                  {translateX: -15},
+                                  {translateY: -15},
+                                ], // Adjust the position of the icon as per your preference
+                              }}>
+                              <Icon name="play-circle" size={50} color="rgba(0, 0, 0, 0.7)" />
+                            </View>
+                          )}
                         </View>
-                      </Pressable>
-                    )}
-                  />
-                )}
+                  <View
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      padding: 10,
+                    }}>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 16,
+                        fontFamily: 'Arial', // Use your desired font family
+                        marginBottom: 5,
+                      }}>
+                      {item.title}
+                    </Text>
+                    <Text
+                      style={{
+                        color: '#fff',
+                        fontSize: 14,
+                        fontFamily: 'Arial', // Use your desired font family
+                      }}>
+                      Views: {item.views}
+                    </Text>
+                  </View>
+                </Pressable>
+
               </View>
             );
           }}
