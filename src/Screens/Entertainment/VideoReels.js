@@ -37,7 +37,7 @@ const VideoReels = ({userData}) => {
       video => video._id === videoId,
     );
 
-    console.log('cliced', clickedVideo);
+
     if (clickedVideo.image_type === 'image') {
       NavigationService.navigate('SongPlayy', {
         ...clickedVideo,
