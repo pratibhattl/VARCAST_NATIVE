@@ -238,12 +238,12 @@ const HomePage = props => {
                         {item?.views} online • {item?.created_by_name}
                       </Text>
                     </View>
-                    <Icon
+                    {/* <Icon
                       name="dots-three-horizontal"
                       type="Entypo"
                       size={18}
                       color={'#fff'}
-                    />
+                    /> */}
                   </View>
                 </View>
                 <Pressable

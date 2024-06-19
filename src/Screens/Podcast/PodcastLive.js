@@ -81,9 +81,6 @@ const PodcastLive = props => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
  
-console.log('publication',route)
-
-
   const {token ,userDetails}= useSelector(state => state.authData);
   const {position, duration} = useProgress(0);
   
@@ -759,7 +756,7 @@ console.log('publication',route)
         {mapComment?.map((comment, index) => (
           <Pressable
             key={index}
-            onPress={() =>
+            onPress={() =>{
               NavigationService.navigate('ChatRoom', {
                 data: {
                   id: comment?.user?._id,
@@ -769,7 +766,7 @@ console.log('publication',route)
                   details: comment?.comment,
                   time: '12:00',
                 },
-              })
+              })}
             }
             style={{
               flexDirection: 'row',

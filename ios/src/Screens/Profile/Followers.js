@@ -157,7 +157,7 @@ const Followers = () => {
                     style={{
                       marginRight: 20,
                     }}>
-                    <ThreeDots />
+                    {/* <ThreeDots /> */}
                   </Pressable>
                 </View>
               </View>
