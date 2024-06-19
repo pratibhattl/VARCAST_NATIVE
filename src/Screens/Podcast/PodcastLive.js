@@ -114,7 +114,7 @@ const PodcastLive = props => {
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       setPlaylists(response.data.listData);
-      // console.log('RawRes', response);
+     
       changeloadingState(false);
     } catch (error) {
       console.error('Error fetching playlists:', error);
@@ -146,9 +146,9 @@ const PodcastLive = props => {
         updated_at,
         created_at,
       }; // The data to be sent in the POST request
-      // console.log('Sent Podcast Data ', data);
+    
       const response = await apiCall(endpoint, 'POST', data, token);
-      // console.log('API Response:', response.status);
+     
       if (response.status === true) {
         HelperFunctions.showToastMsg('Media added to playlist successfully!');
         fetchPlaylists();
@@ -315,7 +315,7 @@ const PodcastLive = props => {
       }
     }
 
-    if (playbackState.state == State.Stopped) {
+    if (playbackState.state == State.None) {
       songsfunc();
     }
   };
