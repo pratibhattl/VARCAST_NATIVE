@@ -73,8 +73,7 @@ const PublicationIndex = props => {
   const [audio, setAudio] = useState();
   const [imgUrl, setImgUrl] = useState('');
   const [allImage, setAllImage] = useState([]);
-  console.log('All Image', allImage);
-  const [publicationIndex, setPublicationIndex] = useState(0);
+  const [publicationIndex, setPublicationIndex] = useState(1);
   const token = useSelector(state => state.authData.token);
   const audioToken =
     '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
@@ -140,32 +139,43 @@ const PublicationIndex = props => {
   };
 
   useEffect(() => {
-      fetchAllPublicationList();
+    fetchAllPublicationList();
   }, []);
 
-  const onChagePublishIndex = (index) => {
-    setPublicationIndex(index)
+  const onChagePublishIndex = index => {
+    setPublicationIndex(index);
     if (index === 0) {
       openPhotoFromLocalPathExample();
     } else if (index === 1) {
       fetchAllPublicationList();
-    }
-    else if (index === 2) {
+    } else if (index === 2) {
       fetchDraftPublicationList();
     }
     //  else {
     //   openVideoFromRemoteUrlExample();
     // }
-  }
+  };
 
-  const onGoDraft=(item)=>{
-    if(publicationIndex == 2){
-    // setPublicationIndex(0);
-    NavigationService.navigate('Publication02', {
-      DraftItem: item,
-    });
+  const onGoDraft = item => {
+    const isAudio = item?.image_type;
+    if (publicationIndex == 1) {
+      if (isAudio == 'image') {
+        NavigationService.navigate('PodcastLive', {
+          ...item,
+          audio: item?.audioUrl,
+        });
+      } else {
+        NavigationService.navigate('VideoLive', {id: item._id});
+      }
     }
-  }
+
+    if (publicationIndex == 2) {
+      // setPublicationIndex(0);
+      NavigationService.navigate('Publication02', {
+        DraftItem: item,
+      });
+    }
+  };
 
   const openPhotoFromLocalPathExample = async () => {
     try {
@@ -254,12 +264,6 @@ const PublicationIndex = props => {
       if (result != null) {
         // The user exported a new video successfully and the newly generated video is located at `result.video`.
 
-        console.log('videdoready', result.video, {
-          ...result,
-          path: result.video,
-          mime: 'video/mp4',
-          modificationDate: Date.now(),
-        });
         NavigationService.navigate('Publication02', {
           reelDetails: {
             ...result,
@@ -295,9 +299,6 @@ const PublicationIndex = props => {
 
     // Convert the sources to valid `AudioClip`s.
     audioSources.forEach((source, ind) => {
-      // const remoteURL = `https://img.ly/static/example-assets/${identifier}.mp3`;
-
-      // const uri = Image.resolveAssetSource(source).https://pagalnew.com/download128/45972;
       const prefix = 'https:';
 
       // Generate the identifier based on the prefix.
@@ -477,7 +478,6 @@ const PublicationIndex = props => {
 
   return (
     <View style={{flex: 1}}>
-      {/* {console.log('sdsdsdsdsd>>>>>>',allImage)} */}
       {cat == 'Publication' ? (
         <ScreenLayout
           headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
@@ -503,7 +503,9 @@ const PublicationIndex = props => {
                 renderItem={({item, index}) => {
                   return (
                     <Pressable
-                      onPress={() => { onChagePublishIndex(index) }}
+                      onPress={() => {
+                        onChagePublishIndex(index);
+                      }}
                       key={index}
                       style={{
                         height: 80,
@@ -514,13 +516,14 @@ const PublicationIndex = props => {
                         alignItems: 'center',
                         justifyContent: 'center',
                       }}>
-                      {index == 0 ? (
-                        <CameraIcon />
-                      ) : index == 1 ? (
-                        <PlayBackIcon Size={32} Color={'#fff'} />
-                      ) : (
-                        <PlayBackIcon Size={32} Color={'#fff'} />
-                      )
+                      {
+                        index == 0 ? (
+                          <CameraIcon />
+                        ) : index == 1 ? (
+                          <PlayBackIcon Size={32} Color={'#fff'} />
+                        ) : (
+                          <PlayBackIcon Size={32} Color={'#fff'} />
+                        )
                         // (
                         //   <TemplateIcon />
                         // )
@@ -531,9 +534,10 @@ const PublicationIndex = props => {
                           fontFamily: Theme.FontFamily.normal,
                           marginTop: 5,
                         }}>
-                        {index == 0
-                          ? 'Camera'
-                          : index == 1
+                        {
+                          index == 0
+                            ? 'Camera'
+                            : index == 1
                             ? 'Published'
                             : 'Drafts'
                           // : 'Templates'
@@ -573,7 +577,9 @@ const PublicationIndex = props => {
                         marginTop: 10,
                       }}>
                       <Pressable
-                        onPress={() => {onGoDraft(item)}}>
+                        onPress={() => {
+                          onGoDraft(item);
+                        }}>
                         <View style={{position: 'relative'}}>
                           <Image
                             source={imageSource}
@@ -595,7 +601,11 @@ const PublicationIndex = props => {
                                   {translateY: -15},
                                 ], // Adjust the position of the icon as per your preference
                               }}>
-                              <Icon name="play-circle" size={50} color="rgba(0, 0, 0, 0.7)" />
+                              <Icon
+                                name="play-circle"
+                                size={50}
+                                color="rgba(0, 0, 0, 0.7)"
+                              />
                             </View>
                           )}
                         </View>
@@ -811,6 +821,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Live');
+                // NavigationService.navigate('LiveScreen', {host: true});
                 NavigationService.navigate('VideoLive', {host: true});
               }}
               style={{

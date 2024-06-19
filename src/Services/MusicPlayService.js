@@ -7,6 +7,15 @@ export const setupPlayer = async () => {
     isSetup = true;
   } catch (error) {
     await TrackPlayer.setupPlayer();
+
+    await TrackPlayer.updateOptions({
+      android: {
+          // This is the default behavior
+          appKilledPlaybackBehavior: AppKilledPlaybackBehavior.ContinuePlayback
+      },
+    });
+
+
     isSetup = true;
   } finally {
     return isSetup;

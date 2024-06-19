@@ -47,8 +47,7 @@ import LiveDetails from '../Screens/Live/Livedetails';
 import ChatRoom from '../Screens/Chat/ChatRoom';
 import FollowingUsers from '../Screens/Profile/FollowingUsers'
 import PodcastComment from '../Screens/Podcast/PodcastComment';
-import AgoraTest from "../Screens/Live/AgoraTest";
-
+import LiveScreen from '../Screens/Video/LiveScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -259,6 +258,11 @@ function MainNavigation() {
         name="VideoLive"
         options={{headerShown: false}}
         component={VideoLive}
+      />
+      <Stack.Screen
+        name="LiveScreen"
+        options={{headerShown: false}}
+        component={LiveScreen}
       />
       <Stack.Screen
         name="SongPlayy"

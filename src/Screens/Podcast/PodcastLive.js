@@ -81,6 +81,9 @@ const PodcastLive = props => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
  
+console.log('publication',route)
+
+
   const {token ,userDetails}= useSelector(state => state.authData);
   const {position, duration} = useProgress(0);
   
@@ -285,12 +288,12 @@ const PodcastLive = props => {
 
   /*** Play Podcast ***/
 
-  const songsfunc = () => {
+  const songsfunc = async() => {
     // Set up the player
-    setupPlayer();
+    await setupPlayer();
 
     // Add a track to the queue
-    addTrack({
+   await  addTrack({
       id: route?.params?._id,
       url: `${imageUrl}${route?.params?.audio}`,
       title: route?.params?.title,
@@ -303,6 +306,23 @@ const PodcastLive = props => {
     });
   };
 
+
+  const togglePlayback = async playbackState => {
+    let currentTrack = await TrackPlayer.getActiveTrackIndex();
+    
+    if (currentTrack != null) {
+      if (playbackState.state == State.Paused) {
+        await TrackPlayer.play();
+      } else {
+        await TrackPlayer.pause();
+      }
+    }
+
+    if (playbackState.state == State.Stopped) {
+      songsfunc();
+    }
+  };
+
   
   function format(seconds) {
     let mins = parseInt(seconds / 60)
@@ -312,23 +332,7 @@ const PodcastLive = props => {
     return `${mins}:${secs}`;
   }
 
-  const togglePlayback = async playbackState => {
-   
-    let currentTrack = await TrackPlayer.getActiveTrackIndex();
-    if (currentTrack != null) {
-      if (playbackState.state == State.Paused) {
-        await TrackPlayer.play();
-      } else {
-        await TrackPlayer.pause();
-      }
-    }
-
-    if(playbackState.state == State.None){
-           songsfunc()
-    }
-  }
-
-   
+  
 
   //-----------------------------------------------------------------------------------------------------------//
 
@@ -438,20 +442,15 @@ const PodcastLive = props => {
     );
   };
 
-  console.log('song',playbackState)
-  
-  
+ 
 
   useEffect(() => {
-   const timeOut= setTimeout(() => {
-      playbackService();
-      songsfunc();
-    }, 200);
-
-   
+    playbackService();
+    songsfunc();
+  
     return()=>{
-      clearTimeout(timeOut)
       scrollX.removeAllListeners();
+      TrackPlayer.reset();
     }
   }, [route.params._id]);
 

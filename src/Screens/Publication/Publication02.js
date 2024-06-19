@@ -282,7 +282,6 @@ const [image, setImage] = useState('');
     }
   },[])
 
-  console.log("DraftItem?.image----", DraftItem?.image);
 
   const publishVideoFunc = () => {
     setLoader(true);
@@ -306,7 +305,7 @@ const [image, setImage] = useState('');
         setTitle('');
         setDescription('');
         setCat([]);
-        NavigationService.navigate('PublicationIndex');
+        NavigationService.navigate('PublicationIndex',{replace: true});
         setLoader(false);
         
       })
@@ -339,7 +338,7 @@ const [image, setImage] = useState('');
         setTitle('');
         setDescription('');
         setCat([]);
-        NavigationService.navigate('PublicationIndex');
+        NavigationService.navigate('PublicationIndex',{replace: true});
         setLoader(false);
         
       })
@@ -373,7 +372,7 @@ const [image, setImage] = useState('');
         setDescription('');
         setCat([]);
         
-        NavigationService.navigate('PublicationIndex');
+        NavigationService.navigate('PublicationIndex',{replace: true});
         setLoader(false);
         
       })
@@ -395,7 +394,7 @@ const [image, setImage] = useState('');
     if(selectedata?.image){
       NavigationService.back()
     }else{
-    NavigationService.navigate('PublicationIndex')
+    NavigationService.navigate('PublicationIndex',{replace: true})
     }
   }
 
