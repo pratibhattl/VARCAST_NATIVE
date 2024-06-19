@@ -84,50 +84,36 @@ const PopularEpisode = () => {
                   NavigationService.navigate('PodcastLive', item);
                 }}
                 style={{
-                  width: '100%',
-                  height: 175,
+                  width: '50%',
+                  height: 165,
                   borderRadius: 15,
-                  borderTopRightRadius: 0,
-                  borderTopLeftRadius: 0,
+                  marginRight: 10,
+                  marginBottom: 20,
                   overflow: 'hidden',
                   backgroundColor: 'transparent',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
+                  
                 }}>
-                <View
-                  style={{
-                    width: '95%',
-                    height: 165,
-                    borderRadius: 15,
-                    // marginRight: 20,
-                    borderTopRightRadius: 10,
-                    borderTopLeftRadius: 10,
-                    overflow: 'hidden',
-
-                    backgroundColor: 'transparent',
-                    marginTop: 20,
-                  }}>
+                <View style={{position:'relative'}}>
                   <Image
                     source={source}
                     style={{
-                      width: 200,
-                      height: 180,
+                      width: "100%",
+                      height: "100%",
                       borderRadius: 15,
-                      // borderBottomLeftRadius:150
-                      // marginHorizontal:10
+                     
                     }}
                     resizeMode="cover"
                   />
                   <BlurView
                     style={{
-                      height: 71,
-                      width: 200,
-                      // alignItems:'center',
+                      width: '100%',
+                     height: '40%',
                       alignSelf: 'center',
                       position: 'absolute',
                       bottom: 0,
-                      paddingLeft: 5,
+                      left: 0,
+                      right: 0,
+                      padding: 10,
                       //  borderRadius:15,
                     }}
                     blurType="light"
@@ -135,19 +121,14 @@ const PopularEpisode = () => {
                     blurAmount={20}
                     blurRadius={10}
                     reducedTransparencyFallbackColor="white">
-                    <View
-                      style={{
-                        overflow: 'hidden',
-                        // padding: 5,
-                        marginLeft: 13,
-                        textAlign: 'auto',
-                      }}>
+                    
                       <Text
                         style={{
-                          color: '#fff',
+                          color: '#000',
                           fontSize: 14,
                           fontFamily: Theme.FontFamily.normal,
                           marginHorizontal: 5,
+                          textWrap:'wrap'
                           // textAlign: 'auto',
                         }}>
                         {item.title}
@@ -155,14 +136,14 @@ const PopularEpisode = () => {
 
                       <Text
                         style={{
-                          color: 'rgba(255, 255, 255, 0.54)',
+                          color: '#000',
                           fontSize: 14,
                           fontFamily: Theme.FontFamily.light,
                           marginLeft: 5,
                         }}>
                         Views: {item.views}
                       </Text>
-                    </View>
+                   
                   </BlurView>
                 </View>
               </Pressable>

@@ -34,7 +34,7 @@ const AudioReels = ({userData}) => {
     const clickedPodcast = userData.latest_podcasts.find(
       podcast => podcast._id === podcastId,
     );
-    console.log('Click', clickedPodcast);
+   
     if (clickedPodcast) {
       NavigationService.navigate('PodcastIndex', {podcastData: clickedPodcast});
     }

@@ -83,64 +83,66 @@ const MostPlayed = () => {
             ? staticImage
             : {uri: imageUrl + item?.image};
             return (
-              <View>
-
-                <Pressable
+                <Pressable 
+                  key={index}
                   onPress={() => {
                     if (isStaticImage) {
                       NavigationService.navigate('VideoLive', {
                         id: item?._id,
                       });
                     } else {
-                      NavigationService.navigate('PodcastLive', item?.image);
+                      NavigationService.navigate('PodcastLive', {...item, audio:item?.audioUrl});
                     }
                   }}
                   // onPress={() => {
                   //   NavigationService.navigate('VideoLive', {id: item?._id});
                   // }}
                   style={{
-                    width: 'auto',
-                    height: 200,
+                    width: '50%',
+                    height: 165,
                     borderRadius: 15,
-                    marginRight: 20,
+                    marginRight: 10,
                     marginBottom: 20,
                     overflow: 'hidden',
                     backgroundColor: 'transparent',
+                   
                   }}
                   >
                    <View style={{position: 'relative'}}>
                           <Image
                             source={imageSource}
                             style={{
-                              height: 180,
-                              width: 180,
+                              height: '100%',
+                              width: '100%',
                               borderRadius: 15,
                             }}
                             resizeMode="cover"
                           />
                           {isStaticImage && (
-                            <View
+                            <View 
                               style={{
                                 position: 'absolute',
                                 top: '50%',
                                 left: '50%',
                                 transform: [
-                                  {translateX: -15},
-                                  {translateY: -15},
+                                  {translateX: -20},
+                                  {translateY: -30},
                                 ], // Adjust the position of the icon as per your preference
                               }}>
-                              <Icon name="play-circle" size={50} color="rgba(0, 0, 0, 0.7)" />
+                              <Icon name="play-circle" size={30} color="rgba(0, 0, 0, 0.7)" />
                             </View>
                           )}
-                        </View>
+                    </View>
                   <View
                     style={{
+                      width: '100%',
                       position: 'absolute',
                       bottom: 0,
                       left: 0,
                       right: 0,
                       backgroundColor: 'rgba(0, 0, 0, 0.5)',
                       padding: 10,
+                      borderBottomRightRadius:15
                     }}>
                     <Text
                       style={{
@@ -162,7 +164,7 @@ const MostPlayed = () => {
                   </View>
                 </Pressable>
 
-              </View>
+      
             );
           }}
         />

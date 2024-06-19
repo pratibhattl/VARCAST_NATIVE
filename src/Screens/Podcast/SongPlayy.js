@@ -209,7 +209,7 @@ const SongPlayy = props => {
       }
     }
 
-    if (playbackState.state == State.Stopped) {
+    if (playbackState.state == State.None) {
       songsfunc();
     }
   };
