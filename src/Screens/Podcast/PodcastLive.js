@@ -80,11 +80,10 @@ const PodcastLive = props => {
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
- 
 
-  const {token ,userDetails}= useSelector(state => state.authData);
+  const {token, userDetails} = useSelector(state => state.authData);
   const {position, duration} = useProgress(0);
-  
+
   const isFocused = useIsFocused();
   const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
@@ -115,7 +114,7 @@ const PodcastLive = props => {
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       setPlaylists(response.data.listData);
-     
+
       changeloadingState(false);
     } catch (error) {
       console.error('Error fetching playlists:', error);
@@ -147,9 +146,9 @@ const PodcastLive = props => {
         updated_at,
         created_at,
       }; // The data to be sent in the POST request
-    
+
       const response = await apiCall(endpoint, 'POST', data, token);
-     
+
       if (response.status === true) {
         HelperFunctions.showToastMsg('Media added to playlist successfully!');
         fetchPlaylists();
@@ -228,8 +227,6 @@ const PodcastLive = props => {
 
   //-----------------------------------------------------------------------------------------------------------//
 
-  
-
   //-----------------------------------------------------------------------------------------------------------//
 
   const leave = async () => {
@@ -238,7 +235,7 @@ const PodcastLive = props => {
       setRemoteUid(0);
       setIsJoined(false);
       showMessage('You left the channel');
-      await TrackPlayer.stop()
+      await TrackPlayer.stop();
       HelperFunctions.showToastMsg('You left the channel');
     } catch (e) {
       console.log(e);
@@ -286,12 +283,12 @@ const PodcastLive = props => {
 
   /*** Play Podcast ***/
 
-  const songsfunc = async() => {
+  const songsfunc = async () => {
     // Set up the player
     await setupPlayer();
 
     // Add a track to the queue
-   await  addTrack({
+    await addTrack({
       id: route?.params?._id,
       url: `${imageUrl}${route?.params?.audio}`,
       title: route?.params?.title,
@@ -304,10 +301,9 @@ const PodcastLive = props => {
     });
   };
 
-
   const togglePlayback = async playbackState => {
     let currentTrack = await TrackPlayer.getActiveTrackIndex();
-    
+
     if (currentTrack != null) {
       if (playbackState.state == State.Paused) {
         await TrackPlayer.play();
@@ -321,7 +317,6 @@ const PodcastLive = props => {
     }
   };
 
-  
   function format(seconds) {
     let mins = parseInt(seconds / 60)
       .toString()
@@ -329,8 +324,6 @@ const PodcastLive = props => {
     let secs = (Math.trunc(seconds) % 60).toString().padStart(2, '0');
     return `${mins}:${secs}`;
   }
-
-  
 
   //-----------------------------------------------------------------------------------------------------------//
 
@@ -430,7 +423,6 @@ const PodcastLive = props => {
                       </Text>
                     </View>
                   </Pressable>
-                  
                 </LinearGradient>
               );
             }}
@@ -440,25 +432,22 @@ const PodcastLive = props => {
     );
   };
 
- 
-
   useEffect(() => {
     playbackService();
     songsfunc();
-  
-    return()=>{
+
+    return () => {
       scrollX.removeAllListeners();
       TrackPlayer.reset();
-    }
+    };
   }, [route.params._id]);
 
   useEffect(() => {
-       
-        if (playbackState.state === 'ended') {
-          scrollX.removeAllListeners();
-          TrackPlayer.reset();
-        }
-      }, [playbackState.state]);
+    if (playbackState.state === 'ended') {
+      scrollX.removeAllListeners();
+      TrackPlayer.reset();
+    }
+  }, [playbackState.state]);
 
   return (
     <View style={styles.container}>
@@ -639,7 +628,7 @@ const PodcastLive = props => {
                   }
                 }}>
                 {playbackState.state == State.Paused ||
-                playbackState.state == State.None? (
+                playbackState.state == State.None ? (
                   <VideoPlayIcon Width={32} Height={32} />
                 ) : (
                   <PauseIcon />
@@ -726,7 +715,6 @@ const PodcastLive = props => {
               elevation: 20,
             }}>
             <>
-              
               <Text
                 style={{
                   color: '#fff',
@@ -754,72 +742,70 @@ const PodcastLive = props => {
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
-        {mapComment?.map((comment, index) => (
-          <Pressable
-            key={index}
-            onPress={() =>
-              NavigationService.navigate('ChatRoom', {
-                data: {
+        {mapComment?.map((comment, index) => {
+          console.log('commets', comment);
+          return (
+            <Pressable
+              key={index}
+              onPress={() =>
+                NavigationService.navigate('ChatRoom', {
                   id: comment?.user?._id,
                   title: comment?.user?.name,
-                  date: comment?.user?.created_at,
                   image: comment?.user?.full_path_image,
-                  details: comment?.comment,
-                  time: '12:00',
-                },
-              })
-            }
-            style={{
-              flexDirection: 'row',
-              marginTop: 15,
-              paddingLeft: 20,
-              paddingRight: 15,
-            }}>
-            <Pressable>
-              <Image
-                source={{uri: comment?.user?.full_path_image}}
-                style={{
-                  height: 40,
-                  width: 40,
-                  borderRadius: 45,
-                  borderWidth: 0.7,
-                  borderColor: 'white',
-                }}
-                resizeMode="contain"
-              />
-            </Pressable>
-            <View
+                })
+              }
               style={{
                 flexDirection: 'row',
-                flex: 1,
-                justifyContent: 'space-between',
-                marginLeft: 20,
-                borderColor: 'rgba(118, 118, 128, 0.24)',
-                borderBottomWidth: 0,
-                paddingBottom: 10,
+                marginTop: 15,
+                paddingLeft: 20,
+                paddingRight: 15,
               }}>
-              <View>
-                <Text
+              <Pressable>
+                <Image
+                  source={{uri: comment?.user?.full_path_image}}
                   style={{
-                    color: '#fff',
-                    fontSize: 14,
-                    fontFamily: Theme.FontFamily.medium,
-                  }}>
-                  {comment.comment}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.54)',
-                    fontSize: 14,
-                    fontFamily: Theme.FontFamily.light,
-                    marginTop: 3,
-                  }}>
-                  {comment.user?.name}{' '}
-                </Text>
+                    height: 40,
+                    width: 40,
+                    borderRadius: 45,
+                    borderWidth: 0.7,
+                    borderColor: 'white',
+                  }}
+                  resizeMode="contain"
+                />
+              </Pressable>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  flex: 1,
+                  justifyContent: 'space-between',
+                  marginLeft: 20,
+                  borderColor: 'rgba(118, 118, 128, 0.24)',
+                  borderBottomWidth: 0,
+                  paddingBottom: 10,
+                }}>
+                <View>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.medium,
+                    }}>
+                    {comment.comment}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.54)',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.light,
+                      marginTop: 3,
+                    }}>
+                    {comment.user?.name}{' '}
+                  </Text>
+                </View>
               </View>
-            </View>
-          </Pressable>
-        ))}
+            </Pressable>
+          );
+        })}
       </KeyboardAwareScrollView>
       <View style={styles.inputContainer}>
         {/* <View style={{}}> */}
@@ -878,19 +864,21 @@ const PodcastLive = props => {
             {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
-       {route.params.userId !== userDetails._id && <Pressable
-          onPress={getAllGift}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.96)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <GitftIcon />
-        </Pressable>}
+        {route.params.userId !== userDetails._id && (
+          <Pressable
+            onPress={getAllGift}
+            style={{
+              height: 50,
+              width: 50,
+              borderRadius: 50,
+              backgroundColor: 'rgba(27, 27, 27, 0.96)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 15,
+            }}>
+            <GitftIcon />
+          </Pressable>
+        )}
         <Pressable
           onPress={() => setModalState(true)}
           style={{
@@ -1013,7 +1001,7 @@ const PodcastLive = props => {
               marginTop: 25,
             }}
           />
-          
+
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
             <ShiledIcon Color={'#fff'} />

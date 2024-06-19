@@ -124,10 +124,11 @@ const PopularEpisode = () => {
                     
                       <Text
                         style={{
-                          color: '#000',
+                          color: '#fff',
                           fontSize: 14,
                           fontFamily: Theme.FontFamily.normal,
-                          marginHorizontal: 5,
+                          marginTop:2,
+                          marginLeft: 5,
                           textWrap:'wrap'
                           // textAlign: 'auto',
                         }}>
@@ -136,9 +137,10 @@ const PopularEpisode = () => {
 
                       <Text
                         style={{
-                          color: '#000',
+                          color: '#fff',
                           fontSize: 14,
                           fontFamily: Theme.FontFamily.light,
+                          marginTop:2,
                           marginLeft: 5,
                         }}>
                         Views: {item.views}

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Platform,
   I18nManager,
+  Pressable,
 } from 'react-native';
 import React, {useState} from 'react';
 import Theme from '../../Constants/Theme';
@@ -19,6 +20,7 @@ import {useTranslation} from 'react-i18next';
 
 const CustomHeader = props => {
   const {t, i18n} = useTranslation();
+ 
 
   return (
     <View
@@ -51,7 +53,7 @@ const CustomHeader = props => {
       )}
       <Text style={[styles.leftHeadingStyle]}>{props.leftHeading}</Text>
       {props.Podcast ? (
-        <PlaylistIcon Color={'#fff'} />
+        <PlaylistIcon Color={'#fff'} onMusicIconPress={props.onMusicIconPress}/>
       ) : props.Watch ? (
         <ThreeDots />
       ) : (
