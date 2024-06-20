@@ -52,9 +52,11 @@ const CustomHeader = props => {
       <Text style={[styles.leftHeadingStyle]}>{props.leftHeading}</Text>
       {props.Podcast ? (
         <PlaylistIcon Color={'#fff'} />
-      ) : props.Watch ? (
-        <ThreeDots />
-      ) : (
+      ) 
+      // : props.Watch ? (
+      //   <ThreeDots />
+      // ) 
+      : (
         <Text
           style={[
             {
