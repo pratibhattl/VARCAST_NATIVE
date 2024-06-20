@@ -45,10 +45,12 @@ import FollowingUser from '../Screens/Home/FollowingUser';
 import UploadScreen from '../Screens/Upload/UploadScreen';
 import LiveDetails from '../Screens/Live/Livedetails';
 import ChatRoom from '../Screens/Chat/ChatRoom';
-import FollowingUsers from '../Screens/Profile/FollowingUsers'
+import FollowingUsers from '../Screens/Profile/FollowingUsers';
 import PodcastComment from '../Screens/Podcast/PodcastComment';
 import LiveScreen from '../Screens/Video/LiveScreen';
-import LiveStream from '../Screens/Video/LiveStream';
+import LiveStreamHome from '../Screens/Live/LiveStreamHome';
+import HostPage from '../Screens/Live/HostPage';
+import AudiencePage from '../Screens/Live/AudiencePage';
 
 const Stack = createNativeStackNavigator();
 
@@ -125,12 +127,12 @@ function MainNavigation() {
         options={{headerShown: false}}
         component={Activity}
       />
-       <Stack.Screen
+      <Stack.Screen
         name="PrivacyPolicy"
         options={{headerShown: false}}
         component={PrivacyPolicy}
       />
-        <Stack.Screen
+      <Stack.Screen
         name="HelpCenter"
         options={{headerShown: false}}
         component={HelpCenter}
@@ -165,11 +167,7 @@ function MainNavigation() {
         options={{headerShown: false}}
         component={Publication02}
       />
-      <Stack.Screen
-        name="LiveStream"
-        options={{headerShown: false}}
-        component={LiveStream}
-      />
+  
       <Stack.Screen
         name="FinalPublication"
         options={{headerShown: false}}
@@ -313,6 +311,22 @@ function MainNavigation() {
           tabBarStyle: null, // Hide the tab bar
         }}
         component={UserDetails}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        headerMode="none"
+        name="LiveStreamHome"
+        component={LiveStreamHome}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="HostPage"
+        component={HostPage}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="AudiencePage"
+        component={AudiencePage}
       />
     </Stack.Navigator>
   );
