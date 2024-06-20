@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 <key>NSCameraUsageDescription</key>
-<string>Your description about camera usage</string>
+<string>$(Varcast) uses the camera to stream video.</string>
 <key>NSMicrophoneUsageDescription</key>
-<string>Your description about microphone usage</string>
+<string>$(Varcast) uses the microphone to stream audio.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
