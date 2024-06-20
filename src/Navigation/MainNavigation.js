@@ -48,6 +48,7 @@ import ChatRoom from '../Screens/Chat/ChatRoom';
 import FollowingUsers from '../Screens/Profile/FollowingUsers'
 import PodcastComment from '../Screens/Podcast/PodcastComment';
 import LiveScreen from '../Screens/Video/LiveScreen';
+import LiveStream from '../Screens/Video/LiveStream';
 
 const Stack = createNativeStackNavigator();
 
@@ -165,9 +166,9 @@ function MainNavigation() {
         component={Publication02}
       />
       <Stack.Screen
-        name="AgoraTest"
+        name="LiveStream"
         options={{headerShown: false}}
-        component={AgoraTest}
+        component={LiveStream}
       />
       <Stack.Screen
         name="FinalPublication"
