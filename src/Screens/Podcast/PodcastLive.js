@@ -742,9 +742,7 @@ const PodcastLive = props => {
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
-        {mapComment?.map((comment, index) => {
-          console.log('commets', comment);
-          return (
+        {mapComment?.map((comment, index) => (
             <Pressable
               key={index}
               onPress={() =>
@@ -804,8 +802,8 @@ const PodcastLive = props => {
                 </View>
               </View>
             </Pressable>
-          );
-        })}
+          )
+                       )}
       </KeyboardAwareScrollView>
       <View style={styles.inputContainer}>
         {/* <View style={{}}> */}

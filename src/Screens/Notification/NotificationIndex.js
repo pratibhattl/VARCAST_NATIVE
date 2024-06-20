@@ -7,40 +7,58 @@ import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
 import AllSourcePath from '../../Constants/PathConfig';
 import {useSelector} from 'react-redux';
-import { apiCall } from '../../Services/Service';
-import { useIsFocused } from '@react-navigation/native';
+import {apiCall} from '../../Services/Service';
+import {useIsFocused} from '@react-navigation/native';
 
 const NotificationIndex = props => {
   const [loadingState, setloadingState] = useState(false);
   const [newData, setNewData] = useState([]);
-  const [oldData, setOldData] = useState([]);
+  const [paginatedData, setPaginatedData] = useState([]);
+  const [page, setPage] = useState(0);
   const token = useSelector(state => state.authData.token);
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const isFocused = useIsFocused();
-  
+
   const fetchData = async () => {
     try {
       const endpoint = 'notification/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       if (response.status) {
-        setNewData(response?.data?.listData)
-        
-      } 
+        setNewData(response?.data?.listData);
+      }
     } catch (error) {
       console.error('Error fetching data: ', error);
     }
   };
+
+  const formatDate = timestamp => {
+    const date = new Date(timestamp);
+    return `${date.getFullYear()}-${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date
+      .getHours()
+      .toString()
+      .padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  };
+
+  const initialValue = () => {
+    const value = 15 + 15 * page;
+
+    const notification = data.slice(0, value);
+
+    setPaginatedData(notification);
+  };
+
+  useEffect(() => {
+    initialValue();
+  }, [page]);
+
   useEffect(() => {
     if (isFocused) {
       fetchData();
     }
   }, [isFocused]);
-  
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  };
 
   return (
     <ScreenLayout

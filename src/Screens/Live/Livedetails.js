@@ -312,6 +312,7 @@ const LiveDetails = props => {
   };
 
   // Function to handle the Comment
+ 
 
   const sendComment = async () => {
     const liveId = id;
@@ -327,6 +328,7 @@ const LiveDetails = props => {
     const newComment = {
       comment,
       name: user.userDetails.name,
+      id: user.userDetails._id,
       avatar: user.userDetails.full_path_image,
       timestamp: firestore.FieldValue.serverTimestamp(),
     };

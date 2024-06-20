@@ -176,7 +176,7 @@ const PodcastIndex = () => {
                   marginHorizontal: 25,
                   marginVertical: -21,
                 }}>
-                {podcastData.duration}
+                {podcastData?.duration}
               </Text>
             </View>
           </View>
