@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Pressable,
   Dimensions,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import {AppTextInput} from 'react-native-basic-elements';
 import Theme from '../../Constants/Theme';
@@ -25,62 +26,75 @@ const {width, height} = Dimensions.get('screen');
 
 const SearchIndex = props => {
   const token = useSelector(state => state.authData.token);
+  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
+  const staticImage = require('../../assets/images/image96.png');
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState([]);
   const [cat, setCat] = useState(0);
   const [data, setData] = useState([]);
-  const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-  const staticImage = require('../../assets/images/image96.png');
+  const [loadingState, setLoadingState] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
 
-  useEffect(() => {
-    console.log('Category changed:', cat);
-    const fetchData = async () => {
-      let endpoint = '';
-      switch (cat) {
-        case 0: // Live
-          endpoint = 'lives/list';
-          break;
-        case 1: // Podcast
-          endpoint = 'podcast/list';
-          break;
-        case 2: // Video
-          endpoint = 'videos/list';
-          break;
-        default:
-          endpoint = '';
-      }
+  const fetchData = async () => {
+    let endpoint = '';
+    switch (cat) {
+      case 0: // Live
+        endpoint = `lives/list?take=15&page=${page}`;
+        break;
+      case 1: // Podcast
+        endpoint = `podcast/list?take=15&page=${page}`;
+        break;
+      case 2: // Video
+        endpoint = `videos/list?take=15&page=${page}`;
+        break;
+      default:
+        endpoint = '';
+    }
 
-      if (endpoint !== '') {
-        try {
-          const response = await apiCall(endpoint, 'GET', {}, token);
-          if (response && response.data && response.data.listData) {
-            let newData = response.data.listData;
-            if (endpoint === 'videos/list') {
-              // Filter the data to include only items with '.mp4' in their image URL
-              newData = newData
-                .filter(item => item?.image?.includes('.mp4'))
-                .map(item => ({
-                  ...item,
-                  isVideo: true,
-                }));
-            }
-            setData(newData);
-            setFilteredData(newData);
-            console.log('Data received:', newData);
+    if (endpoint !== '') {
+      setLoadingState(true);
+
+      try {
+        const response = await apiCall(endpoint, 'GET', {}, token);
+        if (response && response.data && response.data.listData) {
+          let newData = [...data, ...response.data.listData];
+          if (endpoint === `videos/list?take=15&page=${page}`) {
+            // Filter the data to include only items with '.mp4' in their image URL
+            newData = newData
+              .filter(item => item?.image?.includes('.mp4'))
+              .map(item => ({
+                ...item,
+                isVideo: true,
+              }));
           }
-        } catch (error) {
-          console.error('Error fetching data:', error);
+          setData(newData);
+          setFilteredData(newData);
+          setHasMore(response?.data?.isNext);
+          console.log('Data received:', newData);
         }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      } finally {
+        setLoadingState(false);
+        setInitialLoading(false);
       }
-    };
+    }
+  };
 
-    fetchData(); // Call fetchData inside the useEffect callback
-  }, [cat, token]);
+  const fetchNextPage = useCallback(() => {
+    if (!loadingState && !hasMore) return null;
+
+    if (!loadingState && hasMore) {
+      setPage(prevPage => prevPage + 1);
+    }
+  }, [loadingState, hasMore]);
 
   const {t} = useTranslation();
 
   const handleSearch = query => {
-    console.log('Search Query:', query);
     setSearchQuery(query);
 
     if (data && Array.isArray(data)) {
@@ -90,7 +104,7 @@ const SearchIndex = props => {
         const filtered = data.filter(item =>
           item.title.toLowerCase().includes(query.toLowerCase()),
         );
-        console.log('Filtered Data:', filtered);
+
         setFilteredData(filtered);
       }
     }
@@ -105,6 +119,10 @@ const SearchIndex = props => {
       .toString()
       .padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   };
+
+  useEffect(() => {
+    fetchData(); // Call fetchData inside the useEffect callback
+  }, [cat, token, page]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -176,6 +194,12 @@ const SearchIndex = props => {
             );
           }}
         />
+
+        {initialLoading && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
 
         <FlatList
           data={filteredData}
@@ -285,6 +309,27 @@ const SearchIndex = props => {
             );
           }}
         />
+
+        {loadingState && hasMore && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+
+        {!loadingState && hasMore && (
+          <Text
+            onPress={fetchNextPage}
+            style={{
+              color: '#fff',
+              marginVertical: 5,
+              marginHorizontal: 10,
+              textAlign: 'right',
+              fontSize: 15,
+              fontFamily: Theme.FontFamily.normal,
+            }}>
+            Load More
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );

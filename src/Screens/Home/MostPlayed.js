@@ -28,34 +28,48 @@ const MostPlayed = () => {
   const route = useRoute();
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
-  const [mostPlayedEpisodes, setMostPlayedEpisodes] = useState([]);
-  const token = useSelector(state => state.authData.token);
+   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL
   const staticImage = require('../../assets/images/image96.png');
+  
+  const [loadingState, setLoadingState] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [mostPlayedEpisodes, setMostPlayedEpisodes] = useState([]);
+  const [page, setPage] = useState(0);
 
-  const fetchMostPlayedData = useCallback(async () => {
+  const fetchMostPlayedData =async () => {
+    setLoadingState(true)
     try {
-      const endpoint = 'videos/list';
+      const endpoint = `videos/list?take=15&page=${page}`;
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       if (response?.status === true) {
 
-        setMostPlayedEpisodes(response?.data?.listData);
+        setMostPlayedEpisodes(prev=>[...prev,...response?.data?.listData]);
+        setHasMore(response?.data?.isNext);
       }
     } catch (error) {
       console.error('Error fetching user data:', error);
+    }finally{
+      setLoadingState(false)
     }
-  }, [token]);
+  };
+
+  
+  const fetchNextPage = useCallback(() => {
+    if (!loadingState && !hasMore) return null;
+    if (!loadingState && hasMore) {
+      setPage(prevPage => prevPage + 1);
+    }
+  }, [loadingState, hasMore]);
 
   useEffect(() => {
     fetchMostPlayedData()
-  }, []);
+  }, [page]);
   return (
     <ScreenLayout
       headerStyle={{ backgroundColor: '#131313' }}
-      showLoading={loadingState}
-      isScrollable={true}
+          isScrollable={true}
       viewStyle={{ backgroundColor: '#131313' }}
       leftHeading={'Most Played Of The Week'}
       // ChatIconPress={()=>NavigationService.navigate('ChatList')}
@@ -168,6 +182,26 @@ const MostPlayed = () => {
             );
           }}
         />
+         {loadingState && hasMore && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+
+        {!loadingState && hasMore && (
+          <Text
+            onPress={fetchNextPage}
+            style={{
+              color: '#fff',
+              marginVertical: 5,
+              marginHorizontal: 10,
+              textAlign: 'right',
+              fontSize: 15,
+              fontFamily: Theme.FontFamily.normal,
+            }}>
+            Load More
+          </Text>
+        )}
       </View>
     </ScreenLayout>
   );

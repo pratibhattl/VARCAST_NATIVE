@@ -1,5 +1,11 @@
-import {View, Text, StyleSheet, Pressable} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  ActivityIndicator,
+} from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import {Icon} from 'react-native-basic-elements';
@@ -11,24 +17,31 @@ import {apiCall} from '../../Services/Service';
 import {useIsFocused} from '@react-navigation/native';
 
 const NotificationIndex = props => {
-  const [loadingState, setloadingState] = useState(false);
-  const [newData, setNewData] = useState([]);
-  const [paginatedData, setPaginatedData] = useState([]);
-  const [page, setPage] = useState(0);
   const token = useSelector(state => state.authData.token);
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const isFocused = useIsFocused();
 
+  const [loadingState, setloadingState] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [newData, setNewData] = useState([]);
+  const [page, setPage] = useState(0);
+
   const fetchData = async () => {
+    setloadingState(true);
     try {
-      const endpoint = 'notification/index';
+      const endpoint = `notification/index?take=15&page=${page}`;
       const response = await apiCall(endpoint, 'GET', {}, token);
 
       if (response.status) {
-        setNewData(response?.data?.listData);
+        setNewData(prev => [...prev, ...response?.data?.listData]);
+        setHasMore(response?.data?.isNext);
       }
     } catch (error) {
       console.error('Error fetching data: ', error);
+    } finally {
+      setloadingState(false);
+      setInitialLoading(false)
     }
   };
 
@@ -42,29 +55,23 @@ const NotificationIndex = props => {
       .padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   };
 
-  const initialValue = () => {
-    const value = 15 + 15 * page;
-
-    const notification = data.slice(0, value);
-
-    setPaginatedData(notification);
-  };
-
-  useEffect(() => {
-    initialValue();
-  }, [page]);
+  const fetchNextPage = useCallback(() => {
+    if (!loadingState && !hasMore) return null;
+    if (!loadingState && hasMore) {
+      setPage(prevPage => prevPage + 1);
+    }
+  }, [loadingState, hasMore]);
 
   useEffect(() => {
     if (isFocused) {
       fetchData();
     }
-  }, [isFocused]);
+  }, [isFocused, page]);
 
   return (
     <ScreenLayout
-      isScrollable={false}
+      isScrollable
       showLeftIcon={true}
-      showLoading={loadingState}
       onLeftIconPress={() => {
         NavigationService.back();
         // scrollToIndex(0)
@@ -87,6 +94,14 @@ const NotificationIndex = props => {
           }}>
           NEW
         </Text>
+
+        {initialLoading && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+
+        
         {newData.map((notification, index) => {
           return (
             <View
@@ -279,6 +294,27 @@ const NotificationIndex = props => {
             </View>
           );
         })} */}
+
+        {loadingState && hasMore && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+
+        {!loadingState && hasMore && (
+          <Text
+            onPress={fetchNextPage}
+            style={{
+              color: '#fff',
+              marginVertical: 5,
+              marginHorizontal: 10,
+              textAlign: 'right',
+              fontSize: 15,
+              fontFamily: Theme.FontFamily.normal,
+            }}>
+            Load More
+          </Text>
+        )}
       </View>
     </ScreenLayout>
   );
