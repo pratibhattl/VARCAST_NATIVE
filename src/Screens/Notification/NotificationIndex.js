@@ -41,7 +41,7 @@ const NotificationIndex = props => {
       console.error('Error fetching data: ', error);
     } finally {
       setloadingState(false);
-      setInitialLoading(false)
+      setInitialLoading(false);
     }
   };
 
@@ -101,7 +101,6 @@ const NotificationIndex = props => {
           </View>
         )}
 
-        
         {newData.map((notification, index) => {
           return (
             <View
@@ -301,7 +300,7 @@ const NotificationIndex = props => {
           </View>
         )}
 
-        {!loadingState && hasMore && (
+        {!loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{
@@ -314,6 +313,8 @@ const NotificationIndex = props => {
             }}>
             Load More
           </Text>
+        ) : (
+          ''
         )}
       </View>
     </ScreenLayout>

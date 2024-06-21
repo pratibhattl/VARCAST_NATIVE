@@ -316,7 +316,7 @@ const SearchIndex = props => {
           </View>
         )}
 
-        {!loadingState && hasMore && (
+        {!loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{
@@ -329,6 +329,8 @@ const SearchIndex = props => {
             }}>
             Load More
           </Text>
+        ) : (
+          ''
         )}
       </View>
     </SafeAreaView>

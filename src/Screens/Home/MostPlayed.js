@@ -8,7 +8,7 @@ import {
   Dimensions,
   Platform,
   FlatList,
-  Image,
+  Image,ActivityIndicator
 } from 'react-native';
 import React, {useState, useEffect, useCallback} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -193,7 +193,7 @@ const MostPlayed = () => {
           </View>
         )}
 
-        {!loadingState && hasMore && (
+        {!loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{
@@ -206,7 +206,7 @@ const MostPlayed = () => {
             }}>
             Load More
           </Text>
-        )}
+        ):''}
       </View>
     </ScreenLayout>
   );

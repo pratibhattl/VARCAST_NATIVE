@@ -29,7 +29,7 @@ const Activity = props => {
   const [allData, setAllData] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [hasMore, setHasMore] = useState();
+  const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(0);
 
   const fetchData = async () => {
@@ -74,7 +74,6 @@ const Activity = props => {
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
-       
         {initialLoading && (
           <View style={{paddingVertical: 20}}>
             <ActivityIndicator size="large" />
@@ -105,7 +104,6 @@ const Activity = props => {
                   marginTop: 10,
                   borderBottomColor: '#1C1C1C',
                   borderBottomWidth: 1.5,
-                  
                 }}>
                 <Text
                   style={{
@@ -199,8 +197,7 @@ const Activity = props => {
             <ActivityIndicator size="large" />
           </View>
         )}
-
-        {!loadingState && hasMore && (
+        {!loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{
@@ -213,6 +210,8 @@ const Activity = props => {
             }}>
             Load More
           </Text>
+        ) : (
+          ''
         )}
       </View>
     </ScreenLayout>

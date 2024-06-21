@@ -9,9 +9,10 @@ import {
   Dimensions,
   Platform,
   FlatList,
-  Image,ActivityIndicator
+  Image,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect,useCallback} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {apiCall} from '../../Services/Service';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
@@ -183,7 +184,7 @@ const LiveEpisode = () => {
           </View>
         )}
 
-        {!loadingState && hasMore && (
+        {!loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{
@@ -196,6 +197,8 @@ const LiveEpisode = () => {
             }}>
             Load More
           </Text>
+        ) : (
+          ''
         )}
       </View>
     </ScreenLayout>

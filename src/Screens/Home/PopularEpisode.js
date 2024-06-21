@@ -196,7 +196,7 @@ const PopularEpisode = () => {
           </View>
         )}
 
-        {!loadingState && hasMore && (
+        {!loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{
@@ -209,6 +209,8 @@ const PopularEpisode = () => {
             }}>
             Load More
           </Text>
+        ) : (
+          ''
         )}
       </View>
     </ScreenLayout>
