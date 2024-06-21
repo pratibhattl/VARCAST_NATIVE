@@ -29,7 +29,7 @@ const Activity = props => {
   const [allData, setAllData] = useState([]);
   const [loadingState, setLoadingState] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState();
   const [page, setPage] = useState(0);
 
   const fetchData = async () => {
@@ -102,10 +102,10 @@ const Activity = props => {
               <View
                 key={index}
                 style={{
-                  marginTop: 25,
+                  marginTop: 10,
                   borderBottomColor: '#1C1C1C',
                   borderBottomWidth: 1.5,
-                  paddingBottom: 10,
+                  
                 }}>
                 <Text
                   style={{
