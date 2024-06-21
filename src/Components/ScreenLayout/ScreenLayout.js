@@ -112,6 +112,7 @@ const ScreenLayout = props => {
                 right={props.right}
                 Podcast={props.Podcast}
                 onRightTextPress={props.onRightTextPress}
+                onMusicIconPress={props.onMusicIconPress}
                 Publish={props.Publish}
                 Watch={props.Watch}
                 Save={props.Save}

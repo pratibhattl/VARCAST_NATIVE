@@ -22,7 +22,9 @@ import {apiCall} from '../../Services/Service';
 const ChatRoom = () => {
   const route = useRoute();
   const {userDetails, token} = useSelector(state => state.authData);
- 
+
+  console.log('route', route);
+
   const [messages, setMessages] = useState([]);
 
   const renderAvatar = () => {
@@ -34,7 +36,7 @@ const ChatRoom = () => {
               ? {uri: route.params.image}
               : require('../../assets/images/user.png')
           }
-         style={styles.pic}
+          style={styles.pic}
         />
       </View>
     );
@@ -109,7 +111,7 @@ const ChatRoom = () => {
       <CustomHeader
         HeaderColor="rgba(27, 27, 27, 0.96)"
         leftHeading={`${route.params.title}`}
-        Watch={true}
+        // Watch={true}
         onLeftIconPress={() => NavigationService.back()}
       />
 
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 0,
   },
- pic: {
+  pic: {
     objectFit: 'scale-down',
     borderRadius: 50,
     width: 50,
