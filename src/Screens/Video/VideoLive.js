@@ -129,10 +129,7 @@ const VideoLive = props => {
 
   const [isPlaying, setIsPlaying] = useState(false);
 
-
-
-
- const togglePlayPause = () => {
+  const togglePlayPause = () => {
     setPaused(!paused);
   };
 
@@ -479,35 +476,34 @@ const VideoLive = props => {
   };
   /*** Start Video playing ***/
 
-
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
-      <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
-        <Video
+        <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
+          <Video
             source={{
               uri: `${imageURL}${selectedData?.image}`,
             }}
-          style={styles.video}
-          paused={paused}
-          resizeMode="contain"
-          onBuffer={() => {}}
-          onError={(error) => console.log(error)}
-          controls={false}
-        />
-        {showControls && (
-          <View style={styles.controls}>
-            <TouchableOpacity onPress={togglePlayPause}>
-              <Icon
-                name={paused ? 'play-circle-outline' : 'pause-circle-outline'}
-                size={50}
-                color="white"
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-      </TouchableOpacity>
-    </View>
+            style={styles.video}
+            paused={paused}
+            resizeMode="contain"
+            onBuffer={() => {}}
+            onError={error => console.log(error)}
+            controls={false}
+          />
+          {showControls && (
+            <View style={styles.controls}>
+              <TouchableOpacity onPress={togglePlayPause}>
+                <Icon
+                  name={paused ? 'play-circle-outline' : 'pause-circle-outline'}
+                  size={50}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -525,14 +521,9 @@ const VideoLive = props => {
               key={index}
               onPress={() =>
                 NavigationService.navigate('ChatRoom', {
-                  data: {
-                    id: item?.user?._id,
-                    title: item?.user?.name,
-                    date: item?.user?.created_at,
-                    image: item?.user?.full_path_image,
-                    details: item?.comment,
-                    time: '12:00',
-                  },
+                  id: item?.user?._id,
+                  title: item?.user?.name,
+                  image: item?.user?.full_path_image,
                 })
               }
               style={{
@@ -648,7 +639,6 @@ const VideoLive = props => {
               marginBottom: 15,
             }}>
             <CommentIcon />
-            {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
        

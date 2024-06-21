@@ -650,6 +650,7 @@ const PublicationIndex = props => {
           isScrollable={true}
           leftHeading={t('New Publication')}
           Podcast
+          onMusicIconPress={uploadFileOnPressHandler}
           right
           Live={cat == 'Live' ? true : false}
           leftHeadingStyle={{color: '#E1D01E'}}
@@ -741,7 +742,7 @@ const PublicationIndex = props => {
               {!audio && (
                 <Text style={styles.upload_text}> Upload Audio File</Text>
               )}
-              <Pressable
+              {/* <Pressable
                 style={styles.upload_btn}
                 onPress={async () => await uploadFileOnPressHandler()}>
                 <Text
@@ -753,13 +754,13 @@ const PublicationIndex = props => {
                   }}>
                   Upload
                 </Text>
-              </Pressable>
+              </Pressable> */}
             </View>
 
             <Pressable
               onPress={fileSubmit}
               style={{...styles.upload_btn, width: 350, marginTop: 20}}>
-              <Text style={styles.upload_text}>SUBMIT</Text>
+              <Text style={{...styles.upload_text, color: '#131313'}}>SUBMIT</Text>
             </Pressable>
           </View>
         </ScreenLayout>
@@ -969,7 +970,8 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   upload_btn: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: '#E1D01E',
+    borderRadius: 15,
     paddingHorizontal: 20,
     paddingVertical: 16,
   },

@@ -76,8 +76,8 @@ const AddPlaylist = () => {
       headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96)'}}
       showLoading={loadingState}
       isScrollable={true}
-      Home
-      Play
+      // Home
+      // Play
       hideLeftIcon={!customProp}
       onLeftIconPress={() => NavigationService.openDrawer()}>
       <View style={styles.container}>
