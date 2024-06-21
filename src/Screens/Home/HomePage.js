@@ -160,8 +160,6 @@ const HomePage = props => {
             }}>
             {t('Live')}
           </Text>
-          <Button
-          onPress={() => NavigationService.navigate('LiveStreamHome')}>Agora Test</Button>
           <Text
             onPress={() => NavigationService.navigate('Live')}
             style={{

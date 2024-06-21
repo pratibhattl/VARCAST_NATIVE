@@ -821,7 +821,7 @@ const PublicationIndex = props => {
             <Pressable
               onPress={() => {
                 setOption('Live');
-                NavigationService.navigate('LiveScreen', {host: true});
+                NavigationService.navigate('LiveStreamHome', {host: true});
                 // NavigationService.navigate('VideoLive', {host: true});
               }}
               style={{
