@@ -312,6 +312,7 @@ const LiveDetails = props => {
   };
 
   // Function to handle the Comment
+ 
 
   const sendComment = async () => {
     const liveId = id;
@@ -327,6 +328,7 @@ const LiveDetails = props => {
     const newComment = {
       comment,
       name: user.userDetails.name,
+      id: user.userDetails._id,
       avatar: user.userDetails.full_path_image,
       timestamp: firestore.FieldValue.serverTimestamp(),
     };
@@ -468,7 +470,7 @@ const LiveDetails = props => {
                     fontSize: 14,
                     fontFamily: Theme.FontFamily.normal,
                   }}>
-                   {selectedData?.user?.name}
+                  {selectedData?.user?.name}
                 </Text>
                 <Text
                   style={{
@@ -478,7 +480,7 @@ const LiveDetails = props => {
                     textAlign: 'center',
                     marginTop: 1,
                   }}>
-                  {selectedData.countView}{' '} views
+                  {selectedData.countView} views
                 </Text>
               </View>
             </TouchableOpacity>
@@ -602,14 +604,9 @@ const LiveDetails = props => {
             key={index}
             onPress={() =>
               NavigationService.navigate('ChatRoom', {
-                data: {
-                  id: comment?.id,
-                  title: comment?.name,
-                  date: JSON.stringify(comment?.timestamp),
-                  image: comment?.avatar,
-                  details: comment?.comment,
-                  time: '12:00',
-                },
+                id: comment?.id,
+                title: comment?.name,
+                image: comment?.avatar,
               })
             }
             style={{

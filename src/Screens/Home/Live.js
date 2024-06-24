@@ -10,8 +10,9 @@ import {
   Platform,
   FlatList,
   Image,
+  ActivityIndicator,
 } from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {apiCall} from '../../Services/Service';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
@@ -26,35 +27,52 @@ const LiveEpisode = () => {
   // Access the customProp passed from the source screen
   const token = useSelector(state => state.authData.token);
   const customProp = route.params?.showButton;
-  const [loadingState, changeloadingState] = useState(false);
+
   const [liveData, setLiveData] = useState([]);
+  const [loadingState, setLoadingState] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
+
+  const fetchData = async () => {
+    setLoadingState(true);
+    try {
+      const endpoint = `lives/list?take=15&page=${page}`;
+      const response = await apiCall(endpoint, 'GET', {}, token);
+      const data = response.data; // Assuming response is already parsed as JSON
+      const mappedData = data.listData.map(item => ({
+        title: item.title,
+        slug: item.slug,
+        imageUrl: item.imageUrl,
+        videoUrl: item.videoUrl,
+        id: item?._id,
+      }));
+      setLiveData(prev => [...prev, ...mappedData]);
+      setHasMore(response?.data?.isNext);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoadingState(false);
+      setInitialLoading(false);
+    }
+  };
+
+  const fetchNextPage = useCallback(() => {
+    if (!loadingState && !hasMore) return null;
+
+    if (!loadingState && hasMore) {
+      setPage(prevPage => prevPage + 1);
+    }
+  }, [loadingState, hasMore]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const endpoint = 'lives/list';
-        const response = await apiCall(endpoint, 'GET', {}, token);
-        const data = response.data; // Assuming response is already parsed as JSON
-        const mappedData = data.listData.map(item => ({
-          title: item.title,
-          slug: item.slug,
-          imageUrl: item.imageUrl,
-          videoUrl: item.videoUrl,
-          id: item?._id
-        }));
-        setLiveData(mappedData);
-        console.log('Liveresponse', mappedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
     fetchData();
-  }, []);
+  }, [page]);
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: '#131313'}}
-      showLoading={loadingState}
       isScrollable={true}
+      // showLoading={initialLoading}
       viewStyle={{backgroundColor: '#131313'}}
       leftHeading={'Live Page'}
       // ChatIconPress={()=>NavigationService.navigate('ChatList')}
@@ -67,20 +85,27 @@ const LiveEpisode = () => {
           translucent={true}
         />
 
+        {initialLoading && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+
         <FlatList
           data={liveData}
-          keyExtractor={item => item.title}
+          keyExtractor={item => item.id}
           showsHorizontalScrollIndicator={false}
-          //   horizontal
           numColumns={2}
           contentContainerStyle={{marginHorizontal: 20, paddingBottom: 20}}
-          renderItem={({item, title}) => {
+          renderItem={({item}) => {
+
+            console.log('item',item)
             return (
               <Pressable
-              onPress={() =>
-                NavigationService.navigate('LiveDetails', {id:item?.id})
-              }
-                key={title}
+                onPress={() =>
+                  NavigationService.navigate('LiveDetails', {id: item?.id})
+                }
+                key={item.id}
                 style={{
                   width: '46%',
                   height: 165,
@@ -96,8 +121,8 @@ const LiveEpisode = () => {
                 <Image
                   source={{uri: item.imageUrl}}
                   style={{
-                    width: 200,
-                    height: 180,
+                    width: '100%',
+                    height: '100%',
                     borderRadius: 15,
                     // borderBottomLeftRadius:150
                     // marginHorizontal:10
@@ -108,8 +133,7 @@ const LiveEpisode = () => {
                   style={{
                     height: 71,
                     width: 200,
-                    alignItems: 'center',
-                    alignSelf: 'center',
+                    alignItems: 'left',
                     justifyContent: 'center',
                     position: 'absolute',
                     bottom: 0,
@@ -125,7 +149,7 @@ const LiveEpisode = () => {
                     style={{
                       overflow: 'hidden',
                       padding: 5,
-                      marginLeft: 13,
+                      marginLeft:10,
                       textAlign: 'auto',
                     }}>
                     <Text
@@ -154,6 +178,29 @@ const LiveEpisode = () => {
             );
           }}
         />
+
+        {loadingState && hasMore && (
+          <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
+        )}
+
+        {!loadingState && hasMore ? (
+          <Text
+            onPress={fetchNextPage}
+            style={{
+              color: '#fff',
+              marginVertical: 5,
+              marginHorizontal: 10,
+              textAlign: 'right',
+              fontSize: 15,
+              fontFamily: Theme.FontFamily.normal,
+            }}>
+            Load More
+          </Text>
+        ) : (
+          ''
+        )}
       </View>
     </ScreenLayout>
   );
