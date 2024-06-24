@@ -98,6 +98,8 @@ const LiveEpisode = () => {
           numColumns={2}
           contentContainerStyle={{marginHorizontal: 20, paddingBottom: 20}}
           renderItem={({item}) => {
+
+            console.log('item',item)
             return (
               <Pressable
                 onPress={() =>
@@ -119,8 +121,8 @@ const LiveEpisode = () => {
                 <Image
                   source={{uri: item.imageUrl}}
                   style={{
-                    width: 200,
-                    height: 180,
+                    width: '100%',
+                    height: '100%',
                     borderRadius: 15,
                     // borderBottomLeftRadius:150
                     // marginHorizontal:10
@@ -131,8 +133,7 @@ const LiveEpisode = () => {
                   style={{
                     height: 71,
                     width: 200,
-                    alignItems: 'center',
-                    alignSelf: 'center',
+                    alignItems: 'left',
                     justifyContent: 'center',
                     position: 'absolute',
                     bottom: 0,
@@ -148,7 +149,7 @@ const LiveEpisode = () => {
                     style={{
                       overflow: 'hidden',
                       padding: 5,
-                      marginLeft: 13,
+                      marginLeft:10,
                       textAlign: 'auto',
                     }}>
                     <Text
