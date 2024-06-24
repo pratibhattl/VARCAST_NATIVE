@@ -8,6 +8,7 @@ export default function HomePage(props) {
     const navigation = useNavigation();
     const insets = useSafeAreaInsets();
 
+    
     const [userID, setUserID] = useState('');
     const userDetails = useSelector(state => state.authData.userDetails);
     const token = useSelector(state => state.authData.token); 
