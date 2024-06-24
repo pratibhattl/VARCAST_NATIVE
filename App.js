@@ -1,4 +1,4 @@
-import {StyleSheet, Text, View ,AppState} from 'react-native';
+import {StyleSheet, Text, View, AppState} from 'react-native';
 import React, {createRef, useEffect, useState} from 'react';
 import {Provider, useDispatch, useSelector} from 'react-redux';
 import {store} from './src/Store/AppStore';
@@ -19,8 +19,10 @@ import {getData} from './src/Services/LocalStorage';
 import {I18nextProvider} from 'react-i18next';
 import i18next from './src/Utils/i18.config';
 import {AutocompleteDropdownContextProvider} from 'react-native-autocomplete-dropdown';
+import {ZegoUIKitPrebuiltLiveStreamingFloatingMinimizedView} from '@zegocloud/zego-uikit-prebuilt-live-streaming-rn';
 import messaging from '@react-native-firebase/messaging';
 import {PermissionsAndroid} from 'react-native';
+
 // import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export const navRef = createRef();
@@ -53,21 +55,22 @@ const App = () => {
 
   async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
-    PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
     const enabled =
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
       authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-  
+
     if (enabled) {
       console.log('Authorization status:', authStatus);
-           const token =await messaging().getToken();
-  
+      const token = await messaging().getToken();
     }
-    }
+  }
 
-useEffect(()=>{
-  requestUserPermission();
-  messaging()
+  useEffect(() => {
+    requestUserPermission();
+    messaging()
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
@@ -77,34 +80,31 @@ useEffect(()=>{
           );
         }
       });
-  messaging().onNotificationOpenedApp(remoteMessage => {
-    console.log(
-      'Notification caused app to open from background state:',
-      remoteMessage.notification,
-    );
-  });
+    messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log(
+        'Notification caused app to open from background state:',
+        remoteMessage.notification,
+      );
+    });
 
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
-    console.log('Message handled in the background!', 
-      
-    );
-  });
-  const unsubscribe = messaging().onMessage(async remoteMessage => {
-    Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-  });
+    messaging().setBackgroundMessageHandler(async remoteMessage => {
+      console.log('Message handled in the background!');
+    });
+    const unsubscribe = messaging().onMessage(async remoteMessage => {
+      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+    });
 
-  return unsubscribe;
-},[]);
+    return unsubscribe;
+  }, []);
 
   if (LoderStatus) return <SplashScreen />;
 
   return (
-
     <View style={{flex: 1}}>
       <AutocompleteDropdownContextProvider>
         <I18nextProvider i18n={i18next}>
           <ThemeProvider>
-            <NavigationContainer 
+            <NavigationContainer
               onReady={() => (isReady.current = true)}
               ref={r => NavigationService.setTopLevelNavigator(r)}>
               <Stack.Navigator
@@ -113,7 +113,6 @@ useEffect(()=>{
                   animation: 'none',
                   headerShown: false,
                 }}>
-             
                 {login_status == false ? (
                   <Stack.Screen
                     name="AuthNavigation"
@@ -126,6 +125,7 @@ useEffect(()=>{
                   />
                 )}
               </Stack.Navigator>
+              <ZegoUIKitPrebuiltLiveStreamingFloatingMinimizedView />
             </NavigationContainer>
           </ThemeProvider>
         </I18nextProvider>
@@ -135,7 +135,7 @@ useEffect(()=>{
 };
 
 export default () => (
-  // <GestureHandlerRootView style={{ flex: 1 }}> 
+  // <GestureHandlerRootView style={{ flex: 1 }}>
   <Provider store={store}>
     <App />
   </Provider>

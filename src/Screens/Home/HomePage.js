@@ -29,6 +29,7 @@ import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import MostPlayed from './MostPlayed';
 import {useIsFocused} from '@react-navigation/native';
+import { Button } from 'react-native-paper';
 const HomePage = props => {
   const route = useRoute();
   const isFocused = useIsFocused();
@@ -443,7 +444,7 @@ const HomePage = props => {
                       id: item?.video?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', item?.video);
+                    NavigationService.navigate('PodcastLive', {item:item?.video});
                   }
                 }}
                 style={{

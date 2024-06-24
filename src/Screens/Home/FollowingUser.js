@@ -21,12 +21,16 @@ const {width, height} = Dimensions.get('screen');
 const FollowingUser = () => {
   const route = useRoute();
   const customProp = route.params?.showButton;
-  const [loadingState, setLoadingState] = useState(false);
-  const [followingUserData, setFollowingUserData] = useState([]);
-  const navigation = useNavigation();
   const token = useSelector(state => state.authData.token);
-
-  const fetchUserData = useCallback(async () => {
+  const navigation = useNavigation();
+  
+  const [followingUserData, setFollowingUserData] = useState([]);
+  const [loadingState, setLoadingState] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [page, setPage] = useState(0);
+  
+    
+  const fetchUserData =async () => {
     setLoadingState(true);
     try {
       const endpoint = 'follow/followings';
@@ -35,6 +39,7 @@ const FollowingUser = () => {
       if (response?.status === true) {
         const usermappedData =
           response?.data?.map(item => ({
+            id:item.id,
             name: item.followings.name,
             email: item.followings.email,
             imageUrl: item.followings.full_path_image,
@@ -47,11 +52,8 @@ const FollowingUser = () => {
     } finally {
       setLoadingState(false);
     }
-  }, [token]);
+  };
 
-  useEffect(() => {
-    fetchUserData();
-  }, [fetchUserData]);
 
   const goToUserDetails = (user) => {
     navigation.navigate('UserDetails', {userData: user });
@@ -59,7 +61,7 @@ const FollowingUser = () => {
 
   const renderItem = useCallback(
     ({item}) => (
-      <View style={styles.userCard}>
+      <View style={styles.userCard} key={item.id}>
         <Image
           source={{uri: item.imageUrl}}
           style={styles.userImage}
@@ -72,6 +74,11 @@ const FollowingUser = () => {
     ),
     [],
   );
+
+  
+  useEffect(() => {
+    fetchUserData();
+  }, [page]);
 
   return (
     <ScreenLayout

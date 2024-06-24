@@ -70,6 +70,7 @@ const {width, height} = Dimensions.get('screen');
 
 const VideoLive = props => {
   const route = useRoute();
+  console.log('Route', route.params);
   const baseUrl = AllSourcePath?.API_BASE_URL_DEV;
   const imageURL = AllSourcePath?.IMAGE_BASE_URL;
   let id = route.params?.id;
@@ -98,6 +99,8 @@ const VideoLive = props => {
   const [message, setMessage] = useState(''); // Message to the user
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
+  console.log('Route Params:', route.params);
+
   // const token =
   //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
   // const uid = 0;
@@ -126,10 +129,7 @@ const VideoLive = props => {
 
   const [isPlaying, setIsPlaying] = useState(false);
 
-
-
-
- const togglePlayPause = () => {
+  const togglePlayPause = () => {
     setPaused(!paused);
   };
 
@@ -209,7 +209,6 @@ const VideoLive = props => {
     };
   }, []);
 
-  // const setupVideoSDKEngine = async (idd, channel) => {
   //   try {
   //     // use the helper function to get permissions
   //     if (Platform.OS === 'android') {
@@ -306,7 +305,7 @@ const VideoLive = props => {
       console.log(e);
     }
   };
-  // const SwitchCamera = () => {
+  
   //   try {
   //     agoraEngineRef.current?.switchCamera();
   //   } catch (e) {
@@ -346,7 +345,8 @@ const VideoLive = props => {
             response?.data?.data?.latestComments?.length > 0 &&
             response?.data?.data?.latestComments;
           const like = response?.data?.data?.isLiked == true ? true : false;
-          setSelectedData(response?.data?.data);
+          setSelectedDa
+          ta(response?.data?.data);
           setLikeStatus(like);
           setMapcomment(mappedData);
         } else {
@@ -465,13 +465,7 @@ const VideoLive = props => {
                       </Text>
                     </View>
                   </Pressable>
-                  {/* <Icon
-                  name="dots-three-horizontal"
-                  type="Entypo"
-                  size={16}
-                  color={'#fff'}
-                  style={{ marginTop: 5 }}
-                /> */}
+              
                 </LinearGradient>
               );
             }}
@@ -482,35 +476,34 @@ const VideoLive = props => {
   };
   /*** Start Video playing ***/
 
-
   return (
     <View style={styles.container}>
       <View style={styles.videoContainer}>
-      <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
-        <Video
+        <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
+          <Video
             source={{
               uri: `${imageURL}${selectedData?.image}`,
             }}
-          style={styles.video}
-          paused={paused}
-          resizeMode="contain"
-          onBuffer={() => {}}
-          onError={(error) => console.log(error)}
-          controls={false}
-        />
-        {showControls && (
-          <View style={styles.controls}>
-            <TouchableOpacity onPress={togglePlayPause}>
-              <Icon
-                name={paused ? 'play-circle-outline' : 'pause-circle-outline'}
-                size={50}
-                color="white"
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-      </TouchableOpacity>
-    </View>
+            style={styles.video}
+            paused={paused}
+            resizeMode="contain"
+            onBuffer={() => {}}
+            onError={error => console.log(error)}
+            controls={false}
+          />
+          {showControls && (
+            <View style={styles.controls}>
+              <TouchableOpacity onPress={togglePlayPause}>
+                <Icon
+                  name={paused ? 'play-circle-outline' : 'pause-circle-outline'}
+                  size={50}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+          )}
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         showsVerticalScrollIndicator={false}
@@ -528,14 +521,9 @@ const VideoLive = props => {
               key={index}
               onPress={() =>
                 NavigationService.navigate('ChatRoom', {
-                  data: {
-                    id: item?.user?._id,
-                    title: item?.user?.name,
-                    date: item?.user?.created_at,
-                    image: item?.user?.full_path_image,
-                    details: item?.comment,
-                    time: '12:00',
-                  },
+                  id: item?.user?._id,
+                  title: item?.user?.name,
+                  image: item?.user?.full_path_image,
                 })
               }
               style={{
@@ -589,23 +577,7 @@ const VideoLive = props => {
                     {item?.user?.name}{' '}
                   </Text>
                 </View>
-                {/* <Pressable
-                      onPress={() => {
-                          // setModalVisible(false)
-                          // NavigationService.navigate('Publication02')
-                      }}
-                      style={{
-                          marginRight:20,
-                          alignItems:'flex-end'
-                      }}>
-                    <Text style={{
-                          color: 'rgba(255, 255, 255, 0.54)',
-                          fontSize: 14,
-                          fontFamily: Theme.FontFamily.light,
-                          marginBottom: 3
-                      }}>{res.time} </Text>
-                      <DoubleTick/>
-                  </Pressable> */}
+              
               </View>
             </Pressable>
           );
@@ -667,34 +639,9 @@ const VideoLive = props => {
               marginBottom: 15,
             }}>
             <CommentIcon />
-            {/* <Image source={require('../../assets/images/chat-bubble.png')} style={{objectFit:'contain'}}/> */}
           </Pressable>
         )}
-        {/* <Pressable
-          onPress={() => setGiftModalState(true)}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.96)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <GitftIcon />
-        </Pressable> */}
-        {/* <Pressable
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.86)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <GitftIcon />
-        </Pressable>  */}
+       
         <Pressable
           onPress={() => setModalState(true)}
           style={{
@@ -817,22 +764,7 @@ const VideoLive = props => {
               marginTop: 25,
             }}
           />
-          {/* <View style={{flexDirection:'row',alignItems:'center',
-                marginTop:20,
-          
-          }}>
-              <ReportIcon Color = {'#fff'}/>
-              <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft:15,
-                // marginTop:10,
-              }}>
-            Report
-            </Text>
-            </View> */}
+         
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
             <ShiledIcon Color={'#fff'} />
