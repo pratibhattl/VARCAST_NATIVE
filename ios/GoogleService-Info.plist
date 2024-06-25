@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyA_O9mnphwAajIxZeBqpsIpnEf4XkQzFQg</string>
+	<string>AIzaSyCKV7meoibKQQtsWymtvJiPJ5SVZvZRwYE</string>
 	<key>GCM_SENDER_ID</key>
-	<string>536850301968</string>
+	<string>201914040643</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.varcast.app</string>
 	<key>PROJECT_ID</key>
-	<string>varcast-cd96b</string>
+	<string>varcast-demo</string>
 	<key>STORAGE_BUCKET</key>
-	<string>varcast-cd96b.appspot.com</string>
+	<string>varcast-demo.appspot.com</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:536850301968:ios:3b05afb00d30c050deb695</string>
+	<string>1:201914040643:ios:5ec98dc85f811b4b2f6ff6</string>
 </dict>
 </plist>

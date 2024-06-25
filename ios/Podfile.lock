@@ -1555,6 +1555,8 @@ PODS:
     - React-Core
   - react-native-document-picker (9.2.0):
     - React-Core
+  - react-native-get-random-values (1.11.0):
+    - React-Core
   - react-native-pager-view (6.2.2):
     - React-Core
   - react-native-restart (0.0.27):
@@ -1575,6 +1577,12 @@ PODS:
     - react-native-video/Video (= 5.2.1)
   - react-native-video/Video (5.2.1):
     - React-Core
+  - react-native-zego-express-engine (3.14.5):
+    - React
+    - ZegoExpressEngine (= 3.14.5)
+  - react-native-zego-zim (2.12.1):
+    - React
+    - ZIM (= 2.12.1)
   - React-NativeModulesApple (0.72.12):
     - hermes-engine
     - React-callinvoker
@@ -1788,6 +1796,12 @@ PODS:
   - VideoEditorSDK (10.30.1):
     - imglyKit (= 10.30.1)
   - Yoga (1.14.0)
+  - zego-uikit-prebuilt-live-streaming-rn (2.3.1):
+    - React-Core
+  - zego-uikit-rn (2.10.1):
+    - React-Core
+  - ZegoExpressEngine (3.14.5)
+  - ZIM (2.12.1)
 
 DEPENDENCIES:
   - agora-react-native-rtm (from `../node_modules/agora-react-native-rtm`)
@@ -1824,6 +1838,7 @@ DEPENDENCIES:
   - react-native-agora (from `../node_modules/react-native-agora`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-document-picker (from `../node_modules/react-native-document-picker`)
+  - react-native-get-random-values (from `../node_modules/react-native-get-random-values`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-restart (from `../node_modules/react-native-restart`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
@@ -1831,6 +1846,8 @@ DEPENDENCIES:
   - "react-native-slider (from `../node_modules/@react-native-community/slider`)"
   - react-native-track-player (from `../node_modules/react-native-track-player`)
   - react-native-video (from `../node_modules/react-native-video`)
+  - react-native-zego-express-engine (from `../node_modules/zego-express-engine-reactnative`)
+  - react-native-zego-zim (from `../node_modules/zego-zim-react-native`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
   - React-RCTActionSheet (from `../node_modules/react-native/Libraries/ActionSheetIOS`)
@@ -1873,6 +1890,8 @@ DEPENDENCIES:
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
   - RNVideoEditorSDK (from `../node_modules/react-native-videoeditorsdk`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
+  - "zego-uikit-prebuilt-live-streaming-rn (from `../node_modules/@zegocloud/zego-uikit-prebuilt-live-streaming-rn`)"
+  - "zego-uikit-rn (from `../node_modules/@zegocloud/zego-uikit-rn`)"
 
 SPEC REPOS:
   trunk:
@@ -1909,6 +1928,8 @@ SPEC REPOS:
     - Toast
     - TOCropViewController
     - VideoEditorSDK
+    - ZegoExpressEngine
+    - ZIM
 
 EXTERNAL SOURCES:
   agora-react-native-rtm:
@@ -1967,6 +1988,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-document-picker:
     :path: "../node_modules/react-native-document-picker"
+  react-native-get-random-values:
+    :path: "../node_modules/react-native-get-random-values"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
   react-native-restart:
@@ -1981,6 +2004,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-track-player"
   react-native-video:
     :path: "../node_modules/react-native-video"
+  react-native-zego-express-engine:
+    :path: "../node_modules/zego-express-engine-reactnative"
+  react-native-zego-zim:
+    :path: "../node_modules/zego-zim-react-native"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-perflogger:
@@ -2065,6 +2092,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-videoeditorsdk"
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
+  zego-uikit-prebuilt-live-streaming-rn:
+    :path: "../node_modules/@zegocloud/zego-uikit-prebuilt-live-streaming-rn"
+  zego-uikit-rn:
+    :path: "../node_modules/@zegocloud/zego-uikit-rn"
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
@@ -2123,6 +2154,7 @@ SPEC CHECKSUMS:
   react-native-agora: e929cdc2e42e84b539c834fe6ef3cf2705872a2a
   react-native-blur: b76a5e03fd65f3aea4fb1a5a9a7ccfabfc8af8c4
   react-native-document-picker: 2b3efb60622b7be891b8d0e0e5424632150e0c94
+  react-native-get-random-values: 21325b2244dfa6b58878f51f9aa42821e7ba3d06
   react-native-pager-view: 02a5c4962530f7efc10dd51ee9cdabeff5e6c631
   react-native-restart: 7595693413fe3ca15893702f2c8306c62a708162
   react-native-safe-area-context: a240ad4b683349e48b1d51fed1611138d1bdad97
@@ -2130,6 +2162,8 @@ SPEC CHECKSUMS:
   react-native-slider: 904bce3c4c1d520d8544c66b226429766d7f7b27
   react-native-track-player: 82ef1756ffeea61140fea17519ecd6d64ec3cf3e
   react-native-video: c26780b224543c62d5e1b2a7244a5cd1b50e8253
+  react-native-zego-express-engine: 0dea531a42c910c9ccbc8647a54c4f68b27192fd
+  react-native-zego-zim: 8ccf8bca633b2a947b1407c9f2a76767c1667154
   React-NativeModulesApple: 30a72273f7fcf81d47742c1edc998ea88d34739a
   React-perflogger: 63606aeab27683112e1bd4ef25bd099ec1cb03f8
   React-RCTActionSheet: 5b39fc2b479d47325e5ac95193c482044bfebbc6
@@ -2177,7 +2211,11 @@ SPEC CHECKSUMS:
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   VideoEditorSDK: 8248852e4288a996119a099ad985e36fdcb58d87
   Yoga: 87e59f6d458e5061d2421086c5de994b3f7cd151
+  zego-uikit-prebuilt-live-streaming-rn: 27f914de8b0c8b63e87354e813bb90c58fd08ade
+  zego-uikit-rn: eef116c8dc6123befaac2b428949ddf5bf347ad3
+  ZegoExpressEngine: 68629fb936bc779260ce7d5cb3eea5b467dffa18
+  ZIM: 57ce22334b15f918ec13ce88e9632d3ebe36d5ba
 
-PODFILE CHECKSUM: 94d5e0a944d0523fe62e4663094994fd70566b8d
+PODFILE CHECKSUM: 00b82d25c85b11811bba67bf21d43989a2c3f878
 
 COCOAPODS: 1.15.2
