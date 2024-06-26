@@ -231,6 +231,7 @@ const Publication01 = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
+                  <Pressable onPress={() => openAudeoList(index)}>
                 {index == 0 ? (
                   <AudioIcon />
                 ) : index == 1 ? (
@@ -240,7 +241,7 @@ const Publication01 = () => {
                 ) : (
                   <LiveEditIcon Color={'#fff'} />
                 )}
-                <Pressable onPress={() => openAudeoList(index)}>
+                
                   <Text
                     style={{
                       color: '#fff',

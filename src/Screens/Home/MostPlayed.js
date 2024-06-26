@@ -174,14 +174,14 @@ const MostPlayed = () => {
                     }}>
                     {item.title}
                   </Text>
-                  <Text
+                  {/* <Text
                     style={{
                       color: '#fff',
                       fontSize: 14,
-                      fontFamily: 'Arial', // Use your desired font family
+                      fontFamily: 'Arial', 
                     }}>
                     Views: {item.views}
-                  </Text>
+                  </Text> */}
                 </View>
               </Pressable>
             );
