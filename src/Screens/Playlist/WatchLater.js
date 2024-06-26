@@ -1,16 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, Pressable, Dimensions } from 'react-native';
-import { useRoute } from '@react-navigation/native';
+import React, {useState, useEffect} from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  Image,
+  Pressable,
+  Dimensions,
+} from 'react-native';
+import {useRoute} from '@react-navigation/native';
 import NavigationService from '../../Services/Navigation';
 import Theme from '../../Constants/Theme';
 import DownloadIcon from '../../assets/icons/DownloadIcon';
 import ShareIcon from '../../assets/icons/ShareIcon';
 import AllSourcePath from '../../Constants/PathConfig';
-import { Icon } from 'react-native-basic-elements';
+import {Icon} from 'react-native-basic-elements';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 
-const { width, height } = Dimensions.get('screen');
+const {width, height} = Dimensions.get('screen');
 
 const WatchLater = () => {
   const route = useRoute();
@@ -26,31 +34,30 @@ const WatchLater = () => {
   }, [route.params?.playlist]);
 
   // Function to handle media navigation based on the media URL
-  const handleMediaNavigation = (item) => {
+  const handleMediaNavigation = item => {
     const isAudio = item.mediaUrl.endsWith('.mp3');
     if (isAudio) {
-      NavigationService.navigate('SongPlayy', {...item,audio:item.mediaUrl});
+      NavigationService.navigate('SongPlayy', {...item, audio: item.mediaUrl});
     } else {
-      NavigationService.navigate('VideoLive', { id: item._id });
+      NavigationService.navigate('VideoLive', {id: item._id});
     }
   };
 
   return (
     <ScreenLayout
-      headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
+      headerStyle={{backgroundColor: 'rgba(27, 27, 27, 0.96);'}}
       showLoading={loadingState}
       isScrollable={true}
       leftHeading={'Watch Later'}
-      leftHeadingStyle={{ color: '#E1D01E' }}
+      leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
         <FlatList
           data={playlistData}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 0 }}
-          renderItem={({ item, index }) => {
-           
+          contentContainerStyle={{paddingHorizontal: 20, paddingTop: 0}}
+          renderItem={({item, index}) => {
             return (
               <View
                 key={index}
@@ -60,7 +67,7 @@ const WatchLater = () => {
                   borderBottomWidth: 1.5,
                   paddingBottom: 10,
                 }}>
-                <View style={{ flexDirection: 'row', marginTop: 12 }}>
+                <View style={{flexDirection: 'row', marginTop: 12}}>
                   <View
                     style={{
                       borderColor: 'rgba(255, 255, 255, 0.12)',
@@ -68,7 +75,7 @@ const WatchLater = () => {
                       borderRadius: 6,
                     }}>
                     <Image
-                      source={{ uri: `${imageUrl}${item?.image}` }}
+                      source={{uri: `${imageUrl}${item?.image}`}}
                       style={{
                         height: 42,
                         width: 42,
@@ -77,7 +84,7 @@ const WatchLater = () => {
                       resizeMode="contain"
                     />
                   </View>
-                  <View style={{ paddingHorizontal: 15 }}>
+                  <View style={{paddingHorizontal: 15}}>
                     <Text
                       style={{
                         color: '#fff',
@@ -92,9 +99,7 @@ const WatchLater = () => {
                         fontSize: 14,
                         fontFamily: Theme.FontFamily.light,
                         marginTop: 5,
-                      }}>
-                      {item._id}
-                    </Text>
+                      }}></Text>
                   </View>
                 </View>
                 <Text
@@ -140,7 +145,7 @@ const WatchLater = () => {
                       alignItems: 'center',
                       justifyContent: 'center',
                     }}>
-                   <VideoPlayIcon/>
+                    <VideoPlayIcon />
                   </Pressable>
                 </View>
               </View>

@@ -17,7 +17,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import ReactNativeModal from 'react-native-modal';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {ImageBackground} from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import {Image} from 'react-native';
@@ -305,7 +305,7 @@ const VideoLive = props => {
       console.log(e);
     }
   };
-  
+
   //   try {
   //     agoraEngineRef.current?.switchCamera();
   //   } catch (e) {
@@ -345,7 +345,7 @@ const VideoLive = props => {
             response?.data?.data?.latestComments?.length > 0 &&
             response?.data?.data?.latestComments;
           const like = response?.data?.data?.isLiked == true ? true : false;
-          setSelectedDa
+          setSelectedDa;
           ta(response?.data?.data);
           setLikeStatus(like);
           setMapcomment(mappedData);
@@ -465,7 +465,6 @@ const VideoLive = props => {
                       </Text>
                     </View>
                   </Pressable>
-              
                 </LinearGradient>
               );
             }}
@@ -478,6 +477,11 @@ const VideoLive = props => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.closeIconContainer}
+        onPress={() => NavigationService.back()}>
+        <CrossIcon style={styles.closeIcon} />
+      </TouchableOpacity>
       <View style={styles.videoContainer}>
         <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
           <Video
@@ -577,7 +581,6 @@ const VideoLive = props => {
                     {item?.user?.name}{' '}
                   </Text>
                 </View>
-              
               </View>
             </Pressable>
           );
@@ -641,7 +644,7 @@ const VideoLive = props => {
             <CommentIcon />
           </Pressable>
         )}
-       
+
         <Pressable
           onPress={() => setModalState(true)}
           style={{
@@ -764,7 +767,7 @@ const VideoLive = props => {
               marginTop: 25,
             }}
           />
-         
+
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
             <ShiledIcon Color={'#fff'} />
@@ -830,6 +833,21 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  closeIconContainer: {
+    position: 'absolute',
+    top: 30,
+    right: 20,
+    padding: 10,
+    zIndex: 1,
+    borderWidth: 1,
+    borderColor: 'white',
+    borderStyle: 'dotted', // Dotted border style
+  },
+  closeIcon: {
+    width: 20,
+    height: 20,
+    tintColor: 'white',
   },
   inputContainer: {
     flexDirection: 'row',
