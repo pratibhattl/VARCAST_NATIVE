@@ -40,25 +40,21 @@ const SearchIndex = props => {
   const [page, setPage] = useState(0);
   const [previousEndpoint, setPreviousEndpoint] = useState('');
 
-  
-  
-  const fetchData = async (page) => {
-
-
+  const fetchData = async page => {
     let endpoint = '';
 
     switch (cat) {
       case 0: // Live
         endpoint = `lives/list?take=15&page=${page}`;
-        setPreviousEndpoint(0)
+        setPreviousEndpoint(0);
         break;
       case 1: // Podcast
         endpoint = `podcast/list?take=15&page=${page}`;
-          setPreviousEndpoint(1)
+        setPreviousEndpoint(1);
         break;
       case 2: // Video
         endpoint = `videos/list?take=15&page=${page}`;
-          setPreviousEndpoint(2)
+        setPreviousEndpoint(2);
         break;
       default:
         endpoint = '';
@@ -69,29 +65,65 @@ const SearchIndex = props => {
 
       try {
         const response = await apiCall(endpoint, 'GET', {}, token);
-        if (response && response.data && response.data.listData) {
-          let newData = [...data,...response.data.listData];
-          if (endpoint === `videos/list?take=15&page=${page}`) {
-            // Filter the data to include only items with '.mp4' in their image URL
-            newData = newData
-              .filter(item => item?.image?.includes('.mp4'))
-              .map(item => ({
-                ...item,
-                isVideo: true,
-              }));
-              setFilteredData(newData);
-          }
-          if (page ===0) {
-            setFilteredData(response.data.listData);
-          } else {
-            setFilteredData(prev => [...prev, ...response.data.listData]);
-          }
-  
-          setData(newData);
-          setHasMore(response?.data?.isNext);
-          setPreviousEndpoint(endpoint); // Update the previous endpoint
-          console.log('Data received:', newData);
+
+        let newData = [...data, ...response.data.listData];;
+
+        // if (!data.length) {
+        //   newData = response.data.listData;
+        // } else {
+         
+
+        //   // const unique = newData.map(
+        //   //   (item, index) => newData.indexOf(item) === index,
+        //   // );
+
+        //   // console.log('unique', unique.length);
+        //   // newData=unique
+
+        //   const unique = [...new Set(newData)];
+        //   console.log('unique', unique.length);
+        //   newData = unique;
+
+        //   // Create a map to track unique items based on a specific property
+        //   //     const uniqueMap = new Map();
+        //   //     newData.forEach(item => {
+        //   //         uniqueMap.set(item.id, item); // Assuming items have a unique `id` property
+        //   //     });
+
+        //   //     newData = Array.from(uniqueMap.values());
+        //   // console.log('newData', newData.length);
+
+        //   // const unique = data.map(item => {
+        //   //   const responseData = response.data.listData.filter(
+        //   //     ele => ele._id !== item._id,
+        //   //   );
+        //   //   console.log('ccc', responseData.length);
+        //   //   return [...responseData,...unique];
+        //   // });
+
+        //   // console.log('unique', unique.length);
+        //   // newData = [unique];
+        // }
+
+        if (endpoint === `videos/list?take=15&page=${page}`) {
+          // Filter the data to include only items with '.mp4' in their image URL
+          const videoData = newData
+            .filter(item => item?.image?.includes('.mp4'))
+            .map(item => ({
+              ...item,
+              isVideo: true,
+            }));
+          setFilteredData(videoData);
         }
+
+        if (page === 0) {
+          setFilteredData(response.data.listData);
+        } else {
+          setFilteredData(prev => [...prev, ...response.data.listData]);
+        }
+
+        setData(newData);
+        setHasMore(response?.data?.isNext);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -101,33 +133,38 @@ const SearchIndex = props => {
     }
   };
 
+  console.log('totalData', data.length);
+
   const fetchNextPage = useCallback(() => {
     if (!loadingState && !hasMore) return null;
 
     if (!loadingState && hasMore) {
-      setPage(prevPage=>prevPage+1)
-      fetchData(page+1)
+      setPage(prevPage => prevPage + 1);
+      fetchData(page + 1);
     }
   }, [loadingState, hasMore]);
-
-
 
   const handleSearch = query => {
     console.log('Search Query:', query);
     setSearchQuery(query);
+    console.log('filter', filteredData.length);
+    console.log('data', data.length);
 
-    if (data && Array.isArray(data)) {
-      if (query === '') {
-      setFilteredData(prev=>prev)
-      } else {
-        const filtered = data.filter(item =>
-          item?.title?.toLowerCase().includes(query.toLowerCase()),
-        );
-        console.log('Filtered Data:', filtered);
-        setFilteredData(filtered);
-      }
+    // if (data && Array.isArray(data)) {
+    if (query === '') {
+      fetchData(0);
+      // setFilteredData(prev =>{ console.log('prev',prev.length)
+      //   return [...prev]
+      // });
+    } else {
+      const filtered = data.filter(item =>
+        item?.title?.toLowerCase().includes(query.toLowerCase()),
+      );
+      console.log('filterdData', filtered.length);
+      setFilteredData(filtered);
     }
   };
+  // };
 
   const formatDate = timestamp => {
     const date = new Date(timestamp);
@@ -140,14 +177,20 @@ const SearchIndex = props => {
   };
 
   useEffect(() => {
-
-if(previousEndpoint !== cat){
-  setPage(0);
-  fetchData(0)
-}
+    if (previousEndpoint !== cat) {
+      setPage(0);
+      fetchData(0);
+    }
   }, [cat]);
 
 
+  useEffect(() => {
+    const processedData = data.map(item =>
+     
+    new Set(item._id),
+    );
+    setData(processedData);
+  }, [cat]);
 
   return (
     <SafeAreaView style={styles.container}>
