@@ -1,189 +1,132 @@
-import React, { useEffect, useState } from 'react';
-import {
-  Platform,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import RtcEngine, {
-  RtcLocalView,
-  RtcRemoteView,
-  VideoRenderMode,
-  ClientRole,
-  ChannelProfile,
-} from 'react-native-agora';
+import React, { useState, useEffect } from 'react';
+import { View, Button, StyleSheet, Platform, PermissionsAndroid } from 'react-native';
+import RtcEngine, { RtcLocalView, RtcRemoteView, VideoRenderMode } from 'react-native-agora';
 
-import requestCameraAndAudioPermission from './Permission';
-import styles from './Style';
+const APP_ID = 'ee6f53e15f78432fb6863f9baddd9bb3';
+const CHANNEL_NAME = 'test-channel';
+const TOKEN = '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
 
-/**
- * @property appId Agora App ID
- * @property token Token for the channel;
- * @property channelName Channel Name for the current session
- */
-const token = '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
-const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
-const channelName = 'test';
+const LiveScreen = () => {
+  const [engine, setEngine] = useState(null);
+  const [joined, setJoined] = useState(false);
+  useEffect(() => {
+    const init = async () => {
+      console.log("Initializing Agora SDK");
 
-const renderVideos = (joinSucceed,isHost) => {
-  return joinSucceed ? (
-    <View style={styles.fullView}>
-      {isHost ? (
-        <RtcLocalView.SurfaceView
-          style={styles.max}
-          channelId={channelName}
-          renderMode={VideoRenderMode.Hidden}
-        />
-      ) : (
-        <></>
-      )}
-      {_renderRemoteVideos()}
-    </View>
-  ) : null;
-};
+      try {
+        // Request permissions for Android
+        if (Platform.OS === 'android') {
+          await requestCameraAndAudioPermission();
+        }
 
-const _renderRemoteVideos = () => {
-  return (
-    <ScrollView
-      style={styles.remoteContainer}
-      // contentContainerStyle={styles.remoteContainerContent}
-      horizontal={true}
-    >
-      {peerIds.map((value) => {
-        return (
-          <RtcRemoteView.SurfaceView
-            style={styles.remote}
-            uid={value}
-            channelId={channelName}
-            renderMode={VideoRenderMode.Hidden}
-            zOrderMediaOverlay={true}
-          />
-        );
-      })}
-    </ScrollView>
-  );
-};
-export default function LiveScreen() {
-  const _engine = RtcEngine();
-  const [isHost, setIsHost] = useState(true);
-  const [joinSucceed, setJoinSucceed] = useState(false);
-  const [peerIds, setPeerIds] = useState([]);
+        const rtcEngine = await RtcEngine.create(APP_ID);
+        setEngine(rtcEngine);
 
-  if (Platform.OS === 'android') {
-    // Request required permissions from Android
-    requestCameraAndAudioPermission().then(() => {
-      console.log('requested!');
-    });
-  }
+        await rtcEngine.enableVideo();
 
+        rtcEngine.addListener('JoinChannelSuccess', (channel, uid, elapsed) => {
+          console.log("JoinChannelSuccess", channel, uid, elapsed);
+          setJoined(true);
+        });
 
-useEffect(() => {
-  init();
-},[])
+        rtcEngine.addListener('UserJoined', (uid, elapsed) => {
+          console.log("UserJoined", uid, elapsed);
+        });
 
+        rtcEngine.addListener('UserOffline', (uid, reason) => {
+          console.log("UserOffline", uid, reason);
+        });
 
-/**
- * @name init
- * @description Function to initialize the Rtc Engine, attach event listeners and actions
- */
-const init = async () => {
- const _engine = await RtcEngine.create(appId);
-  await _engine.enableVideo();
-  await _engine?.setChannelProfile(ChannelProfile.LiveBroadcasting);
-  await _engine?.setClientRole(
-    isHost ? ClientRole.Broadcaster : ClientRole.Audience
-  );
+      } catch (error) {
+        console.log("Error initializing Agora SDK", error);
+      }
+    };
 
-  _engine.addListener('Warning', (warn) => {
-    console.log('Warning', warn);
-  });
+    init();
 
-  _engine.addListener('Error', (err) => {
-    console.log('Error', err);
-  });
+    return () => {
+      if (engine) {
+        engine.destroy();
+      }
+    };
+  }, []);
 
-  _engine.addListener('UserJoined', (uid, elapsed) => {
-    console.log('UserJoined', uid, elapsed);
-    // Get current peer IDs
-    // If new user
-    if (setPeerIds.indexOf(uid) === -1) {
-      setPeerIds({
-        // Add peer ID to state array
-        peerIds: [...peerIds, uid],
-      });
+  const joinChannel = async () => {
+    console.log("Join Channel button clicked");
+
+    if (engine) {
+      console.log("Joining channel...");
+      try {
+        await engine.joinChannel(TOKEN, CHANNEL_NAME, null, 0);
+      } catch (error) {
+        console.log("Error joining channel", error);
+      }
+    } else {
+      console.log("Engine not initialized");
     }
-  });
-
- _engine.addListener('UserOffline', (uid, reason) => {
-    console.log('UserOffline', uid, reason);
-    setPeerIds({
-      // Remove peer ID from state array
-      peerIds: peerIds.filter((id) => id !== uid),
-    });
-  });
-
-  // If Local user joins RTC channel
- _engine.addListener('JoinChannelSuccess', (channel, uid, elapsed) => {
-    console.log('JoinChannelSuccess', channel, uid, elapsed);
-    // Set state variable to true
-    setJoinSucceed(true)
-  });
-};
-
-/**
- * @name toggleRoll
- * @description Function to toggle the roll between broadcaster and audience
- */
-const toggleRoll = async () => {
-  // Join Channel using null token and channel name
-  setIsHost(!isHost, () => {
-    _engine?.setClientRole(
-     isHost ? ClientRole.Broadcaster : ClientRole.Audience
-    );
-  })
-    
-};
-
-/**
- * @name startCall
- * @description Function to start the call
- */
-const startCall = () => {
-  // Join Channel using null token and channel name
-   _engine?.joinChannel(token, channelName, null, 0);
-};
-
-/**
- * @name endCall
- * @description Function to end the call
- */
-const endCall = () => {
-   _engine?.leaveChannel();
-  setJoinSucceed(false);
-  setPeerIds([])
-};
+  };
 
   return (
-    <View style={styles.max}>
-      <View style={styles.max}>
-        <Text style={styles.roleText}>
-          You're {isHost ? 'a broadcaster' : 'the audience'}
-        </Text>
-        <View style={styles.buttonHolder}>
-          <TouchableOpacity onPress={toggleRoll} style={styles.button}>
-            <Text style={styles.buttonText}> Toggle Role </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={startCall} style={styles.button}>
-            <Text style={styles.buttonText}> Start Call </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={endCall} style={styles.button}>
-            <Text style={styles.buttonText}> End Call </Text>
-          </TouchableOpacity>
+    <View style={styles.container}>
+      {joined ? (
+        <View style={styles.videoContainer}>
+          <RtcLocalView.SurfaceView
+            style={styles.localVideo}
+            channelId={CHANNEL_NAME}
+            renderMode={VideoRenderMode.Hidden}
+          />
+          <RtcRemoteView.SurfaceView
+            style={styles.remoteVideo}
+            uid={123456}
+            channelId={CHANNEL_NAME}
+            renderMode={VideoRenderMode.Hidden}
+          />
         </View>
-        {renderVideos(joinSucceed,isHost)}
-      </View>
+      ) : (
+        <Button title="Join Channel" onPress={joinChannel} />
+      )}
     </View>
   );
-}
+};
 
+// Request camera and audio permissions for Android
+const requestCameraAndAudioPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.requestMultiple([
+      PermissionsAndroid.PERMISSIONS.CAMERA,
+      PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+    ]);
+    if (
+      granted['android.permission.CAMERA'] === PermissionsAndroid.RESULTS.GRANTED &&
+      granted['android.permission.RECORD_AUDIO'] === PermissionsAndroid.RESULTS.GRANTED
+    ) {
+      console.log('You can use the camera and mic');
+    } else {
+      console.log('Permission denied');
+    }
+  } catch (err) {
+    console.warn(err);
+  }
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  videoContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  localVideo: {
+    width: 100,
+    height: 150,
+  },
+  remoteVideo: {
+    width: 300,
+    height: 450,
+  },
+});
+
+export default LiveScreen;

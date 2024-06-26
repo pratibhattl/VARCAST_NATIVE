@@ -68,7 +68,6 @@ const SongPlayy = props => {
   const [songIndex, setSongIndex] = useState(0);
   //   const progress = useProgress();
   const [selectedData, setSelectedData] = useState({});
-  console.log('Selected Data', selectedData);
 
   const isFocused = useIsFocused();
   const {position, duration} = useProgress(0);
@@ -165,7 +164,7 @@ const SongPlayy = props => {
 
     apiCall('podcast/like', 'POST', payload, token)
       .then(response => {
-        fetchCommentData();
+        fetchPodcastDetails();
         if (response.message === 'Liked') {
           setLikeStatus(true);
           HelperFunctions.showToastMsg('Podcast liked');

@@ -76,8 +76,8 @@ const CustomHeader = props => {
             ? 'Save'
             : props.Publish
             ? 'Publish'
-            : props.Noti
-            ? 'Read All'
+            // : props.Noti
+            // ? 'Read All'
             : '      '}
         </Text>
       )}

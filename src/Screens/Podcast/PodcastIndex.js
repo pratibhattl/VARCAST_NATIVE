@@ -161,14 +161,12 @@ const PodcastIndex = () => {
                 style={{
                   height: 35,
                   width: 70,
-                  // borderRadius: 5,
                   alignItems: 'center',
-                  // justifyContent: 'center',
                   flexDirection: 'row',
                   marginVertical: -10,
                 }}></View>
-              <ClockCircleIcon Width={18} Height={18} />
-              <Text
+              {/* <ClockCircleIcon Width={18} Height={18} /> */}
+              {/* <Text
                 style={{
                   fontFamily: Theme.FontFamily.normal,
                   color: '#fff',
@@ -177,7 +175,7 @@ const PodcastIndex = () => {
                   marginVertical: -21,
                 }}>
                 {podcastData?.duration}
-              </Text>
+              </Text> */}
             </View>
           </View>
         </View>
@@ -324,7 +322,7 @@ const PodcastIndex = () => {
                       {item.title}
                     </Text>
 
-                    <Text
+                    {/* <Text
                       style={{
                         color: 'rgba(255, 255, 255, 0.54)',
                         fontSize: 14,
@@ -332,7 +330,7 @@ const PodcastIndex = () => {
                         marginLeft: 5,
                       }}>
                       Duration: 23 mins
-                    </Text>
+                    </Text> */}
                   </View>
                 </BlurView>
               </View>

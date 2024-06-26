@@ -337,7 +337,6 @@ const VideoLive = props => {
         },
       })
       .then(response => {
-        console.log('RESPONSE', response?.data?.data);
         if (response?.data.status === true) {
           // Extract and map comments from each live item
           const mappedData =
@@ -345,8 +344,8 @@ const VideoLive = props => {
             response?.data?.data?.latestComments?.length > 0 &&
             response?.data?.data?.latestComments;
           const like = response?.data?.data?.isLiked == true ? true : false;
-          setSelectedDa;
-          ta(response?.data?.data);
+          
+          setSelectedData(response?.data?.data);
           setLikeStatus(like);
           setMapcomment(mappedData);
         } else {
@@ -374,7 +373,6 @@ const VideoLive = props => {
     const payload = {
       videoId: videoId,
     };
-    console.log('PayLoad', payload);
 
     apiCall('videos/like', 'POST', payload, token)
       .then(response => {

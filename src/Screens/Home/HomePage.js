@@ -781,14 +781,14 @@ const HomePage = props => {
                       }}>
                       {item.title}
                     </Text>
-                    <Text
+                    {/* <Text
                       style={{
                         color: '#fff',
                         fontSize: 14,
                         fontFamily: 'Arial', // Use your desired font family
                       }}>
                       Views: {item.views}
-                    </Text>
+                    </Text> */}
                   </View>
                 </Pressable>
               );
