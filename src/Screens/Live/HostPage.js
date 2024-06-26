@@ -25,7 +25,7 @@ export default function HostPage(props) {
 
                 config={{
                     ...HOST_DEFAULT_CONFIG,
-                    onStartLiveButtonPressed: () => { console.log('########HostPage onStartLiveButtonPressed'); },
+                    onStartLiveButtonPressed: (e) => { console.log('########HostPage onStartLiveButtonPressed',e); },
                     onLiveStreamingEnded: () => {
                         console.log('########HostPage onLiveStreamingEnded');
                     },

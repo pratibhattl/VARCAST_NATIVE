@@ -790,7 +790,7 @@ const PublicationIndex = props => {
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Pressable
+            {/* <Pressable
               onPress={() => setOption('Edit')}
               style={{
                 height: 54,
@@ -806,7 +806,7 @@ const PublicationIndex = props => {
                 borderColor: '#fff',
               }}>
               <LiveEditIcon Color={option == 'Edit' ? '#000' : '#fff'} />
-            </Pressable>
+            </Pressable> */}
           </Pressable>
 
           <Pressable
@@ -848,12 +848,12 @@ const PublicationIndex = props => {
               height: 64,
               width: 64,
               borderRadius: 64,
-              borderWidth: option == 'Refress' ? 1.5 : 0,
-              borderColor: '#fff',
+              // borderWidth: option == 'Refress' ? 1.5 : 0,
+              // borderColor: '#fff',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
-            <Pressable
+            {/* <Pressable
               onPress={() => {
                 setOption('Refress');
                 NavigationService.navigate('PodcastLive', {host: true});
@@ -872,7 +872,7 @@ const PublicationIndex = props => {
                 borderColor: '#fff',
               }}>
               <RefressIcon Color={option == 'Refress' ? '#000' : '#fff'} />
-            </Pressable>
+            </Pressable> */}
           </Pressable>
         </Pressable>
       ) : null}

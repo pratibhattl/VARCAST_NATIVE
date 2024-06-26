@@ -114,6 +114,7 @@ const PopularEpisode = () => {
           // ListFooterComponent={ListEndLoader}
           initialNumToRender={15}
           renderItem={({item}) => {
+
             const isStaticImage = item.image?.endsWith('.mp4');
             const source = isStaticImage
               ? staticImage
@@ -173,7 +174,7 @@ const PopularEpisode = () => {
                       {item.title}
                     </Text>
 
-                    <Text
+                    {/* <Text
                       style={{
                         color: '#fff',
                         fontSize: 14,
@@ -182,7 +183,7 @@ const PopularEpisode = () => {
                         marginLeft: 5,
                       }}>
                       Views: {item.views}
-                    </Text>
+                    </Text> */}
                   </BlurView>
                 </View>
               </Pressable>
