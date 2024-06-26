@@ -28,6 +28,7 @@ const SearchIndex = props => {
   const token = useSelector(state => state.authData.token);
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const staticImage = require('../../assets/images/image96.png');
+  const {t} = useTranslation();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredData, setFilteredData] = useState([]);
@@ -37,18 +38,27 @@ const SearchIndex = props => {
   const [initialLoading, setInitialLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [page, setPage] = useState(0);
+  const [previousEndpoint, setPreviousEndpoint] = useState('');
 
-  const fetchData = async () => {
+  
+  
+  const fetchData = async (page) => {
+
+
     let endpoint = '';
+
     switch (cat) {
       case 0: // Live
         endpoint = `lives/list?take=15&page=${page}`;
+        setPreviousEndpoint(0)
         break;
       case 1: // Podcast
         endpoint = `podcast/list?take=15&page=${page}`;
+          setPreviousEndpoint(1)
         break;
       case 2: // Video
         endpoint = `videos/list?take=15&page=${page}`;
+          setPreviousEndpoint(2)
         break;
       default:
         endpoint = '';
@@ -60,7 +70,7 @@ const SearchIndex = props => {
       try {
         const response = await apiCall(endpoint, 'GET', {}, token);
         if (response && response.data && response.data.listData) {
-          let newData = [...data, ...response.data.listData];
+          let newData = [...data,...response.data.listData];
           if (endpoint === `videos/list?take=15&page=${page}`) {
             // Filter the data to include only items with '.mp4' in their image URL
             newData = newData
@@ -69,10 +79,17 @@ const SearchIndex = props => {
                 ...item,
                 isVideo: true,
               }));
+              setFilteredData(newData);
           }
+          if (page ===0) {
+            setFilteredData(response.data.listData);
+          } else {
+            setFilteredData(prev => [...prev, ...response.data.listData]);
+          }
+  
           setData(newData);
-          setFilteredData(newData);
           setHasMore(response?.data?.isNext);
+          setPreviousEndpoint(endpoint); // Update the previous endpoint
           console.log('Data received:', newData);
         }
       } catch (error) {
@@ -88,23 +105,25 @@ const SearchIndex = props => {
     if (!loadingState && !hasMore) return null;
 
     if (!loadingState && hasMore) {
-      setPage(prevPage => prevPage + 1);
+      setPage(prevPage=>prevPage+1)
+      fetchData(page+1)
     }
   }, [loadingState, hasMore]);
 
-  const {t} = useTranslation();
+
 
   const handleSearch = query => {
+    console.log('Search Query:', query);
     setSearchQuery(query);
 
     if (data && Array.isArray(data)) {
       if (query === '') {
-        setFilteredData(data);
+      setFilteredData(prev=>prev)
       } else {
         const filtered = data.filter(item =>
-          item.title.toLowerCase().includes(query.toLowerCase()),
+          item?.title?.toLowerCase().includes(query.toLowerCase()),
         );
-
+        console.log('Filtered Data:', filtered);
         setFilteredData(filtered);
       }
     }
@@ -121,8 +140,14 @@ const SearchIndex = props => {
   };
 
   useEffect(() => {
-    fetchData(); // Call fetchData inside the useEffect callback
-  }, [cat, token, page]);
+
+if(previousEndpoint !== cat){
+  setPage(0);
+  fetchData(0)
+}
+  }, [cat]);
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -316,7 +341,7 @@ const SearchIndex = props => {
           </View>
         )}
 
-        {!loadingState && hasMore ? (
+        {!searchQuery && !loadingState && hasMore ? (
           <Text
             onPress={fetchNextPage}
             style={{

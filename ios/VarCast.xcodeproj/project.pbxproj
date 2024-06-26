@@ -11,7 +11,7 @@
 		13B07FBC1A68108700A75B9A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.mm */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		13B07FC11A68108700A75B9A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
-		2C1889332AF3BED900DD5771 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C1889322AF3BED800DD5771 /* GoogleService-Info.plist */; };
+		2C7E7BD72C2AE8C400BA879A /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2C7E7BD62C2AE8C400BA879A /* GoogleService-Info.plist */; };
 		46389236930A48EC0267ABF8 /* Pods_VarCast_VarCastTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F400D2964A512E08B1559E2C /* Pods_VarCast_VarCastTests.framework */; };
 		5A3F5E91F13643F3A195D002 /* WorkSans-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 129F380881ED43D88161DA00 /* WorkSans-Medium.ttf */; };
 		5D5AF7CD0CAA49F0B4C36101 /* WorkSans-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C0212FF15A7E4EDC86D5A1C6 /* WorkSans-Light.ttf */; };
@@ -45,7 +45,7 @@
 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = VarCast/main.m; sourceTree = "<group>"; };
 		1887EAD874AF2F18F08656CC /* Pods-VarCast.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VarCast.release.xcconfig"; path = "Target Support Files/Pods-VarCast/Pods-VarCast.release.xcconfig"; sourceTree = "<group>"; };
 		19214F1740B94876A29E2DCE /* WorkSans-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "WorkSans-SemiBold.ttf"; path = "../src/assets/fonts/WorkSans-SemiBold.ttf"; sourceTree = "<group>"; };
-		2C1889322AF3BED800DD5771 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		2C7E7BD62C2AE8C400BA879A /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		36B07230DAE940C8BD2C3B64 /* WorkSans-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "WorkSans-Regular.ttf"; path = "../src/assets/fonts/WorkSans-Regular.ttf"; sourceTree = "<group>"; };
 		5648CF98A45DE83DA0984396 /* Pods-VarCast-VarCastTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VarCast-VarCastTests.debug.xcconfig"; path = "Target Support Files/Pods-VarCast-VarCastTests/Pods-VarCast-VarCastTests.debug.xcconfig"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = VarCast/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -98,6 +98,7 @@
 		13B07FAE1A68108700A75B9A /* VarCast */ = {
 			isa = PBXGroup;
 			children = (
+				2C7E7BD62C2AE8C400BA879A /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -128,7 +129,6 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				2C1889322AF3BED800DD5771 /* GoogleService-Info.plist */,
 				13B07FAE1A68108700A75B9A /* VarCast */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* VarCastTests */,
@@ -247,6 +247,9 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			packageReferences = (
+				2C7E7BD82C2AF33B00BA879A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -270,8 +273,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
+				2C7E7BD72C2AE8C400BA879A /* GoogleService-Info.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
-				2C1889332AF3BED900DD5771 /* GoogleService-Info.plist in Resources */,
 				DF7A49A28253447193C0FDA5 /* WorkSans-Bold.ttf in Resources */,
 				5D5AF7CD0CAA49F0B4C36101 /* WorkSans-Light.ttf in Resources */,
 				5A3F5E91F13643F3A195D002 /* WorkSans-Medium.ttf in Resources */,
@@ -787,6 +790,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2C7E7BD82C2AF33B00BA879A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 10.28.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }
