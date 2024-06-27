@@ -66,44 +66,8 @@ const SearchIndex = props => {
       try {
         const response = await apiCall(endpoint, 'GET', {}, token);
 
-        let newData = [...data, ...response.data.listData];;
-
-        // if (!data.length) {
-        //   newData = response.data.listData;
-        // } else {
-         
-
-        //   // const unique = newData.map(
-        //   //   (item, index) => newData.indexOf(item) === index,
-        //   // );
-
-        //   // console.log('unique', unique.length);
-        //   // newData=unique
-
-        //   const unique = [...new Set(newData)];
-        //   console.log('unique', unique.length);
-        //   newData = unique;
-
-        //   // Create a map to track unique items based on a specific property
-        //   //     const uniqueMap = new Map();
-        //   //     newData.forEach(item => {
-        //   //         uniqueMap.set(item.id, item); // Assuming items have a unique `id` property
-        //   //     });
-
-        //   //     newData = Array.from(uniqueMap.values());
-        //   // console.log('newData', newData.length);
-
-        //   // const unique = data.map(item => {
-        //   //   const responseData = response.data.listData.filter(
-        //   //     ele => ele._id !== item._id,
-        //   //   );
-        //   //   console.log('ccc', responseData.length);
-        //   //   return [...responseData,...unique];
-        //   // });
-
-        //   // console.log('unique', unique.length);
-        //   // newData = [unique];
-        // }
+        let newData = [...data, ...response.data.listData];
+       
 
         if (endpoint === `videos/list?take=15&page=${page}`) {
           // Filter the data to include only items with '.mp4' in their image URL
@@ -133,8 +97,6 @@ const SearchIndex = props => {
     }
   };
 
-  console.log('totalData', data.length);
-
   const fetchNextPage = useCallback(() => {
     if (!loadingState && !hasMore) return null;
 
@@ -145,26 +107,27 @@ const SearchIndex = props => {
   }, [loadingState, hasMore]);
 
   const handleSearch = query => {
-    console.log('Search Query:', query);
     setSearchQuery(query);
-    console.log('filter', filteredData.length);
-    console.log('data', data.length);
 
-    // if (data && Array.isArray(data)) {
     if (query === '') {
       fetchData(0);
-      // setFilteredData(prev =>{ console.log('prev',prev.length)
-      //   return [...prev]
-      // });
     } else {
-      const filtered = data.filter(item =>
+      const uniqueSet = new Set();
+      const uniqueArr = [];
+
+      for (let ele of data) {
+        if (!uniqueSet.has(JSON.stringify(ele))) {
+          uniqueSet.add(JSON.stringify(ele));
+          uniqueArr.push(ele);
+        }
+      }
+
+      const filtered = uniqueArr.filter(item =>
         item?.title?.toLowerCase().includes(query.toLowerCase()),
       );
-      console.log('filterdData', filtered.length);
       setFilteredData(filtered);
     }
   };
-  // };
 
   const formatDate = timestamp => {
     const date = new Date(timestamp);
@@ -181,15 +144,6 @@ const SearchIndex = props => {
       setPage(0);
       fetchData(0);
     }
-  }, [cat]);
-
-
-  useEffect(() => {
-    const processedData = data.map(item =>
-     
-    new Set(item._id),
-    );
-    setData(processedData);
   }, [cat]);
 
   return (

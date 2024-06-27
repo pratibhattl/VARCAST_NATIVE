@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -13,41 +13,39 @@ import {
   Share,
   Alert,
 } from 'react-native';
-import { Icon } from 'react-native-basic-elements';
-import { useRoute } from '@react-navigation/native';
+import {Icon} from 'react-native-basic-elements';
+import {useRoute} from '@react-navigation/native';
 import NavigationService from '../../Services/Navigation';
 import HomeHeader from '../../Components/Header/HomeHeader';
-import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 import Theme from '../../Constants/Theme';
-import { Image } from 'react-native';
+import {Image} from 'react-native';
 import AudioReels from '../Entertainment/AudioReels';
 import VideoReels from '../Entertainment/VideoReels';
-import { useSelector, useDispatch } from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import ShareIcon from '../../assets/icons/ShareIcon';
 import AudioReelsIcon from '../../assets/icons/AudioReelsIcon';
 import VideoReelsIcon from '../../assets/icons/VideoReelsIcon';
-import { followUser } from '../../Store/Reducers/CommonReducer';
-import { t } from 'i18next';
-const { width, height } = Dimensions.get('screen');
-import { useTranslation } from 'react-i18next';
+import {followUser} from '../../Store/Reducers/CommonReducer';
+import {t} from 'i18next';
+const {width, height} = Dimensions.get('screen');
+import {useTranslation} from 'react-i18next';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import ChatIcon from '../../assets/icons/ChatIcon';
-import { apiCall } from '../../Services/Service';
+import {apiCall} from '../../Services/Service';
 
 const UserDetails = props => {
   const route = useRoute();
   const token = useSelector(state => state.authData.token);
-  const { userData } = route.params;
+  const {userData} = route.params;
 
   const Tab = createMaterialTopTabNavigator();
   const [loadingState, setLoadingState] = useState(false);
   const [userDetails, setUserDetails] = useState();
-  const { following } = useSelector(state => state.commonData);
+  const {following} = useSelector(state => state.commonData);
   const dispatch = useDispatch();
 
-  const handleFollow = () => {
-    dispatch(followUser());
-  };
+  
 
   const handleShare = async () => {
     try {
@@ -75,10 +73,11 @@ const UserDetails = props => {
       const data = await apiCall(
         'user-profile',
         'POST',
-        { userId: userData?._id },
+        {userId: userData?._id},
         token,
       );
-      setUserDetails(data.data);
+
+          setUserDetails(data.data);
     } catch (error) {
       console.error('ERROR WHILE FETCHING DATA :', error);
     } finally {
@@ -91,23 +90,24 @@ const UserDetails = props => {
   }, [userData?._id]);
 
 
+  console.log('userDetails',userDetails)
+ 
   const followFunction = async () => {
-    console.log("Function caliing------");
+  
     try {
       const data = await apiCall(
         'follow/post',
         'POST',
-        { userId: userData?._id },
+        {userId: userData?._id},
         token,
       );
-      // setUserDetails(data.data);
+      dispatch(followUser());
     } catch (error) {
       console.error('ERROR WHILE FETCHING DATA :', error);
     } finally {
       setLoadingState(false);
     }
   };
-
 
   if (loadingState) {
     return <Text>Fetching user details...</Text>;
@@ -120,7 +120,7 @@ const UserDetails = props => {
         barStyle={'light-content'}
         translucent={true}
       />
-      <ScrollView contentContainerStyle={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{flex: 1}}>
         <ImageBackground
           source={require('../../assets/images/Maskgroup.png')}
           style={{
@@ -130,8 +130,8 @@ const UserDetails = props => {
           }}
           resizeMode="cover">
           <CustomHeader
-            style={{ backgroundColor: 'transparent', paddingTop: 60 }}
-            headerStyle={{ paddingTop: 0 }}
+            style={{backgroundColor: 'transparent', paddingTop: 60}}
+            headerStyle={{paddingTop: 0}}
             onLeftIconPress={() => NavigationService.back()}
             showLeftIcon={props.showLeftIcon}
           />
@@ -140,7 +140,7 @@ const UserDetails = props => {
               padding: 25,
             }}>
             <Image
-              source={{ uri: userDetails?.full_path_image }}
+              source={{uri: userDetails?.full_path_image}}
               style={{
                 height: 75,
                 width: 75,
@@ -282,9 +282,8 @@ const UserDetails = props => {
                 justifyContent: 'space-between',
                 marginVertical: 5,
               }}>
-                <Pressable onPress={() => followFunction()}>
               <TouchableOpacity
-                onPress={handleFollow}
+                onPress={() => followFunction()}
                 style={{
                   height: 45,
                   width: 165,
@@ -294,21 +293,19 @@ const UserDetails = props => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
+                {!(userDetails?.is_following ) && <Icon name="plus" type="Entypo" size={22} color={'#000'} />}
 
-                <Icon name="plus" type="Entypo" size={22} color={'#000'} />
-                
-                  <Text
-                    style={{
-                      color: '#000',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.normal,
-                      marginTop: 0,
-                      marginHorizontal: 5,
-                    }}>
-                    {following ? t('Unfollow') : t('Follow')}
-                  </Text>
+                <Text
+                  style={{
+                    color: '#000',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.normal,
+                    marginTop: 0,
+                    marginHorizontal: 5,
+                  }}>
+                  {(userDetails?.is_following ) ? t('Unfollow') : t('Follow')}
+                </Text>
               </TouchableOpacity>
-              </Pressable>
 
               <TouchableOpacity
                 onPress={handleShare}
@@ -393,7 +390,7 @@ const UserDetails = props => {
           <Tab.Screen
             name="AudioReels"
             options={{
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <Pressable>
                   <VideoReelsIcon Color={color} />
                   <Text
@@ -414,7 +411,7 @@ const UserDetails = props => {
           <Tab.Screen
             name="VideoReels"
             options={{
-              tabBarIcon: ({ color }) => (
+              tabBarIcon: ({color}) => (
                 <Pressable>
                   <AudioReelsIcon Color={color} />
                   <Text
