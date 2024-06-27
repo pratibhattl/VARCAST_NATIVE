@@ -43,12 +43,20 @@ const PopularEpisode = () => {
       const endpoint = `podcast/list?take=15&page=${page}`;
       const response = await apiCall(endpoint, 'GET', {}, token);
 
+      let newData = [...popularEpisodes, ...response.data.listData];
+
       if (response?.status === true) {
-        setPopularEpisodes(prevEpisodes => [
-          ...prevEpisodes,
-          ...response?.data?.listData,
-        ]);
-        // setPaginatedDataCount(response?.data?.countData);
+        const uniqueSet = new Set();
+        const uniqueArr = [];
+
+        for (let ele of newData) {
+          if (!uniqueSet.has(JSON.stringify(ele))) {
+            uniqueSet.add(JSON.stringify(ele));
+            uniqueArr.push(ele);
+          }
+        }
+
+        setPopularEpisodes(uniqueArr);
         setHasMore(response?.data?.isNext);
       }
     } catch (error) {
@@ -65,16 +73,6 @@ const PopularEpisode = () => {
       setPage(prevPage => prevPage + 1);
     }
   }, [loadingState, hasMore]);
-
-  // const ListEndLoader = () => {
-  //   if (!loadingState || !hasMore) return null;
-
-  //   return (
-  //     <View style={{paddingVertical: 20}}>
-  //       <ActivityIndicator size="large" />
-  //     </View>
-  //   );
-  // };
 
   useEffect(() => {
     fetchEpisodeData();
@@ -108,13 +106,14 @@ const PopularEpisode = () => {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator
           numColumns={2}
-          contentContainerStyle={{marginHorizontal: 20}}
+          columnWrapperStyle={{
+            margin: 10,
+          }}
           // onEndReached={fetchNextPage}
           // onEndReachedThreshold={0.5}
           // ListFooterComponent={ListEndLoader}
           initialNumToRender={15}
           renderItem={({item}) => {
-
             const isStaticImage = item.image?.endsWith('.mp4');
             const source = isStaticImage
               ? staticImage
@@ -132,55 +131,51 @@ const PopularEpisode = () => {
                   }
                 }}
                 style={{
-                  width: '50%',
+                  width: '49%',
                   height: 165,
                   borderRadius: 15,
-                  marginRight: 10,
-                  marginBottom: 20,
+                  marginHorizontal: 4,
+                  // marginVertical:5,
                   overflow: 'hidden',
-                  backgroundColor: 'transparent',
+                  backgroundColor: 'black',
+                  position: 'relative',
                 }}>
-                <View style={{position: 'relative'}}>
-                  <Image
-                    source={source}
+                <Image
+                  source={source}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                  }}
+                  resizeMode="cover"
+                />
+                <BlurView
+                  style={{
+                    width: '100%',
+                    height: '40%',
+                    alignSelf: 'center',
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: 10,
+                  }}
+                  blurType="light"
+                  overlayColor="transparent"
+                  blurAmount={20}
+                  blurRadius={10}
+                  reducedTransparencyFallbackColor="white">
+                  <Text
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: 15,
-                    }}
-                    resizeMode="cover"
-                  />
-                  <BlurView
-                    style={{
-                      width: '100%',
-                      height: '40%',
-                      alignSelf: 'center',
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      padding: 10,
-                      //  borderRadius:15,
-                    }}
-                    blurType="light"
-                    overlayColor="transparent"
-                    blurAmount={20}
-                    blurRadius={10}
-                    reducedTransparencyFallbackColor="white">
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.normal,
-                        marginTop: 2,
-                        marginLeft: 5,
-                        textWrap: 'wrap',
-                        // textAlign: 'auto',
-                      }}>
-                      {item.title}
-                    </Text>
+                      color: '#fff',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.normal,
+                      marginTop: 2,
+                      // marginLeft: 10,
+                    }}>
+                    {item.title}
+                  </Text>
 
-                    {/* <Text
+                  {/* <Text
                       style={{
                         color: '#fff',
                         fontSize: 14,
@@ -190,8 +185,7 @@ const PopularEpisode = () => {
                       }}>
                       Views: {item.views}
                     </Text> */}
-                  </BlurView>
-                </View>
+                </BlurView>
               </Pressable>
             );
           }}

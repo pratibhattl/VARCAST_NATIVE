@@ -16,25 +16,33 @@ const AudioReels = ({userData}) => {
       userData.latest_podcasts &&
       userData.latest_podcasts.length > 0
     ) {
-      const userPodcasts = userData.latest_podcasts.map(podcast => ({
-        img: {uri: `${imageUrl}${podcast.image}`},
-        id: podcast._id,
-        title: podcast.title,
-        duration: podcast.duration,
-      }));
+      const userPodcasts = userData.latest_podcasts.map(podcast => {
+        if (podcast.image.includes('.mp4')) {
+          return {
+            img: require('../../assets/images/image96.png'),
+            id: podcast._id,
+            title: podcast.title,
+            duration: podcast.duration,
+          };
+        } else {
+          return {
+            img: {uri: `${imageUrl}${podcast.image}`},
+            id: podcast._id,
+            title: podcast.title,
+            duration: podcast.duration,
+          };
+        }
+      });
 
       setPodcastImages(userPodcasts);
-      console.log('User Podcasts:', userPodcasts);
     }
   }, [userData]);
-
-  console.log('Podcasts:', podcastImages);
 
   const handlePodcastPress = podcastId => {
     const clickedPodcast = userData.latest_podcasts.find(
       podcast => podcast._id === podcastId,
     );
-   
+
     if (clickedPodcast) {
       NavigationService.navigate('PodcastIndex', {podcastData: clickedPodcast});
     }
