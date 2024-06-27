@@ -10,7 +10,7 @@ const AudioReels = ({userData}) => {
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
 
   useEffect(() => {
-    console.log('Users:', userData);
+   
     if (
       userData &&
       userData.latest_podcasts &&

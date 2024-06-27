@@ -122,7 +122,13 @@ const PopularEpisode = () => {
               <Pressable
                 key={item._id}
                 onPress={() => {
-                  NavigationService.navigate('PodcastLive', item);
+                  if (isStaticImage) {
+                    NavigationService.navigate('PodcastVideo', {
+                      id: item?._id,
+                    });
+                  } else {
+                    NavigationService.navigate('PodcastLive',item);
+                  }
                 }}
                 style={{
                   width: '49%',

@@ -274,9 +274,25 @@ const SearchIndex = props => {
                         id: item?._id,
                       });
                     } else if (cat === 1) {
-                      NavigationService.navigate('PodcastLive', item);
+                      if (isStaticImage) {
+                        NavigationService.navigate('PodcastVideo', {
+                          id: item?._id,
+                        });
+                      } else {
+                        NavigationService.navigate('PodcastLive',item);
+                      }
                     } else if (cat === 2) {
-                      NavigationService.navigate('VideoLive', {id: item?._id});
+                      if (isStaticImage) {
+                        NavigationService.navigate('VideoLive', {
+                          id: item?._id,
+                        });
+                      } else {
+                        NavigationService.navigate('PublicationAudiotLive', {
+                          ...item,
+                          audio: item?.audioUrl,
+                        });
+                      }
+                      
                     }
                   }}
                   style={{

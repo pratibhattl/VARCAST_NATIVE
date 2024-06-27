@@ -29,6 +29,7 @@ import Followers from '../Screens/Profile/Followers';
 import ChatIndex from '../Screens/Chat/ChatIndex';
 import ChatList from '../Screens/Chat/ChatList';
 import PodcastLive from '../Screens/Podcast/PodcastLive';
+import PublicationAudiotLive from '../Screens/Video/PublicationAudiotLive';
 import VideoLive from '../Screens/Video/VideoLive';
 import SongPlayy from '../Screens/Podcast/SongPlayy';
 import Recharge from '../Screens/DrawerScreens/Recharge';
@@ -51,6 +52,7 @@ import LiveScreen from '../Screens/Video/LiveScreen';
 import LiveStreamHome from '../Screens/Live/LiveStreamHome';
 import HostPage from '../Screens/Live/HostPage';
 import AudiencePage from '../Screens/Live/AudiencePage';
+import PodcastVideo from '../Screens/Podcast/PodcastVideo';
 
 const Stack = createNativeStackNavigator();
 
@@ -244,9 +246,19 @@ function MainNavigation() {
         component={PodcastLive}
       />
       <Stack.Screen
+        name="PublicationAudiotLive"
+        options={{headerShown: false}}
+        component={PublicationAudiotLive}
+      />
+      <Stack.Screen
         name="LiveDetails"
         options={{headerShown: false}}
         component={LiveDetails}
+      />
+       <Stack.Screen
+        name="PodcastVideo"
+        options={{headerShown: false}}
+        component={PodcastVideo}
       />
       <Stack.Screen
         name="OwnPodcastLive"

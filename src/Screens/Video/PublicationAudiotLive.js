@@ -75,7 +75,7 @@ import {
 
 const {width, height} = Dimensions.get('screen');
 
-const PodcastLive = (props) => {
+const PublicationAudiotLive = () => {
   const route = useRoute();
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
@@ -94,12 +94,19 @@ const PodcastLive = (props) => {
   const [selectedData, setSelectedData] = useState({});
   const [ModalState, setModalState] = useState(false);
   const [GiftModalState, setGiftModalState] = useState(false);
-  const [isLiked, setIsLiked] = useState(false); // State to track if the podcast is liked
   const [GiftData, setGiftData] = useState();
-  const [newComment, setNewComment] = useState([]);
   const [playlists, setPlaylists] = useState([]);
-  const [isPlayerReady, setIsPlayerReady] = useState(true);
   const [playingLoader, setPlayingLoader] = useState(true);
+
+  const agoraEngineRef = useRef(); // Agora engine instance
+  const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
+  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
+  const [messagee, setMessagee] = useState(''); // Message to the user
+  const [totalCoins, setTotalCoins] = useState();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const playbackState = usePlaybackState();
+  const scrollX = useRef(new Animated.Value(0)).current;
 
   let current = format(position);
   let max = format(duration);
@@ -171,9 +178,9 @@ const PodcastLive = (props) => {
 
   const fetchCommentData = async () => {
     const formData = new FormData();
-    formData.append('podcastId', id);
+    formData.append('videoId', id);
     axios
-      .post(`${baseUrl}podcast/details`, formData, {
+      .post(`${baseUrl}videos/details`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
@@ -193,7 +200,7 @@ const PodcastLive = (props) => {
         }
       })
       .catch(error => {
-        console.error('Error fetching Podcast comments:', error);
+        console.error('Error fetching comments1:', error);
       });
   };
 
@@ -202,19 +209,6 @@ const PodcastLive = (props) => {
       fetchCommentData();
     }
   }, [isFocused]);
-
-  const [messages, setMessages] = useState('');
-  const agoraEngineRef = useRef(); // Agora engine instance
-  const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
-  const [isHost, setIsHos] = useState(true); // Client role
-  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
-  const [messagee, setMessagee] = useState(''); // Message to the user
-  const [podcasts, setPodcasts] = useState([]);
-  const [totalCoins, setTotalCoins] = useState();
-  const [modalVisible, setModalVisible] = useState(false);
-
-  const playbackState = usePlaybackState();
-  const scrollX = useRef(new Animated.Value(0)).current;
 
   function showMessage(msg) {
     setMessagee(msg);
@@ -324,43 +318,43 @@ const PodcastLive = (props) => {
 
   // Function to handle the press event of the heart icon
   const handleLikePress = () => {
-    const podcastId = id;
-    if (!podcastId) {
-      console.error('Podcast ID is missing');
+    const videoId = id;
+    if (!videoId) {
+      console.error('video ID is missing');
       return;
     }
     const payload = {
-      podcastId: podcastId,
+      videoId: videoId,
     };
 
-    apiCall('podcast/like', 'POST', payload, token)
+    apiCall('videos/like', 'POST', payload, token)
       .then(response => {
         if (response.message === 'Liked') {
           setLikeStatus(true);
-          HelperFunctions.showToastMsg('Podcast liked');
+          HelperFunctions.showToastMsg('Liked');
         } else {
           setLikeStatus(false);
-          HelperFunctions.showToastMsg('Podcast Disliked');
+          HelperFunctions.showToastMsg('Disliked');
         }
       })
       .catch(error => {
-        console.error('Error while liking the podcast:', error);
+        console.error('Error while liking :', error);
       });
   };
 
   // Function to handle the Comment
   const sendComment = () => {
-    const podcastId = id;
-    if (!podcastId) {
-      console.error('Podcast ID is missing');
+    const videoId = id;
+    if (!videoId) {
+      console.error('video ID is missing');
       return;
     }
     const payload = {
-      podcastId: podcastId,
+      videoId: videoId,
       comment: comment,
     };
 
-    apiCall('podcast/comment', 'POST', payload, token)
+    apiCall('videos/comment', 'POST', payload, token)
       .then(res => {
         if (res) {
           Keyboard.dismiss();
@@ -1157,7 +1151,7 @@ const PodcastLive = (props) => {
   );
 };
 
-export default PodcastLive;
+export default PublicationAudiotLive;
 const styles = StyleSheet.create({
   container: {
     flex: 1,

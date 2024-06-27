@@ -110,15 +110,13 @@ const MostPlayed = () => {
                       id: item?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', {
+                    NavigationService.navigate('PublicationAudiotLive', {
                       ...item,
                       audio: item?.audioUrl,
                     });
                   }
                 }}
-                // onPress={() => {
-                //   NavigationService.navigate('VideoLive', {id: item?._id});
-                // }}
+              
                 style={{
                   width: '50%',
                   height: 165,
@@ -174,14 +172,14 @@ const MostPlayed = () => {
                     }}>
                     {item.title}
                   </Text>
-                  <Text
+                  {/* <Text
                     style={{
                       color: '#fff',
                       fontSize: 14,
-                      fontFamily: 'Arial', // Use your desired font family
+                      fontFamily: 'Arial', 
                     }}>
                     Views: {item.views}
-                  </Text>
+                  </Text> */}
                 </View>
               </Pressable>
             );
