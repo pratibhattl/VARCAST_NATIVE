@@ -110,15 +110,13 @@ const MostPlayed = () => {
                       id: item?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', {
+                    NavigationService.navigate('PublicationAudiotLive', {
                       ...item,
                       audio: item?.audioUrl,
                     });
                   }
                 }}
-                // onPress={() => {
-                //   NavigationService.navigate('VideoLive', {id: item?._id});
-                // }}
+              
                 style={{
                   width: '50%',
                   height: 165,

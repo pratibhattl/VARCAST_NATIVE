@@ -403,7 +403,6 @@ const VideoLive = props => {
       videoId: videoId,
       comment: comment,
     };
-    console.log('PayLoad', payload);
     apiCall('videos/comment', 'POST', payload, token)
       .then(res => {
         if (res) {

@@ -75,7 +75,7 @@ import {
 
 const {width, height} = Dimensions.get('screen');
 
-const PodcastLive = props => {
+const PodcastLive = (props) => {
   const route = useRoute();
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
@@ -216,11 +216,6 @@ const PodcastLive = props => {
   const playbackState = usePlaybackState();
   const scrollX = useRef(new Animated.Value(0)).current;
 
-  const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
-  const channelName = 'test';
-  // const token =
-  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
-  const uid = 0;
   function showMessage(msg) {
     setMessagee(msg);
   }
