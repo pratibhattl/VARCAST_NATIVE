@@ -307,7 +307,7 @@ const PodcastLive = (props) => {
       }
     }
 
-    if (playbackState.state == State.None) {
+    if (playbackState.state == State.Stopped || playbackState.state == State.None) {
       songsfunc();
     }
   };
@@ -426,6 +426,8 @@ const PodcastLive = (props) => {
       </ReactNativeModal>
     );
   };
+
+
 
   useEffect(() => {
     playbackService();
@@ -623,7 +625,7 @@ const PodcastLive = (props) => {
                   }
                 }}>
                 {playbackState.state == State.Paused ||
-                playbackState.state == State.None ? (
+                playbackState.state == State.Stopped ? (
                   <VideoPlayIcon Width={32} Height={32} />
                 ) : (
                   <PauseIcon />
