@@ -162,7 +162,6 @@ const Login = props => {
           }
         })
         .catch(error => {
-        
           HelperFunctions.showToastMsg(error?.message);
           setLoader(false);
         })
@@ -173,7 +172,6 @@ const Login = props => {
   };
 
   const storeToLocalAndRedux = userDataa => {
-
     setData('account', userDataa?.data);
     setData('token', userDataa?.auth_token);
     dispatch(setUserDetails(userDataa?.data));

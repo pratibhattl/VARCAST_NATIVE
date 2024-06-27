@@ -40,25 +40,21 @@ const SearchIndex = props => {
   const [page, setPage] = useState(0);
   const [previousEndpoint, setPreviousEndpoint] = useState('');
 
-  
-  
-  const fetchData = async (page) => {
-
-
+  const fetchData = async page => {
     let endpoint = '';
 
     switch (cat) {
       case 0: // Live
         endpoint = `lives/list?take=15&page=${page}`;
-        setPreviousEndpoint(0)
+        setPreviousEndpoint(0);
         break;
       case 1: // Podcast
         endpoint = `podcast/list?take=15&page=${page}`;
-          setPreviousEndpoint(1)
+        setPreviousEndpoint(1);
         break;
       case 2: // Video
         endpoint = `videos/list?take=15&page=${page}`;
-          setPreviousEndpoint(2)
+        setPreviousEndpoint(2);
         break;
       default:
         endpoint = '';
@@ -69,29 +65,29 @@ const SearchIndex = props => {
 
       try {
         const response = await apiCall(endpoint, 'GET', {}, token);
-        if (response && response.data && response.data.listData) {
-          let newData = [...data,...response.data.listData];
-          if (endpoint === `videos/list?take=15&page=${page}`) {
-            // Filter the data to include only items with '.mp4' in their image URL
-            newData = newData
-              .filter(item => item?.image?.includes('.mp4'))
-              .map(item => ({
-                ...item,
-                isVideo: true,
-              }));
-              setFilteredData(newData);
-          }
-          if (page ===0) {
-            setFilteredData(response.data.listData);
-          } else {
-            setFilteredData(prev => [...prev, ...response.data.listData]);
-          }
-  
-          setData(newData);
-          setHasMore(response?.data?.isNext);
-          setPreviousEndpoint(endpoint); // Update the previous endpoint
-          console.log('Data received:', newData);
+
+        let newData = [...data, ...response.data.listData];
+       
+
+        if (endpoint === `videos/list?take=15&page=${page}`) {
+          // Filter the data to include only items with '.mp4' in their image URL
+          const videoData = newData
+            .filter(item => item?.image?.includes('.mp4'))
+            .map(item => ({
+              ...item,
+              isVideo: true,
+            }));
+          setFilteredData(videoData);
         }
+
+        if (page === 0) {
+          setFilteredData(response.data.listData);
+        } else {
+          setFilteredData(prev => [...prev, ...response.data.listData]);
+        }
+
+        setData(newData);
+        setHasMore(response?.data?.isNext);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -105,27 +101,31 @@ const SearchIndex = props => {
     if (!loadingState && !hasMore) return null;
 
     if (!loadingState && hasMore) {
-      setPage(prevPage=>prevPage+1)
-      fetchData(page+1)
+      setPage(prevPage => prevPage + 1);
+      fetchData(page + 1);
     }
   }, [loadingState, hasMore]);
 
-
-
   const handleSearch = query => {
-    console.log('Search Query:', query);
     setSearchQuery(query);
 
-    if (data && Array.isArray(data)) {
-      if (query === '') {
-      setFilteredData(prev=>prev)
-      } else {
-        const filtered = data.filter(item =>
-          item?.title?.toLowerCase().includes(query.toLowerCase()),
-        );
-        console.log('Filtered Data:', filtered);
-        setFilteredData(filtered);
+    if (query === '') {
+      fetchData(0);
+    } else {
+      const uniqueSet = new Set();
+      const uniqueArr = [];
+
+      for (let ele of data) {
+        if (!uniqueSet.has(JSON.stringify(ele))) {
+          uniqueSet.add(JSON.stringify(ele));
+          uniqueArr.push(ele);
+        }
       }
+
+      const filtered = uniqueArr.filter(item =>
+        item?.title?.toLowerCase().includes(query.toLowerCase()),
+      );
+      setFilteredData(filtered);
     }
   };
 
@@ -140,14 +140,11 @@ const SearchIndex = props => {
   };
 
   useEffect(() => {
-
-if(previousEndpoint !== cat){
-  setPage(0);
-  fetchData(0)
-}
+    if (previousEndpoint !== cat) {
+      setPage(0);
+      fetchData(0);
+    }
   }, [cat]);
-
-
 
   return (
     <SafeAreaView style={styles.container}>
@@ -277,9 +274,25 @@ if(previousEndpoint !== cat){
                         id: item?._id,
                       });
                     } else if (cat === 1) {
-                      NavigationService.navigate('PodcastLive', item);
+                      if (isStaticImage) {
+                        NavigationService.navigate('PodcastVideo', {
+                          id: item?._id,
+                        });
+                      } else {
+                        NavigationService.navigate('PodcastLive',item);
+                      }
                     } else if (cat === 2) {
-                      NavigationService.navigate('VideoLive', {id: item?._id});
+                      if (isStaticImage) {
+                        NavigationService.navigate('VideoLive', {
+                          id: item?._id,
+                        });
+                      } else {
+                        NavigationService.navigate('PublicationAudiotLive', {
+                          ...item,
+                          audio: item?.audioUrl,
+                        });
+                      }
+                      
                     }
                   }}
                   style={{

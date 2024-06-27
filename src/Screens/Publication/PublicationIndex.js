@@ -156,16 +156,18 @@ const PublicationIndex = props => {
     // }
   };
 
-  const onGoDraft = item => {
+  const onPlayItem = (item) => {
     const isAudio = item?.image_type;
     if (publicationIndex == 1) {
       if (isAudio == 'image') {
-        NavigationService.navigate('PodcastLive', {
+        NavigationService.navigate('PublicationAudiotLive', {
           ...item,
           audio: item?.audioUrl,
         });
       } else {
-        NavigationService.navigate('VideoLive', { id: item._id });
+        NavigationService.navigate('VideoLive', {
+          id: item?._id,
+        })
       }
     }
 
@@ -519,16 +521,17 @@ const PublicationIndex = props => {
                       }}>
                       {index === 0 ? (
                         <CameraIcon />
-                      ) : (
+                      ) : index === 1 ? (
                         <PlayBackIcon Size={32} Color={'#fff'} />
-                      )}
+                      ) :
+                        <PlayBackIcon Size={32} Color={'#fff'} />}
                       <Text
                         style={{
                           color: '#fff',
                           fontFamily: Theme.FontFamily.normal,
                           marginTop: 5,
                         }}>
-                        {index === 0 ? 'Camera' : 'Published'}
+                        {index === 0 ? 'Camera' : index === 1 ? 'Published' : 'Draft'}
                       </Text>
                     </Pressable>
                   );
@@ -565,7 +568,7 @@ const PublicationIndex = props => {
                       }}>
                       <Pressable
                         onPress={() => {
-                          onGoDraft(item);
+                          onPlayItem(item);
                         }}>
                         <View style={{ position: 'relative' }}>
                           <Image

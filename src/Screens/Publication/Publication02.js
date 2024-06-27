@@ -391,11 +391,12 @@ const [image, setImage] = useState('');
   }
 
   const goBackFunction=()=>{
-    if(selectedata?.image){
-      NavigationService.back()
-    }else{
-    NavigationService.navigate('PublicationIndex',{replace: true})
-    }
+    // if(selectedata?.image){
+    //   NavigationService.back()
+    // }else{
+    // NavigationService.navigate('PublicationIndex')
+    // }
+    NavigationService.back()
   }
 
   return (

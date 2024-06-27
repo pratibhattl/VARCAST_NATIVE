@@ -127,8 +127,6 @@ const HomePage = props => {
   useEffect(() => {
     if (token) {
       fetchHomePageData();
-      fetchPopularEpisodes();
-      fetchOurPicksData();
     }
   }, [token]);
   return (
@@ -444,7 +442,10 @@ const HomePage = props => {
                       id: item?.video?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', {item:item?.video});
+                    NavigationService.navigate('PublicationAudiotLive', {
+                      ...item?.video,
+                      audio: item?.video?.audioUrl,
+                    });
                   }
                 }}
                 style={{
@@ -537,13 +538,12 @@ const HomePage = props => {
             return (
               <Pressable
                  onPress={() => {
-                  console.log("itemmm:-------------->" ,item._id)
                   if (isStaticImage) {
-                    NavigationService.navigate('VideoLive', {
+                    NavigationService.navigate('PodcastVideo', {
                       id: item?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive', item);
+                    NavigationService.navigate('PodcastLive',item);
                   }
                 }}
                 style={{
@@ -742,10 +742,18 @@ const HomePage = props => {
 
               return (
                 <Pressable
-                  onPress={() => {
-                    // Navigate to Video Detail page
-                    NavigationService.navigate('VideoLive', {id: item._id});
-                  }}
+                onPress={() => {
+                  if (isStaticImage) {
+                    NavigationService.navigate('VideoLive', {
+                      id: item?._id,
+                    });
+                  } else {
+                    NavigationService.navigate('PublicationAudiotLive', {
+                      ...item,
+                      audio: item?.audioUrl,
+                    });
+                  }
+                }}
                   style={{
                     width: 200,
                     height: 200,
