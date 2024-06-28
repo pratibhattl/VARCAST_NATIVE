@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
-  Animated,
+  Animated,TouchableWithoutFeedback
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -75,8 +75,9 @@ import {
 
 const {width, height} = Dimensions.get('screen');
 
-const PodcastLive = (props) => {
+const PodcastLive = props => {
   const route = useRoute();
+  const isFocused = useIsFocused();
   const baseUrl = AllSourcePath.API_BASE_URL_DEV;
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
   const id = route.params?._id;
@@ -84,7 +85,6 @@ const PodcastLive = (props) => {
   const {token, userDetails} = useSelector(state => state.authData);
   const {position, duration} = useProgress(0);
 
-  const isFocused = useIsFocused();
   const [likeStatus, setLikeStatus] = useState(false);
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -100,6 +100,7 @@ const PodcastLive = (props) => {
   const [playlists, setPlaylists] = useState([]);
   const [isPlayerReady, setIsPlayerReady] = useState(true);
   const [playingLoader, setPlayingLoader] = useState(true);
+  const [isPlayerVisible, setIsPlayerVisible] = useState(true);
 
   let current = format(position);
   let max = format(duration);
@@ -249,6 +250,7 @@ const PodcastLive = (props) => {
       setGiftData(data?.data?.listData);
       setGiftModalState(true);
     } catch (error) {
+      HelperFunctions.showToastMsg(error.message);
       console.error('Error fetching data:', error);
     }
   };
@@ -270,6 +272,7 @@ const PodcastLive = (props) => {
       setGiftModalState(false);
       HelperFunctions.showToastMsg(`${gift.gift_name} sent successfully`);
     } catch (error) {
+      HelperFunctions.showToastMsg(error.message);
       console.error('Error while sending the gift:', error);
     }
   };
@@ -293,6 +296,7 @@ const PodcastLive = (props) => {
     // Start playing it
     TrackPlayer.play().then(() => {
       setPlayingLoader(false);
+      // setIsPlayerVisible(false);
     });
   };
 
@@ -307,7 +311,10 @@ const PodcastLive = (props) => {
       }
     }
 
-    if (playbackState.state == State.Stopped || playbackState.state == State.None) {
+    if (
+      playbackState.state == State.Stopped ||
+      playbackState.state == State.None
+    ) {
       songsfunc();
     }
   };
@@ -427,8 +434,6 @@ const PodcastLive = (props) => {
     );
   };
 
-
-
   useEffect(() => {
     playbackService();
     songsfunc();
@@ -440,9 +445,16 @@ const PodcastLive = (props) => {
   }, [route.params._id]);
 
   useEffect(() => {
-    if (playbackState.state === 'ended') {
+    if (playbackState.state === State.Ended) {
       scrollX.removeAllListeners();
       TrackPlayer.reset();
+      setIsPlayerVisible(true);
+    }
+    if (playbackState.state === State.Playing) {
+      setIsPlayerVisible(false);
+    }
+    if (playbackState.state === State.None) {
+      setIsPlayerVisible(true);
     }
   }, [playbackState.state]);
 
@@ -593,44 +605,48 @@ const PodcastLive = (props) => {
                 overflow: 'hidden',
                 position: 'relative',
               }}>
-              <Image
-                source={{uri: `${imageUrl}${selectedData?.image}`}}
-                style={{
-                  height: 140,
-                  width: 140,
-                }}
-                resizeMode="cover"
-              />
+              <TouchableWithoutFeedback onPress={() => setIsPlayerVisible(prev=>!prev)}>
+                <Image
+                  source={{uri: `${imageUrl}${selectedData?.image}`}}
+                  style={{
+                    height: 140,
+                    width: 140,
+                  }}
+                  resizeMode="cover"
+                />
+              </TouchableWithoutFeedback>
 
-              <Pressable
-                style={{
-                  height: 55,
-                  width: 55,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#f2f890',
-                  shadowColor: '#000',
-                  shadowOffset: {width: 10, height: 10},
-                  shadowOpacity: 0.26,
-                  shadowRadius: 3,
-                  borderRadius: 50,
-                  position: 'absolute',
-                  top: 40,
-                  left: 45,
-                  zIndex: 50,
-                }}
-                onPress={() => {
-                  if (!playingLoader) {
-                    togglePlayback(playbackState);
-                  }
-                }}>
-                {playbackState.state == State.Paused ||
-                playbackState.state == State.Stopped ? (
-                  <VideoPlayIcon Width={32} Height={32} />
-                ) : (
-                  <PauseIcon />
-                )}
-              </Pressable>
+              {isPlayerVisible && playbackState.state !== State.None && (
+                <Pressable
+                  style={{
+                    height: 55,
+                    width: 55,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: '#f2f890',
+                    shadowColor: '#000',
+                    shadowOffset: {width: 10, height: 10},
+                    shadowOpacity: 0.26,
+                    shadowRadius: 3,
+                    borderRadius: 50,
+                    position: 'absolute',
+                    top: 40,
+                    left: 45,
+                    zIndex: 50,
+                  }}
+                  onPress={() => {
+                    if (!playingLoader) {
+                      togglePlayback(playbackState);
+                    }
+                  }}>
+                  {playbackState.state == State.Paused ||
+                  playbackState.state == State.Stopped ? (
+                    <VideoPlayIcon Width={32} Height={32} />
+                  ) : (
+                    <PauseIcon />
+                  )}
+                </Pressable>
+              )}
             </View>
           </View>
 
@@ -736,71 +752,71 @@ const PodcastLive = (props) => {
           </View>
         </LinearGradient>
       </ImageBackground>
+     
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
         {mapComment?.map((comment, index) => (
-            <Pressable
-              key={index}
-              onPress={() =>
-                NavigationService.navigate('ChatRoom', {
-                  id: comment?.user?._id,
-                  title: comment?.user?.name,
-                  image: comment?.user?.full_path_image,
-                })
-              }
+          <Pressable
+            key={index}
+            onPress={() =>
+              NavigationService.navigate('ChatRoom', {
+                id: comment?.user?._id,
+                title: comment?.user?.name,
+                image: comment?.user?.full_path_image,
+              })
+            }
+            style={{
+              flexDirection: 'row',
+              marginTop: 15,
+              paddingLeft: 20,
+              paddingRight: 15,
+            }}>
+            <Pressable>
+              <Image
+                source={{uri: comment?.user?.full_path_image}}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 45,
+                  borderWidth: 0.7,
+                  borderColor: 'white',
+                }}
+                resizeMode="contain"
+              />
+            </Pressable>
+            <View
               style={{
                 flexDirection: 'row',
-                marginTop: 15,
-                paddingLeft: 20,
-                paddingRight: 15,
+                flex: 1,
+                justifyContent: 'space-between',
+                marginLeft: 20,
+                borderColor: 'rgba(118, 118, 128, 0.24)',
+                borderBottomWidth: 0,
+                paddingBottom: 10,
               }}>
-              <Pressable>
-                <Image
-                  source={{uri: comment?.user?.full_path_image}}
+              <View>
+                <Text
                   style={{
-                    height: 40,
-                    width: 40,
-                    borderRadius: 45,
-                    borderWidth: 0.7,
-                    borderColor: 'white',
-                  }}
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  flex: 1,
-                  justifyContent: 'space-between',
-                  marginLeft: 20,
-                  borderColor: 'rgba(118, 118, 128, 0.24)',
-                  borderBottomWidth: 0,
-                  paddingBottom: 10,
-                }}>
-                <View>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.medium,
-                    }}>
-                    {comment.comment}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.54)',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.light,
-                      marginTop: 3,
-                    }}>
-                    {comment.user?.name}{' '}
-                  </Text>
-                </View>
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.medium,
+                  }}>
+                  {comment.comment}
+                </Text>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.light,
+                    marginTop: 3,
+                  }}>
+                  {comment.user?.name}{' '}
+                </Text>
               </View>
-            </Pressable>
-          )
-                       )}
+            </View>
+          </Pressable>
+        ))}
       </KeyboardAwareScrollView>
       <View style={styles.inputContainer}>
         {/* <View style={{}}> */}

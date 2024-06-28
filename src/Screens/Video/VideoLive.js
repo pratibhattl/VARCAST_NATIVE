@@ -305,7 +305,7 @@ const VideoLive = props => {
       console.log(e);
     }
   };
-  
+
   //   try {
   //     agoraEngineRef.current?.switchCamera();
   //   } catch (e) {
@@ -344,7 +344,7 @@ const VideoLive = props => {
             response?.data?.data?.latestComments?.length > 0 &&
             response?.data?.data?.latestComments;
           const like = response?.data?.data?.isLiked == true ? true : false;
-          
+
           setSelectedData(response?.data?.data);
           setLikeStatus(like);
           setMapcomment(mappedData);
@@ -462,7 +462,6 @@ const VideoLive = props => {
                       </Text>
                     </View>
                   </Pressable>
-              
                 </LinearGradient>
               );
             }}
@@ -502,7 +501,7 @@ const VideoLive = props => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
+      {/* <FlatList
         showsVerticalScrollIndicator={false}
         data={mapComment}
         style={{
@@ -574,12 +573,80 @@ const VideoLive = props => {
                     {item?.user?.name}{' '}
                   </Text>
                 </View>
-              
               </View>
             </Pressable>
           );
         }}
-      />
+      /> */}
+
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 20}}>
+        {mapComment.map((item, index) => (
+          <Pressable
+            key={index}
+            onPress={() =>
+              NavigationService.navigate('ChatRoom', {
+                id: item?.user?._id,
+                title: item?.user?.name,
+                image: item?.user?.full_path_image,
+              })
+            }
+            style={{
+              flexDirection: 'row',
+              // alignItems: 'center',
+              // justifyContent:'space-between',
+              marginTop: 15,
+              paddingLeft: 20,
+              paddingRight: 15,
+              height: 50,
+            }}>
+            <Pressable>
+              <Image
+                source={{uri: item?.user?.full_path_image}}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 45,
+                  borderWidth: 0.7,
+                  borderColor: 'white',
+                }}
+                resizeMode="contain"
+              />
+            </Pressable>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginLeft: 20,
+                borderColor: 'rgba(118, 118, 128, 0.24)',
+                borderBottomWidth: 0,
+                paddingBottom: 10,
+                // marginTop:5
+              }}>
+              <View>
+                <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.medium,
+                  }}>
+                  {item?.comment}
+                </Text>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.normal,
+                    marginTop: 3,
+                  }}>
+                  {item?.user?.name}{' '}
+                </Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+      </KeyboardAwareScrollView>
 
       {/* </ImageBackground> */}
       <View style={styles.inputContainer}>
@@ -638,7 +705,7 @@ const VideoLive = props => {
             <CommentIcon />
           </Pressable>
         )}
-       
+
         <Pressable
           onPress={() => setModalState(true)}
           style={{
@@ -761,7 +828,7 @@ const VideoLive = props => {
               marginTop: 25,
             }}
           />
-         
+
           <View
             style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
             <ShiledIcon Color={'#fff'} />
