@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
-  Animated,TouchableWithoutFeedback
+  Animated,
+  TouchableWithoutFeedback,KeyboardAvoidingView,Platform
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -39,7 +40,6 @@ import SadEmojiIcon from '../../assets/icons/SadEmojiIcon';
 import ReportIcon from '../../assets/icons/ReportIcon';
 import ShiledIcon from '../../assets/icons/ShiledIcon';
 import Notification from '../../assets/icons/Notification';
-import {PermissionsAndroid, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
@@ -605,7 +605,8 @@ const PodcastLive = props => {
                 overflow: 'hidden',
                 position: 'relative',
               }}>
-              <TouchableWithoutFeedback onPress={() => setIsPlayerVisible(prev=>!prev)}>
+              <TouchableWithoutFeedback
+                onPress={() => setIsPlayerVisible(prev => !prev)}>
                 <Image
                   source={{uri: `${imageUrl}${selectedData?.image}`}}
                   style={{
@@ -752,7 +753,7 @@ const PodcastLive = props => {
           </View>
         </LinearGradient>
       </ImageBackground>
-     
+
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
@@ -818,33 +819,39 @@ const PodcastLive = props => {
           </Pressable>
         ))}
       </KeyboardAwareScrollView>
-      <View style={styles.inputContainer}>
-        {/* <View style={{}}> */}
-        {/* <LinkIcon/> */}
-        <TextInput
-          multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-          placeholder="Message..."
-          value={comment}
-          onChangeText={setComment}
-          placeholderTextColor={Theme.colors.grey}
-        />
 
-        <TouchableOpacity
-          // disabled={message.trim().length==0}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: 'transparent',
-              // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-            },
-          ]}
-          onPress={() => {
-            sendComment();
-          }}>
-          <SendIcon />
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container2}>
+        <View style={styles.inputContainer}>
+          {/* <View style={{}}> */}
+          {/* <LinkIcon/> */}
+          <TextInput
+            multiline={true}
+            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+            placeholder="Message..."
+            value={comment}
+            onChangeText={setComment}
+            placeholderTextColor={Theme.colors.grey}
+          />
+
+          <TouchableOpacity
+            // disabled={message.trim().length==0}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: 'transparent',
+                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+              },
+            ]}
+            onPress={() => {
+              sendComment();
+            }}>
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+
       <View
         style={{
           // flexDirection: 'row',
@@ -1184,6 +1191,9 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 20
     backgroundColor: '#131313',
     height: height,
+  },
+  container2:{
+    flex:1
   },
   inputContainer: {
     flexDirection: 'row',

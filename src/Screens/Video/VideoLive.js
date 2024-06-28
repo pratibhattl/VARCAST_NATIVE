@@ -12,6 +12,8 @@ import {
   ScrollView,
   Keyboard,
   Switch,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -41,8 +43,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
-
 import {useIsFocused} from '@react-navigation/native';
 import Video from 'react-native-video';
 import {
@@ -648,34 +648,36 @@ const VideoLive = props => {
         ))}
       </KeyboardAwareScrollView>
 
-      {/* </ImageBackground> */}
-      <View style={styles.inputContainer}>
-        {/* <View style={{}}> */}
-        {/* <LinkIcon/> */}
-        <TextInput
-          multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-          placeholder="Message..."
-          value={comment}
-          onChangeText={setComment}
-          placeholderTextColor={Theme.colors.white}
-        />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container2}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            multiline={true}
+            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+            placeholder="Message..."
+            value={comment}
+            onChangeText={setComment}
+            placeholderTextColor={Theme.colors.white}
+          />
 
-        <TouchableOpacity
-          // disabled={message.trim().length==0}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: 'transparent',
-              // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-            },
-          ]}
-          onPress={() => {
-            sendComment();
-          }}>
-          <SendIcon />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            // disabled={message.trim().length==0}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: 'transparent',
+                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+              },
+            ]}
+            onPress={() => {
+              sendComment();
+            }}>
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+
       <View
         style={{
           // flexDirection: 'row',
@@ -873,6 +875,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#131313',
     height: height,
     // paddingTop:100
+  },
+  container2: {
+    flex: 1,
   },
   videoContainer: {
     position: 'relative',

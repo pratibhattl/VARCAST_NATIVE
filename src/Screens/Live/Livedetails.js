@@ -10,6 +10,9 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  PermissionsAndroid,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -46,7 +49,6 @@ import BatchIcon from '../../assets/icons/BatchIcon';
 import RocketIcon from '../../assets/icons/RocketIcon';
 import DiamondIcon from '../../assets/icons/DiamondIcon';
 import CrownIcon from '../../assets/icons/CrownIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import {useIsFocused} from '@react-navigation/native';
@@ -312,7 +314,6 @@ const LiveDetails = props => {
   };
 
   // Function to handle the Comment
- 
 
   const sendComment = async () => {
     const liveId = id;
@@ -661,33 +662,37 @@ const LiveDetails = props => {
           </Pressable>
         ))}
       </KeyboardAwareScrollView>
-      <View style={styles.inputContainer}>
-        {/* <View style={{}}> */}
-        {/* <LinkIcon/> */}
-        <TextInput
-          multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-          placeholder="Message..."
-          value={comment}
-          onChangeText={setComment}
-          placeholderTextColor={Theme.colors.grey}
-        />
 
-        <TouchableOpacity
-          // disabled={message.trim().length==0}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: 'transparent',
-              // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-            },
-          ]}
-          onPress={() => {
-            sendComment();
-          }}>
-          <SendIcon />
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container2}>
+        <View style={styles.inputContainer}>
+          <TextInput
+            multiline={true}
+            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+            placeholder="Message..."
+            value={comment}
+            onChangeText={setComment}
+            placeholderTextColor={Theme.colors.grey}
+          />
+
+          <TouchableOpacity
+            // disabled={message.trim().length==0}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: 'transparent',
+                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+              },
+            ]}
+            onPress={() => {
+              sendComment();
+            }}>
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+
       <View
         style={{
           // flexDirection: 'row',
@@ -1015,6 +1020,9 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 20
     backgroundColor: '#131313',
     height: height,
+  },
+  container2: {
+    flex: 1,
   },
   inputContainer: {
     flexDirection: 'row',
