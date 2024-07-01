@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
-  Animated,
+  Animated,TouchableWithoutFeedback,KeyboardAvoidingView,Platform,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -39,7 +39,6 @@ import SadEmojiIcon from '../../assets/icons/SadEmojiIcon';
 import ReportIcon from '../../assets/icons/ReportIcon';
 import ShiledIcon from '../../assets/icons/ShiledIcon';
 import Notification from '../../assets/icons/Notification';
-import {PermissionsAndroid, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import AllSourcePath from '../../Constants/PathConfig';
@@ -97,6 +96,7 @@ const PublicationAudiotLive = () => {
   const [GiftData, setGiftData] = useState();
   const [playlists, setPlaylists] = useState([]);
   const [playingLoader, setPlayingLoader] = useState(true);
+  const [isPlayerVisible, setIsPlayerVisible] = useState(true);
 
   const agoraEngineRef = useRef(); // Agora engine instance
   const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
@@ -432,9 +432,16 @@ const PublicationAudiotLive = () => {
   }, [route.params._id]);
 
   useEffect(() => {
-    if (playbackState.state === 'ended') {
+    if (playbackState.state === State.Ended) {
       scrollX.removeAllListeners();
       TrackPlayer.reset();
+      setIsPlayerVisible(true);
+    }
+    if (playbackState.state === State.Playing) {
+      setIsPlayerVisible(false);
+    }
+    if (playbackState.state === State.None) {
+      setIsPlayerVisible(true);
     }
   }, [playbackState.state]);
 
@@ -585,6 +592,8 @@ const PublicationAudiotLive = () => {
                 overflow: 'hidden',
                 position: 'relative',
               }}>
+                 <TouchableWithoutFeedback
+                onPress={() => setIsPlayerVisible(prev => !prev)}>
               <Image
                 source={{uri: `${imageUrl}${selectedData?.image}`}}
                 style={{
@@ -593,7 +602,9 @@ const PublicationAudiotLive = () => {
                 }}
                 resizeMode="cover"
               />
+              </TouchableWithoutFeedback>
 
+              {isPlayerVisible && playbackState.state !== State.None && (
               <Pressable
                 style={{
                   height: 55,
@@ -617,12 +628,12 @@ const PublicationAudiotLive = () => {
                   }
                 }}>
                 {playbackState.state == State.Paused ||
-                playbackState.state == State.None ? (
+                playbackState.state == State.Stopped? (
                   <VideoPlayIcon Width={32} Height={32} />
                 ) : (
                   <PauseIcon />
                 )}
-              </Pressable>
+              </Pressable>)}
             </View>
           </View>
 
@@ -728,6 +739,21 @@ const PublicationAudiotLive = () => {
           </View>
         </LinearGradient>
       </ImageBackground>
+     
+     
+     
+     
+     
+      <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+   
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+     
+     
+     
+     
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
@@ -794,9 +820,10 @@ const PublicationAudiotLive = () => {
           )
                        )}
       </KeyboardAwareScrollView>
+     
+     
       <View style={styles.inputContainer}>
-        {/* <View style={{}}> */}
-        {/* <LinkIcon/> */}
+     
         <TextInput
           multiline={true}
           style={[styles.input, {minHeight: 40, maxHeight: 100}]}
@@ -892,6 +919,13 @@ const PublicationAudiotLive = () => {
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
+     
+      </View>
+      </TouchableWithoutFeedback> 
+      </KeyboardAvoidingView>
+     
+     
+     
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -1160,6 +1194,9 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 20
     backgroundColor: '#131313',
     height: height,
+  },
+  container2:{
+    flex:1
   },
   inputContainer: {
     flexDirection: 'row',
