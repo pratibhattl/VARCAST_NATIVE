@@ -92,40 +92,8 @@ const VideoLive = props => {
   const [messages, setMessages] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [comment, setComment] = useState('');
-  const agoraEngineRef = useRef(); // Agora engine instance
-  const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
-  const [isHostMic, setIsHosMic] = useState(true); // Client role
-  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
-  const [message, setMessage] = useState(''); // Message to the user
-  const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
-  const channelName = 'test';
-  console.log('Route Params:', route.params);
 
-  // const token =
-  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
-  // const uid = 0;
-  // function showMessage(msg) {
-  //   setMessage(msg);
-  // }
-  // const getPermission = async () => {
-  //   if (Platform.OS === 'android') {
-  //     await PermissionsAndroid.requestMultiple([
-  //       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-  //       PermissionsAndroid.PERMISSIONS.CAMERA,
-  //     ]);
-  //   }
-  // };
-  // const getPermissionIos = async () => {
-  //   if (Platform.OS === 'ios') {
-  //     requestMultiple([
-  //       PERMISSIONS.IOS.CAMERA,
-  //       PERMISSIONS.IOS.MICROPHONE,
-  //     ]).then(statuses => {
-  //       console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
-  //       console.log('MICROPHONE', statuses[PERMISSIONS.IOS.MICROPHONE]);
-  //     });
-  //   }
-  // };
+
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -209,123 +177,7 @@ const VideoLive = props => {
     };
   }, []);
 
-  //   try {
-  //     // use the helper function to get permissions
-  //     if (Platform.OS === 'android') {
-  //       await getPermission();
-  //     }
-  //     if (Platform.OS === 'ios') {
-  //       await getPermissionIos();
-  //     }
-  //     agoraEngineRef.current = createAgoraRtcEngine();
-  //     const agoraEngine = agoraEngineRef.current;
-  //     agoraEngine.registerEventHandler({
-  //       onJoinChannelSuccess: (_connection, Uid) => {
-  //         HelperFunctions.showToastMsg(
-  //           'Successfully joined the channel ' + channelName,
-  //         );
-  //         console.log('Host ID?dd>>>>>>>>', Uid, _connection.localUid);
-
-  //         setIsJoined(true);
-  //       },
-  //       onUserJoined: (_connection, Uid) => {
-  //         HelperFunctions.showToastMsg('Remote user joined with uid ' + Uid);
-  //         console.log('user joined');
-  //         console.log('user IDsdsd?>>>>>>>>', Uid);
-  //         setRemoteUid(Uid);
-  //       },
-  //       onUserOffline: (_connection, Uid) => {
-  //         console.log('user left');
-  //         console.log('user ID offline?>>>>>>>>', Uid, _connection.localUid);
-  //         HelperFunctions.showToastMsg(
-  //           'Remote user left the channel. uid: ' + Uid,
-  //         );
-  //         setRemoteUid(0);
-  //       },
-  //       // onLocalAudioStateChanged: (_connection,state,error) =>{
-  //       //     console.log('mutermcicc',state)
-  //       // }
-  //     });
-  //     // console.log('khgjhghjghjggjh',idd)
-  //     agoraEngine.initialize({
-  //       appId: appId,
-  //       channelProfile: ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     });
-  //     agoraEngine.enableVideo();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  // const joinAudience = async (channel, tok) => {
-  //   const agoraEngine = agoraEngineRef.current;
-  //   if (isJoined) {
-  //     return;
-  //   }
-  //   try {
-  //     agoraEngineRef.current?.setChannelProfile(
-  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     );
-  //     //  console.log('dfdfrewtrtertetyty',agoraEngine.getHost());
-  //     // Use low level latency
-  //     var channeloptions = new ChannelMediaOptions();
-  //     // channeloptions.audienceLatencyLevel =
-  //     // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
-  //     agoraEngine.updateChannelMediaOptions(channeloptions);
-  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-  //       clientRoleType: ClientRoleType.ClientRoleAudience,
-  //     });
-  //     HelperFunctions.showToastMsg('Joined Successfully');
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
-  // const joinHost = async (channel, tok) => {
-  //   const agoraEngine = agoraEngineRef.current;
-  //   if (isJoined) {
-  //     return;
-  //   }
-  //   try {
-  //     agoraEngineRef.current?.setChannelProfile(
-  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     );
-
-  //     agoraEngineRef.current?.startPreview();
-  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-  //       clientRoleType: ClientRoleType.ClientRoleBroadcaster,
-  //     });
-  //     HelperFunctions.showToastMsg('Joined Successfully');
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  const leave = () => {
-    try {
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
-  //   try {
-  //     agoraEngineRef.current?.switchCamera();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  // const MuteMic = () => {
-  //   try {
-  //     // enableAudio
-  //     if (isHostMic) {
-  //       agoraEngineRef.current?.muteLocalAudioStream(true);
-  //       setIsHosMic(false);
-  //     } else {
-  //       agoraEngineRef.current?.muteLocalAudioStream(false);
-  //       setIsHosMic(true);
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+  
   const fetchCommentData = async () => {
     const formData = new FormData();
     formData.append('videoId', id);
@@ -936,32 +788,3 @@ const styles = StyleSheet.create({
   head: {fontSize: 20},
   info: {backgroundColor: '#ffffe0', paddingHorizontal: 8, color: '#0000ff'},
 });
-
-{
-  /* <ScreenLayout
-headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
-showLoading={loadingState}
-isScrollable={true}
-leftHeading={'Podcast Details'}
-// Podcast
-// right
-Watch
-// Live={cat == 'Live' ? true : false}
-leftHeadingStyle={{ color: '#E1D01E' }}
-hideLeftIcon={customProp ? false : true}
-onLeftIconPress={() => NavigationService.back()}> 
- <Pressable style={{
-                    position: 'absolute',
-                    bottom: -25,
-                    right: 10,
-                    height: 50,
-                    width: 50,
-                    borderRadius: 30,
-                    backgroundColor: '#fff',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}>
-                    <VideoPlayIcon Width={30} Height={30} />
-                </Pressable>
-*/
-}
