@@ -19,7 +19,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import ReactNativeModal from 'react-native-modal';
 import NavigationService from '../../Services/Navigation';
-import {useRoute} from '@react-navigation/native';
+import {useRoute, useNavigation} from '@react-navigation/native';
 import {ImageBackground} from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import {Image} from 'react-native';
@@ -474,6 +474,11 @@ const VideoLive = props => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.closeIconContainer}
+        onPress={() => NavigationService.back()}>
+        <CrossIcon style={styles.closeIcon} />
+      </TouchableOpacity>
       <View style={styles.videoContainer}>
         <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
           <Video
@@ -907,6 +912,21 @@ const styles = StyleSheet.create({
     right: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  closeIconContainer: {
+    position: 'absolute',
+    top: 30,
+    right: 20,
+    padding: 10,
+    zIndex: 1,
+    borderWidth: 1,
+    borderColor: 'white',
+    borderStyle: 'dotted', // Dotted border style
+  },
+  closeIcon: {
+    width: 20,
+    height: 20,
+    tintColor: 'white',
   },
   inputContainer: {
     flexDirection: 'row',

@@ -26,8 +26,20 @@ export default function HostPage(props) {
                 config={{
                     ...HOST_DEFAULT_CONFIG,
                     onStartLiveButtonPressed: (e) => { console.log('########HostPage onStartLiveButtonPressed',e); },
-                    onLiveStreamingEnded: () => {
+                    onLiveStreamingEnded: async () => {
                         console.log('########HostPage onLiveStreamingEnded');
+                        
+                        // Example: Retrieve URL for saved stream
+                        try {
+                            const savedStreamURL = await zegoSDK.getSavedStreamURL(liveID);
+                            console.log('Saved stream URL:', savedStreamURL);
+                            // Now you can use this URL as needed
+                            // Example: Redirect to a page with the URL
+                            
+                        } catch (error) {
+                            console.error('Error retrieving saved stream URL:', error);
+                            // Handle error appropriately
+                        }
                     },
                     onLeaveLiveStreaming: () => {
                         console.log('########HostPage onLeaveLiveStreaming');

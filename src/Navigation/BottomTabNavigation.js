@@ -83,7 +83,7 @@ function BottomTabNavigation() {
           }}
         />
         <Tab.Screen
-          name="Music"
+          name="AddPlaylist"
           component={AddPlaylist}
           options={{
             unmountOnBlur: false,
