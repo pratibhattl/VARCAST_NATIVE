@@ -600,15 +600,19 @@ const LiveDetails = props => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
         {newComments?.map((comment, index) => (
+          // console.log("COMMENT-----", comment),
           <Pressable
             key={index}
-            onPress={() =>
-              NavigationService.navigate('ChatRoom', {
-                id: comment?.id,
-                title: comment?.name,
-                image: comment?.avatar,
-              })
-            }
+            // onPress={() =>
+            //   NavigationService.navigate('CommentChatRoom',{...comment,addEndPoint: 'lives/message-comment', getEndPoint: `lives/comment-messages/${comment?.id}`} )
+            // }
+            // onPress={() =>
+            //   NavigationService.navigate('ChatRoom', {
+            //     id: comment?.id,
+            //     title: comment?.name,
+            //     image: comment?.avatar,
+            //   })
+            // }
             style={{
               flexDirection: 'row',
               marginTop: 15,

@@ -77,7 +77,7 @@ const UserDetails = props => {
         token,
       );
 
-          setUserDetails(data.data);
+      setUserDetails(data.data);
     } catch (error) {
       console.error('ERROR WHILE FETCHING DATA :', error);
     } finally {
@@ -89,8 +89,6 @@ const UserDetails = props => {
     getUserDetails();
   }, [userData?._id]);
 
-
-  console.log('userDetails',userDetails)
  
   const followFunction = async () => {
   
@@ -108,10 +106,6 @@ const UserDetails = props => {
       setLoadingState(false);
     }
   };
-
-  if (loadingState) {
-    return <Text>Fetching user details...</Text>;
-  }
 
   return (
     <View style={styles.container}>
