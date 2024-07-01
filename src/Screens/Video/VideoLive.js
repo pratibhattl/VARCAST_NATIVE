@@ -12,6 +12,8 @@ import {
   ScrollView,
   Keyboard,
   Switch,
+  KeyboardAvoidingView,
+  Platform,TouchableWithoutFeedback
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -41,8 +43,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
-
 import {useIsFocused} from '@react-navigation/native';
 import Video from 'react-native-video';
 import {
@@ -344,7 +344,7 @@ const VideoLive = props => {
             response?.data?.data?.latestComments?.length > 0 &&
             response?.data?.data?.latestComments;
           const like = response?.data?.data?.isLiked == true ? true : false;
-          
+
           setSelectedData(response?.data?.data);
           setLikeStatus(like);
           setMapcomment(mappedData);
@@ -506,7 +506,7 @@ const VideoLive = props => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
+      {/* <FlatList
         showsVerticalScrollIndicator={false}
         data={mapComment}
         style={{
@@ -585,36 +585,111 @@ const VideoLive = props => {
             </Pressable>
           );
         }}
-      />
+      /> */}
 
-      {/* </ImageBackground> */}
-      <View style={styles.inputContainer}>
-        {/* <View style={{}}> */}
-        {/* <LinkIcon/> */}
-        <TextInput
-          multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-          placeholder="Message..."
-          value={comment}
-          onChangeText={setComment}
-          placeholderTextColor={Theme.colors.white}
-        />
 
-        <TouchableOpacity
-          // disabled={message.trim().length==0}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: 'transparent',
-              // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-            },
-          ]}
-          onPress={() => {
-            sendComment();
-          }}>
-          <SendIcon />
-        </TouchableOpacity>
-      </View>
+<KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 20}}>
+        {mapComment.map((item, index) => (
+          <Pressable
+            key={index}
+            onPress={() =>
+              NavigationService.navigate('ChatRoom', {
+                id: item?.user?._id,
+                title: item?.user?.name,
+                image: item?.user?.full_path_image,
+              })
+            }
+            style={{
+              flexDirection: 'row',
+              // alignItems: 'center',
+              // justifyContent:'space-between',
+              marginTop: 15,
+              paddingLeft: 20,
+              paddingRight: 15,
+              height: 50,
+            }}>
+            <Pressable>
+              <Image
+                source={{uri: item?.user?.full_path_image}}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 45,
+                  borderWidth: 0.7,
+                  borderColor: 'white',
+                }}
+                resizeMode="contain"
+              />
+            </Pressable>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                marginLeft: 20,
+                borderColor: 'rgba(118, 118, 128, 0.24)',
+                borderBottomWidth: 0,
+                paddingBottom: 10,
+                // marginTop:5
+              }}>
+              <View>
+                <Text
+                  style={{
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.medium,
+                  }}>
+                  {item?.comment}
+                </Text>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.normal,
+                    marginTop: 3,
+                  }}>
+                  {item?.user?.name}{' '}
+                </Text>
+              </View>
+            </View>
+          </Pressable>
+        ))}
+      </KeyboardAwareScrollView>
+
+     
+        <View style={styles.inputContainer}>
+          <TextInput
+            multiline={true}
+            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+            placeholder="Message..."
+            value={comment}
+            onChangeText={setComment}
+            placeholderTextColor={Theme.colors.white}
+          />
+
+          <TouchableOpacity
+            // disabled={message.trim().length==0}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: 'transparent',
+                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+              },
+            ]}
+            onPress={() => {
+              sendComment();
+            }}>
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
+      
+
       <View
         style={{
           // flexDirection: 'row',
@@ -670,7 +745,11 @@ const VideoLive = props => {
           }}>
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
+      </View> 
       </View>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+      
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -813,6 +892,9 @@ const styles = StyleSheet.create({
     height: height,
     // paddingTop:100
   },
+  container2: {
+    flex: 1,
+  },
   videoContainer: {
     position: 'relative',
     width: '100%',
@@ -853,12 +935,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     // paddingVertical: 8,
-    paddingVertical: 10,
+    // paddingVertical: 10,
     height: 50,
     backgroundColor: 'rgba(27, 27, 27, 0.8)',
     width: '75%',
     padding: 10,
-    position: 'absolute',
+    // position: 'absolute',
     bottom: 30,
     justifyContent: 'space-between',
     marginHorizontal: 20,
