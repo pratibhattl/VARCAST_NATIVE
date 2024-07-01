@@ -12,7 +12,7 @@ import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
-  PermissionsAndroid,
+  PermissionsAndroid,TouchableWithoutFeedback
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -597,6 +597,13 @@ const LiveDetails = props => {
           </View>
         </LinearGradient>
       </ImageBackground>
+    
+
+      <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
@@ -663,9 +670,7 @@ const LiveDetails = props => {
         ))}
       </KeyboardAwareScrollView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container2}>
+    
         <View style={styles.inputContainer}>
           <TextInput
             multiline={true}
@@ -691,7 +696,6 @@ const LiveDetails = props => {
             <SendIcon />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
 
       <View
         style={{
@@ -702,6 +706,7 @@ const LiveDetails = props => {
           bottom: 30,
           // left:0,
           right: 20,
+     
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
@@ -749,6 +754,10 @@ const LiveDetails = props => {
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
+      </View></TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+      
+      
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -888,6 +897,8 @@ const LiveDetails = props => {
           </View>
         </View>
       </ReactNativeModal>
+      
+      
       <ReactNativeModal
         isVisible={GiftModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -1027,8 +1038,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingVertical: 8,
-    paddingVertical: 10,
+    
     height: 50,
     backgroundColor: 'rgba(27, 27, 27, 0.96)',
     width: '75%',
@@ -1037,6 +1047,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     justifyContent: 'space-between',
     marginHorizontal: 20,
+   
     borderRadius: 30,
   },
   sendButton: {

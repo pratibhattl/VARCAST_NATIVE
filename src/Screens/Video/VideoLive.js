@@ -13,7 +13,7 @@ import {
   Keyboard,
   Switch,
   KeyboardAvoidingView,
-  Platform,
+  Platform,TouchableWithoutFeedback
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -579,6 +579,12 @@ const VideoLive = props => {
         }}
       /> */}
 
+
+<KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
@@ -648,9 +654,7 @@ const VideoLive = props => {
         ))}
       </KeyboardAwareScrollView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container2}>
+     
         <View style={styles.inputContainer}>
           <TextInput
             multiline={true}
@@ -676,7 +680,7 @@ const VideoLive = props => {
             <SendIcon />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      
 
       <View
         style={{
@@ -733,7 +737,11 @@ const VideoLive = props => {
           }}>
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
+      </View> 
       </View>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+      
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -904,12 +912,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     // paddingVertical: 8,
-    paddingVertical: 10,
+    // paddingVertical: 10,
     height: 50,
     backgroundColor: 'rgba(27, 27, 27, 0.8)',
     width: '75%',
     padding: 10,
-    position: 'absolute',
+    // position: 'absolute',
     bottom: 30,
     justifyContent: 'space-between',
     marginHorizontal: 20,

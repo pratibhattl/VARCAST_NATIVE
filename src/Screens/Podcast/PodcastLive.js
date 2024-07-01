@@ -753,6 +753,14 @@ const PodcastLive = props => {
           </View>
         </LinearGradient>
       </ImageBackground>
+    
+    
+      <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+   
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
 
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
@@ -820,12 +828,9 @@ const PodcastLive = props => {
         ))}
       </KeyboardAwareScrollView>
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container2}>
+     
         <View style={styles.inputContainer}>
-          {/* <View style={{}}> */}
-          {/* <LinkIcon/> */}
+         
           <TextInput
             multiline={true}
             style={[styles.input, {minHeight: 40, maxHeight: 100}]}
@@ -836,7 +841,7 @@ const PodcastLive = props => {
           />
 
           <TouchableOpacity
-            // disabled={message.trim().length==0}
+           
             style={[
               styles.sendButton,
               {
@@ -850,8 +855,7 @@ const PodcastLive = props => {
             <SendIcon />
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-
+     
       <View
         style={{
           // flexDirection: 'row',
@@ -923,6 +927,9 @@ const PodcastLive = props => {
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
+      </View>
+      </TouchableWithoutFeedback> 
+      </KeyboardAvoidingView>
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -1193,13 +1200,15 @@ const styles = StyleSheet.create({
     height: height,
   },
   container2:{
-    flex:1
+    flex:1,
+    // backgroundColor:'red'
+
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     // paddingVertical: 8,
-    paddingVertical: 10,
+  
     height: 50,
     backgroundColor: 'rgba(27, 27, 27, 0.96)',
     width: '75%',
@@ -1208,6 +1217,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     justifyContent: 'space-between',
     marginHorizontal: 20,
+    // marginVertical:30,
     borderRadius: 30,
   },
   sendButton: {
