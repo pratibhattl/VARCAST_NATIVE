@@ -521,12 +521,15 @@ const VideoLive = props => {
             <Pressable
               key={index}
               onPress={() =>
-                NavigationService.navigate('ChatRoom', {
-                  id: item?.user?._id,
-                  title: item?.user?.name,
-                  image: item?.user?.full_path_image,
-                })
+                NavigationService.navigate('CommentChatRoom',{...item, id: item?._id,addEndPoint: 'videos/message-comment', getEndPoint: `videos/comment-messages/${item?._id}`} )
               }
+              // onPress={() =>
+              //   NavigationService.navigate('ChatRoom', {
+              //     id: item?.user?._id,
+              //     title: item?.user?.name,
+              //     image: item?.user?.full_path_image,
+              //   })
+              // }
               style={{
                 flexDirection: 'row',
                 // alignItems: 'center',

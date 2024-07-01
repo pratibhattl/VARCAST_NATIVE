@@ -14,25 +14,14 @@ import {
   Switch,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import ReactNativeModal from 'react-native-modal';
 import NavigationService from '../../Services/Navigation';
 import {useRoute} from '@react-navigation/native';
-import {ImageBackground} from 'react-native';
-import CustomHeader from '../../Components/Header/CustomHeader';
 import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
-import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
-import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
-import {BlurView} from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';
-import DownArrowIcon from '../../assets/icons/DownArrowIcon';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-import DoubleTick from '../../assets/icons/DoubleTick';
 import SendIcon from '../../assets/icons/SendIcon';
-import LinkIcon from '../../assets/icons/LinkIcon';
 import BookmarkIcon from '../../assets/icons/BookmarkIcon';
-import GitftIcon from '../../assets/icons/GiftIcon';
 import SadEmojiIcon from '../../assets/icons/SadEmojiIcon';
 import ShiledIcon from '../../assets/icons/ShiledIcon';
 import Notification from '../../assets/icons/Notification';
@@ -40,27 +29,9 @@ import ShareIcon from '../../assets/icons/ShareIcon';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
-import CrossIcon from '../../assets/icons/CrossIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
-
 import {useIsFocused} from '@react-navigation/native';
 import Video from 'react-native-video';
-import {
-  ClientRoleType,
-  createAgoraRtcEngine,
-  IRtcEngine,
-  RtcSurfaceView,
-  ChannelProfileType,
-  ChannelMediaOptions,
-  AudienceLatencyLevelType,
-} from 'react-native-agora';
-import LiveEditIcon from '../../assets/icons/LiveEditIcon';
-import LiveIcon from '../../assets/icons/LiveIcon';
-import EyeOpen from '../../assets/icons/EyeOpen';
 import HelperFunctions from '../../Constants/HelperFunctions';
-import MicroPhoneIcon from '../../assets/icons/MicrophoneIcon';
-import PauseIcon from '../../assets/icons/PauseIcon';
-import {requestMultiple, PERMISSIONS} from 'react-native-permissions';
 import {apiCall} from '../../Services/Service';
 import axios from 'axios';
 import {useSelector} from 'react-redux';
@@ -70,7 +41,6 @@ const {width, height} = Dimensions.get('screen');
 
 const PodcastVideo = props => {
   const route = useRoute();
-  console.log('Route', route.params);
   const baseUrl = AllSourcePath?.API_BASE_URL_DEV;
   const imageURL = AllSourcePath?.IMAGE_BASE_URL;
   let id = route.params?.id;
@@ -222,7 +192,6 @@ const PodcastVideo = props => {
 
     apiCall('podcast/like', 'POST', payload, token)
       .then(response => {
-        console.log('Message', response.message);
         if (response.message === 'Liked') {
           setLikeStatus(true);
           console.log('Video liked successfully');
@@ -363,11 +332,7 @@ const PodcastVideo = props => {
             <Pressable
               key={index}
               onPress={() =>
-                NavigationService.navigate('ChatRoom', {
-                  id: item?.user?._id,
-                  title: item?.user?.name,
-                  image: item?.user?.full_path_image,
-                })
+                NavigationService.navigate('CommentChatRoom',{...item,id: comment?._id,addEndPoint: 'podcast/message-comment', getEndPoint: `podcast/comment-messages/${item?._id}`} )
               }
               style={{
                 flexDirection: 'row',

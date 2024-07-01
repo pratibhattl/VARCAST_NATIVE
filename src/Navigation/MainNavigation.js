@@ -46,6 +46,7 @@ import FollowingUser from '../Screens/Home/FollowingUser';
 import UploadScreen from '../Screens/Upload/UploadScreen';
 import LiveDetails from '../Screens/Live/Livedetails';
 import ChatRoom from '../Screens/Chat/ChatRoom';
+import CommentChatRoom from '../Screens/Chat/CommentChatRoom';
 import FollowingUsers from '../Screens/Profile/FollowingUsers';
 import PodcastComment from '../Screens/Podcast/PodcastComment';
 import LiveScreen from '../Screens/Video/LiveScreen';
@@ -95,6 +96,11 @@ function MainNavigation() {
         name="ChatRoom"
         options={{headerShown: false}}
         component={ChatRoom}
+      />
+      <Stack.Screen
+        name="CommentChatRoom"
+        options={{headerShown: false}}
+        component={CommentChatRoom}
       />
       <Stack.Screen
         name="DrawerNavigation"

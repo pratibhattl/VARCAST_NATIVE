@@ -769,11 +769,7 @@ const PodcastLive = props => {
           <Pressable
             key={index}
             onPress={() =>
-              NavigationService.navigate('ChatRoom', {
-                id: comment?.user?._id,
-                title: comment?.user?.name,
-                image: comment?.user?.full_path_image,
-              })
+              NavigationService.navigate('CommentChatRoom',{...comment, id: comment?._id,addEndPoint: 'podcast/message-comment', getEndPoint: `podcast/comment-messages/${comment?._id}`} )
             }
             style={{
               flexDirection: 'row',
