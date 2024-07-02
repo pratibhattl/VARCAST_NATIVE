@@ -33,6 +33,7 @@ import {useTranslation} from 'react-i18next';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import ChatIcon from '../../assets/icons/ChatIcon';
 import {apiCall} from '../../Services/Service';
+import HelperFunctions from '../../Constants/HelperFunctions';
 
 const UserDetails = props => {
   const route = useRoute();
@@ -45,8 +46,6 @@ const UserDetails = props => {
   const {following} = useSelector(state => state.commonData);
   const dispatch = useDispatch();
 
-  
-
   const handleShare = async () => {
     try {
       const profileLink = `https://example.com/profile/${userData.name}`;
@@ -54,12 +53,12 @@ const UserDetails = props => {
         message: `Check out my profile: ${profileLink}`,
       });
       if (result.action === Share.sharedAction) {
-        console.log('Shared successfully');
+        HelperFunctions.showToastMsg('Shared successfully');
       } else if (result.action === Share.dismissedAction) {
-        console.log('Share dismissed');
+        HelperFunctions.showToastMsg('Share dismissed');
       }
     } catch (error) {
-      console.error('Error sharing:', error.message);
+      HelperFunctions.showToastMsg(error.message);
     }
   };
 
@@ -79,19 +78,13 @@ const UserDetails = props => {
 
       setUserDetails(data.data);
     } catch (error) {
-      console.error('ERROR WHILE FETCHING DATA :', error);
+      HelperFunctions.showToastMsg(error.message);
     } finally {
       setLoadingState(false);
     }
   };
 
-  useEffect(() => {
-    getUserDetails();
-  }, [userData?._id]);
-
- 
   const followFunction = async () => {
-  
     try {
       const data = await apiCall(
         'follow/post',
@@ -101,11 +94,15 @@ const UserDetails = props => {
       );
       dispatch(followUser());
     } catch (error) {
-      console.error('ERROR WHILE FETCHING DATA :', error);
+      HelperFunctions.showToastMsg(error.message);
     } finally {
       setLoadingState(false);
     }
   };
+
+  useEffect(() => {
+    getUserDetails();
+  }, [userData?._id]);
 
   return (
     <View style={styles.container}>
@@ -287,7 +284,9 @@ const UserDetails = props => {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                {!(userDetails?.is_following ) && <Icon name="plus" type="Entypo" size={22} color={'#000'} />}
+                {!userDetails?.is_following && (
+                  <Icon name="plus" type="Entypo" size={22} color={'#000'} />
+                )}
 
                 <Text
                   style={{
@@ -297,7 +296,7 @@ const UserDetails = props => {
                     marginTop: 0,
                     marginHorizontal: 5,
                   }}>
-                  {(userDetails?.is_following ) ? t('Unfollow') : t('Follow')}
+                  {userDetails?.is_following ? t('Unfollow') : t('Follow')}
                 </Text>
               </TouchableOpacity>
 

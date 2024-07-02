@@ -26,7 +26,6 @@ const {width, height} = Dimensions.get('screen');
 const PopularEpisode = () => {
   const route = useRoute();
   const imageUrl = AllSourcePath.IMAGE_BASE_URL;
-  // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
   const token = useSelector(state => state.authData.token);
   const staticImage = require('../../assets/images/image96.png');
@@ -60,7 +59,7 @@ const PopularEpisode = () => {
         setHasMore(response?.data?.isNext);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      HelperFunctions.showToastMsg(error.message);
     } finally {
       setLoadingState(false);
       setInitialLoading(false);
@@ -81,7 +80,6 @@ const PopularEpisode = () => {
   return (
     <ScreenLayout
       headerStyle={{backgroundColor: '#131313'}}
-      // showLoading={initialLoading}
       isScrollable={true}
       viewStyle={{backgroundColor: '#131313'}}
       leftHeading={'Popular Episode'}
@@ -127,7 +125,7 @@ const PopularEpisode = () => {
                       id: item?._id,
                     });
                   } else {
-                    NavigationService.navigate('PodcastLive',item);
+                    NavigationService.navigate('PodcastLive', item);
                   }
                 }}
                 style={{
@@ -135,7 +133,6 @@ const PopularEpisode = () => {
                   height: 165,
                   borderRadius: 15,
                   marginHorizontal: 4,
-                  // marginVertical:5,
                   overflow: 'hidden',
                   backgroundColor: 'black',
                   position: 'relative',
@@ -168,9 +165,10 @@ const PopularEpisode = () => {
                     style={{
                       color: '#fff',
                       fontSize: 14,
+                      fontWeight: 600,
                       fontFamily: Theme.FontFamily.normal,
                       marginTop: 2,
-                      // marginLeft: 10,
+                      textAlign: 'center',
                     }}>
                     {item.title}
                   </Text>

@@ -5,9 +5,10 @@ import {
   StyleSheet,
   Dimensions,
   Image,
-  Pressable,
+  Pressable,ActivityIndicator
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
+import HelperFunctions from '../../Constants/HelperFunctions';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import NavigationService from '../../Services/Navigation';
 import {useRoute} from '@react-navigation/core';
@@ -40,7 +41,6 @@ const ChatList = props => {
       token,
     );
     setAllData(data?.listData);
-    console.log('search', data);
   };
 
   useEffect(() => {
@@ -54,7 +54,7 @@ const ChatList = props => {
         const {data} = await apiCall('home/chatUserList', 'GET', null, token);
         setAllData(data?.listData);
       } catch (error) {
-        console.error('ERROR WHILE FETCHING CHATLIST :', error);
+        HelperFunctions.showToastMsg(error.message);
       } finally {
         setLoading(false);
       }
@@ -69,8 +69,6 @@ const ChatList = props => {
       showLoading={loading}
       isScrollable={true}
       Chat
-      // viewStyle={{backgroundColor:'#131313'}}
-      // leftHeading={'Book an Appointment'}
       ChatIconPress={() => NavigationService.navigate('ChatRoom')}
       Home
       Edit
@@ -87,11 +85,6 @@ const ChatList = props => {
             fontFamily: Theme.FontFamily.semiBold,
             fontSize: Theme.sizes.s16,
           }}
-          mainContainerStyle={
-            {
-              //   marginHorizontal:20
-            }
-          }
           // rightAction={<MicroPhoneIcon />}
           leftIcon={{
             name: 'search',
@@ -104,15 +97,9 @@ const ChatList = props => {
         />
         <KeyboardAwareScrollView>
           {loading && (
-            <Text
-              style={{
-                color: '#ffffff',
-                textAlign: 'center',
-                marginTop: 100,
-                fontSize: 24,
-              }}>
-              Loading...
-            </Text>
+            <View style={{paddingVertical: 20}}>
+            <ActivityIndicator size="large" />
+          </View>
           )}
 
           {!loading && allData?.length === 0 && (

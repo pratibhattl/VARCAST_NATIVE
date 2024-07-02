@@ -27,19 +27,20 @@ import ShareIcon from '../../assets/icons/ShareIcon';
 import AudioReelsIcon from '../../assets/icons/AudioReelsIcon';
 import VideoReelsIcon from '../../assets/icons/VideoReelsIcon';
 import {followUser} from '../../Store/Reducers/CommonReducer';
-import { useIsFocused } from '@react-navigation/native';
+import {useIsFocused} from '@react-navigation/native';
 import {t} from 'i18next';
+import HelperFunctions from '../../Constants/HelperFunctions';
 const {width, height} = Dimensions.get('screen');
 
 const ProfileIndex = () => {
   const Tab = createMaterialTopTabNavigator();
   const route = useRoute();
-  const isFocused = useIsFocused()
+  const isFocused = useIsFocused();
   // const {userDetails} = useSelector(state => state.authData);
   const token = useSelector(state => state.authData.token);
   const [loadingState, setLoadingState] = useState(false);
   const [userDetails, setUserDetails] = useState({});
-  
+
   const {following} = useSelector(state => state.commonData); // Get following state from the store
   const dispatch = useDispatch(); // Initialize useDispatch
 
@@ -53,14 +54,9 @@ const ProfileIndex = () => {
       const data = response.data;
       setUserDetails(data);
     } catch (error) {
-      console.error('Error fetching My profile data:', error);
+      HelperFunctions.showToastMsg(error.message);
     }
   };
-  useEffect(() => {
-   if(isFocused){
-    fetchLoggedInUserData();
-   }
-  }, [isFocused]);
 
   const handleShare = async () => {
     try {
@@ -69,14 +65,20 @@ const ProfileIndex = () => {
         message: `Check out my profile: ${profileLink}`,
       });
       if (result.action === Share.sharedAction) {
-        console.log('Shared successfully');
+        HelperFunctions.showToastMsg('Shared successfully');
       } else if (result.action === Share.dismissedAction) {
-        console.log('Share dismissed');
+        HelperFunctions.showToastMsg('Share dismissed');
       }
     } catch (error) {
-      console.error('Error sharing:', error.message);
+      HelperFunctions.showToastMsg(error.message);
     }
   };
+
+  useEffect(() => {
+    if (isFocused) {
+      fetchLoggedInUserData();
+    }
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
@@ -101,7 +103,9 @@ const ProfileIndex = () => {
             headerStyle={{paddingTop: 0}}
             Edit
             EditIconPress={() => NavigationService.navigate('EditProfile')}
-            NotiIconPress={() => NavigationService.navigate('NotificationIndex')}
+            NotiIconPress={() =>
+              NavigationService.navigate('NotificationIndex')
+            }
             onLeftIconPress={() => NavigationService.openDrawer()}
           />
           <View
