@@ -10,6 +10,9 @@ import {
   TouchableOpacity,
   TextInput,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  PermissionsAndroid,TouchableWithoutFeedback
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -46,7 +49,6 @@ import BatchIcon from '../../assets/icons/BatchIcon';
 import RocketIcon from '../../assets/icons/RocketIcon';
 import DiamondIcon from '../../assets/icons/DiamondIcon';
 import CrownIcon from '../../assets/icons/CrownIcon';
-import {PermissionsAndroid, Platform} from 'react-native';
 import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import {useIsFocused} from '@react-navigation/native';
@@ -312,7 +314,6 @@ const LiveDetails = props => {
   };
 
   // Function to handle the Comment
- 
 
   const sendComment = async () => {
     const liveId = id;
@@ -596,19 +597,30 @@ const LiveDetails = props => {
           </View>
         </LinearGradient>
       </ImageBackground>
+    
+
+      <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
       <KeyboardAwareScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{paddingBottom: 20}}>
         {newComments?.map((comment, index) => (
+          // console.log("COMMENT-----", comment),
           <Pressable
             key={index}
-            onPress={() =>
-              NavigationService.navigate('ChatRoom', {
-                id: comment?.id,
-                title: comment?.name,
-                image: comment?.avatar,
-              })
-            }
+            // onPress={() =>
+            //   NavigationService.navigate('CommentChatRoom',{...comment,addEndPoint: 'lives/message-comment', getEndPoint: `lives/comment-messages/${comment?.id}`} )
+            // }
+            // onPress={() =>
+            //   NavigationService.navigate('ChatRoom', {
+            //     id: comment?.id,
+            //     title: comment?.name,
+            //     image: comment?.avatar,
+            //   })
+            // }
             style={{
               flexDirection: 'row',
               marginTop: 15,
@@ -661,33 +673,34 @@ const LiveDetails = props => {
           </Pressable>
         ))}
       </KeyboardAwareScrollView>
-      <View style={styles.inputContainer}>
-        {/* <View style={{}}> */}
-        {/* <LinkIcon/> */}
-        <TextInput
-          multiline={true}
-          style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-          placeholder="Message..."
-          value={comment}
-          onChangeText={setComment}
-          placeholderTextColor={Theme.colors.grey}
-        />
 
-        <TouchableOpacity
-          // disabled={message.trim().length==0}
-          style={[
-            styles.sendButton,
-            {
-              backgroundColor: 'transparent',
-              // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-            },
-          ]}
-          onPress={() => {
-            sendComment();
-          }}>
-          <SendIcon />
-        </TouchableOpacity>
-      </View>
+    
+        <View style={styles.inputContainer}>
+          <TextInput
+            multiline={true}
+            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+            placeholder="Message..."
+            value={comment}
+            onChangeText={setComment}
+            placeholderTextColor={Theme.colors.grey}
+          />
+
+          <TouchableOpacity
+            // disabled={message.trim().length==0}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: 'transparent',
+                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+              },
+            ]}
+            onPress={() => {
+              sendComment();
+            }}>
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
+
       <View
         style={{
           // flexDirection: 'row',
@@ -697,6 +710,7 @@ const LiveDetails = props => {
           bottom: 30,
           // left:0,
           right: 20,
+     
           // paddingHorizontal:20,
           // paddingVertical:10,
         }}>
@@ -744,6 +758,10 @@ const LiveDetails = props => {
           {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
         </Pressable>
       </View>
+      </View></TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+      
+      
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -883,6 +901,8 @@ const LiveDetails = props => {
           </View>
         </View>
       </ReactNativeModal>
+      
+      
       <ReactNativeModal
         isVisible={GiftModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -1016,11 +1036,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#131313',
     height: height,
   },
+  container2: {
+    flex: 1,
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    // paddingVertical: 8,
-    paddingVertical: 10,
+    
     height: 50,
     backgroundColor: 'rgba(27, 27, 27, 0.96)',
     width: '75%',
@@ -1029,6 +1051,7 @@ const styles = StyleSheet.create({
     bottom: 30,
     justifyContent: 'space-between',
     marginHorizontal: 20,
+   
     borderRadius: 30,
   },
   sendButton: {

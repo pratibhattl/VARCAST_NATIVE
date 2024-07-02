@@ -6,7 +6,7 @@ import {
   StyleSheet,
   ScrollView,
   Image,
-  TouchableOpacity,
+  TouchableOpacity,SafeAreaView
 } from 'react-native';
 import {useRoute} from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore';
@@ -107,7 +107,7 @@ const ChatRoom = () => {
   }, []);
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaView style={{flex:1,backgroundColor:"rgba(27, 27, 27, 0.96)"}}>
       <CustomHeader
         HeaderColor="rgba(27, 27, 27, 0.96)"
         leftHeading={`${route.params.title}`}
@@ -132,7 +132,7 @@ const ChatRoom = () => {
           }}
         />
       </View>
-    </SafeAreaProvider>
+    </SafeAreaView>
   );
 };
 
@@ -180,6 +180,7 @@ const renderBubble = props => {
         left: {
           color: '#ffffff',
           fontSize: 15,
+          
         },
       }}
       wrapperStyle={{
@@ -201,6 +202,8 @@ const renderInputToolbar = props => {
         backgroundColor: 'rgba(27, 27, 27, 0.96)',
         borderTopColor: 'rgba(27, 27, 27, 0.96)',
         marginTop: 10,
+        // marginLeft: 10,
+       
       }}
       textInputStyle={{color: 'grey'}}
     />
