@@ -26,6 +26,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
 import {apiCall} from '../../Services/Service';
+import HelperFunctions from '../../Constants/HelperFunctions';
 const {width, height} = Dimensions.get('screen');
 
 const PodcastIndex = () => {
@@ -57,12 +58,9 @@ const PodcastIndex = () => {
       // Navigate to Watch Later page
       NavigationService.navigate('WatchLater', {savedVideos: savedVideos});
     } catch (error) {
-      console.error('Error adding to Watch Later:', error);
+      HelperFunctions.showToastMsg(error.message);
     }
   };
-
-
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,9 +68,8 @@ const PodcastIndex = () => {
         const response = await apiCall('podcast/list', 'GET', null, token);
         const podcastList = response.data.listData;
         setData(podcastList); // Adjust according to the actual data structure
-      
       } catch (error) {
-        console.error('Error fetching data:', error);
+        HelperFunctions.showToastMsg(error.message);
       }
     };
 
@@ -106,7 +103,6 @@ const PodcastIndex = () => {
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            // alignItems:'center',
             padding: 20,
           }}>
           <View
@@ -180,7 +176,7 @@ const PodcastIndex = () => {
           </View>
         </View>
         <TouchableOpacity
-          onPress={() => NavigationService.navigate('SongPlayy',podcastData)}
+          onPress={() => NavigationService.navigate('SongPlayy', podcastData)}
           style={{
             position: 'absolute',
             bottom: -25,
@@ -250,7 +246,7 @@ const PodcastIndex = () => {
             {t('Similar Podcasts')}
           </Text>
           <Text
-          onPress={() => NavigationService.navigate('PopularEpisode')}
+            onPress={() => NavigationService.navigate('PopularEpisode')}
             style={{
               color: 'rgba(255, 255, 255, 0.54)',
               fontSize: 14,
