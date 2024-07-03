@@ -82,14 +82,11 @@ function BottomTabNavigation() {
         <Tab.Screen
           name="AddPlaylist"
           component={AddPlaylist}
-          options={({navigation}) => ({
+          options={{ 
             unmountOnBlur: false,
             tabBarIcon: ({color}) => <PlaylistIcon Color={color} />,
-            tabBarOnPress: () => {
-              console.log('AddPlaylist tab pressed');
-              navigation.navigate('AddPlaylist'); 
-            },
-          })}
+
+          }}
         />
         <Tab.Screen
           name="Profile"

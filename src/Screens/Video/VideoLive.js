@@ -13,19 +13,17 @@ import {
   Keyboard,
   Switch,
   KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
+  Platform,TouchableWithoutFeedback
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import ReactNativeModal from 'react-native-modal';
 import NavigationService from '../../Services/Navigation';
-import {useRoute, useNavigation} from '@react-navigation/native';
+import {useRoute} from '@react-navigation/native';
 import {ImageBackground} from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
-import Slider from '@react-native-community/slider';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 import {BlurView} from '@react-native-community/blur';
@@ -46,7 +44,7 @@ import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
 import {useIsFocused} from '@react-navigation/native';
-import Video, { useProgress } from 'react-native-video';
+import Video from 'react-native-video';
 import {
   ClientRoleType,
   createAgoraRtcEngine,
@@ -72,16 +70,17 @@ const {width, height} = Dimensions.get('screen');
 
 const VideoLive = props => {
   const route = useRoute();
+  console.log('Route', route.params);
   const baseUrl = AllSourcePath?.API_BASE_URL_DEV;
   const imageURL = AllSourcePath?.IMAGE_BASE_URL;
   let id = route.params?.id;
   const isFocused = useIsFocused();
-
   const [playlists, setPlaylists] = useState([]);
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(false);
   const {width, height} = Dimensions.get('window');
   const [selectedData, setSelectedData] = useState({});
+  console.log('Seleceted Video Data', selectedData);
   const [ModalState, setModalState] = useState(false);
   const [paused, setPaused] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -100,6 +99,7 @@ const VideoLive = props => {
   const [message, setMessage] = useState(''); // Message to the user
   const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
   const channelName = 'test';
+  console.log('Route Params:', route.params);
 
   // const token =
   //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
@@ -137,25 +137,6 @@ const VideoLive = props => {
     setShowControls(!showControls);
   };
 
-
-  const onLoad = (data) => {
-    setDuration(data.duration);
-  };
-
-   const onProgress = (data) => {
-    setSliderValue((data.currentTime / duration) * 100);
-  };
-  const onSliderValueChange = (value) => {
-    if (videoRef.current) {
-      const seekTime = (value / 100) * duration;
-      videoRef.current.seek(seekTime);
-      setSliderValue(value);
-    }
-  };
-
-
-
-
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
@@ -166,10 +147,10 @@ const VideoLive = props => {
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       setPlaylists(response.data.listData);
-
+      console.log('RawRes', response);
       changeloadingState(false);
     } catch (error) {
-      HelperFunctions.showToastMsg(error.message);
+      console.error('Error fetching playlists:', error);
       changeloadingState(false);
     }
   };
@@ -181,7 +162,7 @@ const VideoLive = props => {
   const handlePlaylistClick = async playlistId => {
     try {
       const endpoint = 'playlist/add_media';
-
+      console.log('Podcast Data', selectedData);
       const mediaUrl = selectedData.image;
       const image = selectedData.image;
       const title = selectedData.title;
@@ -197,9 +178,9 @@ const VideoLive = props => {
         updated_at,
         created_at,
       }; // The data to be sent in the POST request
-
+      console.log('Sent Podcast Data ', data);
       const response = await apiCall(endpoint, 'POST', data, token);
-
+      console.log('API Response:', response.status);
       if (response.status === true) {
         HelperFunctions.showToastMsg('Media added to playlist successfully!');
         fetchPlaylists();
@@ -211,8 +192,12 @@ const VideoLive = props => {
           'This media already exists in the playlist.',
         );
       }
+      // Handle the response as needed
     } catch (error) {
-      HelperFunctions.showToastMsg('Error making API call:', error.message);
+      // HelperFunctions.showToastMsg(
+      //   'This media already exists in the playlist.',
+      // );
+      console.error('Error making API call:', error);
     }
   };
 
@@ -316,8 +301,8 @@ const VideoLive = props => {
   // };
   const leave = () => {
     try {
-    } catch (err) {
-      HelperFunctions.showToastMsg(err.message);
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -368,10 +353,7 @@ const VideoLive = props => {
         }
       })
       .catch(error => {
-        HelperFunctions.showToastMsg(
-          'Error fetching Live comments:',
-          error.message,
-        );
+        console.error('Error fetching Live comments:', error);
       });
   };
   useEffect(() => {
@@ -380,8 +362,9 @@ const VideoLive = props => {
     }
   }, [isFocused]);
   const handleLikePress = () => {
+    // console.log('Heart icon pressed');
     const videoId = id;
-
+    // console.log('Hart', podcastId);
     if (!videoId) {
       console.error('Podcast ID is missing');
       return;
@@ -393,21 +376,19 @@ const VideoLive = props => {
 
     apiCall('videos/like', 'POST', payload, token)
       .then(response => {
+        console.log('Message', response.message);
         if (response.message === 'Liked') {
           setLikeStatus(true);
-
+          console.log('Video liked successfully');
           HelperFunctions.showToastMsg('Video liked');
         } else {
           setLikeStatus(false);
-
+          console.log('Video disliked successfully');
           HelperFunctions.showToastMsg('Video Disliked');
         }
       })
       .catch(error => {
-        HelperFunctions.showToastMsg(
-          'Error fetching Live comments:',
-          error.message,
-        );
+        console.error('Error while liking the Video:', error);
       });
   };
 
@@ -492,18 +473,10 @@ const VideoLive = props => {
   /*** Start Video playing ***/
 
   return (
-        <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.closeIconContainer}
-        onPress={() => NavigationService.back()}>
-        <CrossIcon style={styles.closeIcon} />
-      </TouchableOpacity>
+    <View style={styles.container}>
       <View style={styles.videoContainer}>
         <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
           <Video
-            ref={(ref) => {
-              videoRef = ref;
-            }}
             source={{
               uri: `${imageURL}${selectedData?.image}`,
             }}
@@ -523,175 +496,252 @@ const VideoLive = props => {
                   color="white"
                 />
               </TouchableOpacity>
-              <Slider
-                style={styles.slider}
-                value={sliderValue}
-                onValueChange={onSliderValueChange}
-                minimumValue={0}
-                maximumValue={100}
-                minimumTrackTintColor="#FFFFFF"
-                maximumTrackTintColor="#000000"
-                thumbTintColor="#FFFFFF"
-              />
             </View>
           )}
         </TouchableOpacity>
       </View>
-    
-     
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.container2}>
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-          <View style={{flex: 1}}>
-            <KeyboardAwareScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{paddingVertical: 20}}>
-              {mapComment.map((item, index) => (
-                <Pressable
-                  key={index}
-                  onPress={() =>
-                    NavigationService.navigate('CommentChatRoom',{...item, id: item?._id,addEndPoint: 'videos/message-comment', getEndPoint: `videos/comment-messages/${item?._id}`} )
-                  }
+
+      {/* <FlatList
+        showsVerticalScrollIndicator={false}
+        data={mapComment}
+        style={{
+          position: 'absolute',
+          bottom: 10,
+          width: width,
+          height: height / 2.2,
+        }}
+        renderItem={({item, index}) => {
+          // Destructure item and index directly
+          return (
+            <Pressable
+              key={index}
+              onPress={() =>
+                NavigationService.navigate('ChatRoom', {
+                  id: item?.user?._id,
+                  title: item?.user?.name,
+                  image: item?.user?.full_path_image,
+                })
+              }
+              style={{
+                flexDirection: 'row',
+                // alignItems: 'center',
+                // justifyContent:'space-between',
+                marginTop: 15,
+                paddingLeft: 20,
+                paddingRight: 15,
+                height: 50,
+              }}>
+              <Pressable>
+                <Image
+                  source={{uri: item?.user?.full_path_image}}
                   style={{
-                    flexDirection: 'row',
-                    marginBottom: 5,
-                    paddingLeft: 20,
-                    paddingRight: 15,
-                    height: 50,
-                  }}>
-                  <Image
-                    source={{uri: item?.user?.full_path_image}}
-                    style={{
-                      height: 40,
-                      width: 40,
-                      borderRadius: 45,
-                      borderWidth: 0.7,
-                      borderColor: 'white',
-                    }}
-                    resizeMode="contain"
-                  />
-
-                  <View
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      marginLeft: 20,
-                      borderColor: 'rgba(118, 118, 128, 0.24)',
-                      borderBottomWidth: 0,
-                      paddingBottom: 10,
-                     
-                    }}>
-                    <View>
-                      <Text
-                        style={{
-                          color: '#fff',
-                          fontSize: 14,
-                          fontFamily: Theme.FontFamily.medium,
-                        }}>
-                        {item?.comment}
-                      </Text>
-                      <Text
-                        style={{
-                          color: 'rgba(255, 255, 255, 0.54)',
-                          fontSize: 14,
-                          fontFamily: Theme.FontFamily.normal,
-                          marginTop: 3,
-                        }}>
-                        {item?.user?.name}{' '}
-                      </Text>
-                    </View>
-                  </View>
-                </Pressable>
-              ))}
-            </KeyboardAwareScrollView>
-
-            <View style={styles.inputContainer}>
-              <TextInput
-                multiline={true}
-                style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-                placeholder="Message..."
-                value={comment}
-                onChangeText={setComment}
-                placeholderTextColor={Theme.colors.white}
-              />
-
-              <TouchableOpacity
-                // disabled={message.trim().length==0}
-                style={[
-                  styles.sendButton,
-                  {
-                    backgroundColor: 'transparent',
-                    // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-                  },
-                ]}
-                onPress={() => {
-                  sendComment();
+                    height: 40,
+                    width: 40,
+                    borderRadius: 45,
+                    borderWidth: 0.7,
+                    borderColor: 'white',
+                  }}
+                  resizeMode="contain"
+                />
+              </Pressable>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginLeft: 20,
+                  borderColor: 'rgba(118, 118, 128, 0.24)',
+                  borderBottomWidth: 0,
+                  paddingBottom: 10,
+                  // marginTop:5
                 }}>
-                <SendIcon />
-              </TouchableOpacity>
-            </View>
+                <View>
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.medium,
+                    }}>
+                    {item?.comment}
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.54)',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.normal,
+                      marginTop: 3,
+                    }}>
+                    {item?.user?.name}{' '}
+                  </Text>
+                </View>
+              </View>
+            </Pressable>
+          );
+        }}
+      /> */}
 
+
+<KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container2}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={{ flex: 1 }}>
+      <KeyboardAwareScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{paddingBottom: 20}}>
+        {mapComment.map((item, index) => (
+          <Pressable
+            key={index}
+            onPress={() =>
+              NavigationService.navigate('ChatRoom', {
+                id: item?.user?._id,
+                title: item?.user?.name,
+                image: item?.user?.full_path_image,
+              })
+            }
+            style={{
+              flexDirection: 'row',
+              // alignItems: 'center',
+              // justifyContent:'space-between',
+              marginTop: 15,
+              paddingLeft: 20,
+              paddingRight: 15,
+              height: 50,
+            }}>
+            <Pressable>
+              <Image
+                source={{uri: item?.user?.full_path_image}}
+                style={{
+                  height: 40,
+                  width: 40,
+                  borderRadius: 45,
+                  borderWidth: 0.7,
+                  borderColor: 'white',
+                }}
+                resizeMode="contain"
+              />
+            </Pressable>
             <View
               style={{
-                // flexDirection: 'row',
-                alignItems: 'center',
+                flexDirection: 'row',
                 justifyContent: 'space-between',
-                position: 'absolute',
-                bottom: 30,
-                // left:0,
-                right: 20,
-                // paddingHorizontal:20,
-                // paddingVertical:10,
+                marginLeft: 20,
+                borderColor: 'rgba(118, 118, 128, 0.24)',
+                borderBottomWidth: 0,
+                paddingBottom: 10,
+                // marginTop:5
               }}>
-              {mapComment?.length > 0 && (
-                <Pressable
-                  onPress={() =>
-                    NavigationService.navigate('PodcastComment', {mapComment})
-                  }
+              <View>
+                <Text
                   style={{
-                    height: 50,
-                    width: 50,
-                    borderRadius: 50,
-                    backgroundColor: 'rgba(27, 27, 27, 0.96)',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: 15,
+                    color: '#fff',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.medium,
                   }}>
-                  <CommentIcon />
-                </Pressable>
-              )}
-
-              <Pressable
-                onPress={() => setModalState(true)}
-                style={{
-                  height: 50,
-                  width: 50,
-                  borderRadius: 50,
-                  backgroundColor: 'rgba(27, 27, 27, 0.86)',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginBottom: 15,
-                }}>
-                <ShareIcon />
-              </Pressable>
-              <Pressable
-                onPress={handleLikePress}
-                style={{
-                  height: 50,
-                  width: 50,
-                  borderRadius: 50,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  // marginBottom:10
-                }}>
-                {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
-              </Pressable>
+                  {item?.comment}
+                </Text>
+                <Text
+                  style={{
+                    color: 'rgba(255, 255, 255, 0.54)',
+                    fontSize: 14,
+                    fontFamily: Theme.FontFamily.normal,
+                    marginTop: 3,
+                  }}>
+                  {item?.user?.name}{' '}
+                </Text>
+              </View>
             </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
+          </Pressable>
+        ))}
+      </KeyboardAwareScrollView>
 
+     
+        <View style={styles.inputContainer}>
+          <TextInput
+            multiline={true}
+            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+            placeholder="Message..."
+            value={comment}
+            onChangeText={setComment}
+            placeholderTextColor={Theme.colors.white}
+          />
+
+          <TouchableOpacity
+            // disabled={message.trim().length==0}
+            style={[
+              styles.sendButton,
+              {
+                backgroundColor: 'transparent',
+                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+              },
+            ]}
+            onPress={() => {
+              sendComment();
+            }}>
+            <SendIcon />
+          </TouchableOpacity>
+        </View>
+      
+
+      <View
+        style={{
+          // flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          position: 'absolute',
+          bottom: 30,
+          // left:0,
+          right: 20,
+          // paddingHorizontal:20,
+          // paddingVertical:10,
+        }}>
+        {mapComment?.length > 0 && (
+          <Pressable
+            onPress={() =>
+              NavigationService.navigate('PodcastComment', {mapComment})
+            }
+            style={{
+              height: 50,
+              width: 50,
+              borderRadius: 50,
+              backgroundColor: 'rgba(27, 27, 27, 0.96)',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: 15,
+            }}>
+            <CommentIcon />
+          </Pressable>
+        )}
+
+        <Pressable
+          onPress={() => setModalState(true)}
+          style={{
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            backgroundColor: 'rgba(27, 27, 27, 0.86)',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: 15,
+          }}>
+          <ShareIcon />
+        </Pressable>
+        <Pressable
+          onPress={handleLikePress}
+          style={{
+            height: 50,
+            width: 50,
+            borderRadius: 50,
+            alignItems: 'center',
+            justifyContent: 'center',
+            // marginBottom:10
+          }}>
+          {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
+        </Pressable>
+      </View> 
+      </View>
+      </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+      
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
@@ -858,21 +908,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  closeIconContainer: {
-    position: 'absolute',
-    top: 30,
-    right: 20,
-    padding: 10,
-    zIndex: 1,
-    borderWidth: 1,
-    borderColor: 'white',
-    borderStyle: 'dotted', // Dotted border style
-  },
-  closeIcon: {
-    width: 20,
-    height: 20,
-    tintColor: 'white',
-  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -888,10 +923,6 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 30,
     // marginTop:30
-  },
-  slider: {
-    width: '80%',
-    marginHorizontal: 10,
   },
   sendButton: {
     borderRadius: 50,
@@ -967,3 +998,32 @@ const styles = StyleSheet.create({
   head: {fontSize: 20},
   info: {backgroundColor: '#ffffe0', paddingHorizontal: 8, color: '#0000ff'},
 });
+
+{
+  /* <ScreenLayout
+headerStyle={{ backgroundColor: 'rgba(27, 27, 27, 0.96);' }}
+showLoading={loadingState}
+isScrollable={true}
+leftHeading={'Podcast Details'}
+// Podcast
+// right
+Watch
+// Live={cat == 'Live' ? true : false}
+leftHeadingStyle={{ color: '#E1D01E' }}
+hideLeftIcon={customProp ? false : true}
+onLeftIconPress={() => NavigationService.back()}> 
+ <Pressable style={{
+                    position: 'absolute',
+                    bottom: -25,
+                    right: 10,
+                    height: 50,
+                    width: 50,
+                    borderRadius: 30,
+                    backgroundColor: '#fff',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                    <VideoPlayIcon Width={30} Height={30} />
+                </Pressable>
+*/
+}
