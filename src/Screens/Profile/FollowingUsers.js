@@ -27,11 +27,6 @@ const FollowingUsers = props => {
       showLoading={loadingState}
       isScrollable={true}
       leftHeading={'Following Users'}
-      // viewStyle={{backgroundColor:'transparent'}}
-      // right
-      // Save
-      // onRightTextPress={() => NavigationService.navigate('DrawerNavigation')}
-      // Publish
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
@@ -53,8 +48,6 @@ const FollowingUsers = props => {
                   key={ind}
                   style={{
                     flexDirection: 'row',
-                    // alignItems: 'center',
-                    // justifyContent:'space-between',
                     marginTop: 15,
                   }}>
                   <Image

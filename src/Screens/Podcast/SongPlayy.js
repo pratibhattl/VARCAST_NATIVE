@@ -139,8 +139,7 @@ const SongPlayy = props => {
       .then(response => {
         if (response?.data?.status === true) {
           const like = response?.data?.data?.isLiked == true ? true : false;
-          console.log('podcast123', response?.data?.data);
-
+         
           setSelectedData(response?.data?.data);
           setLikeStatus(like);
         } else {
@@ -148,14 +147,14 @@ const SongPlayy = props => {
         }
       })
       .catch(error => {
-        console.error('Error fetching Podcast comments:', error);
+        HelperFunctions.showToastMsg('Error fetching Podcast comments:', error.message)
       });
   };
 
   const handleLikePress = () => {
     const podcastId = props.route.params._id;
     if (!podcastId) {
-      console.error('Podcast ID is missing');
+    
       return;
     }
     const payload = {
@@ -174,7 +173,7 @@ const SongPlayy = props => {
         }
       })
       .catch(error => {
-        console.error('Error while liking the podcast:', error);
+        HelperFunctions.showToastMsg('Error while liking the podcast:', error.message)
       });
   };
 

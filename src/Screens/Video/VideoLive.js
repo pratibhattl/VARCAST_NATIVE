@@ -13,7 +13,8 @@ import {
   Keyboard,
   Switch,
   KeyboardAvoidingView,
-  Platform,TouchableWithoutFeedback
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -71,11 +72,11 @@ const {width, height} = Dimensions.get('screen');
 
 const VideoLive = props => {
   const route = useRoute();
-  console.log('Route', route.params);
   const baseUrl = AllSourcePath?.API_BASE_URL_DEV;
   const imageURL = AllSourcePath?.IMAGE_BASE_URL;
   let id = route.params?.id;
   const isFocused = useIsFocused();
+
   const [playlists, setPlaylists] = useState([]);
   const token = useSelector(state => state.authData.token);
   const [likeStatus, setLikeStatus] = useState(false);
@@ -92,11 +93,39 @@ const VideoLive = props => {
   const [messages, setMessages] = useState('');
   const [mapComment, setMapcomment] = useState([]);
   const [comment, setComment] = useState('');
+  const agoraEngineRef = useRef(); // Agora engine instance
+  const [isJoined, setIsJoined] = useState(false); // Indicates if the local user has joined the channel
+  const [isHostMic, setIsHosMic] = useState(true); // Client role
+  const [remoteUid, setRemoteUid] = useState(0); // Uid of the remote user
+  const [message, setMessage] = useState(''); // Message to the user
+  const appId = 'ee6f53e15f78432fb6863f9baddd9bb3';
+  const channelName = 'test';
 
-  const [sliderValue, setSliderValue] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const videoRef = useRef(null);
-
+  // const token =
+  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
+  // const uid = 0;
+  // function showMessage(msg) {
+  //   setMessage(msg);
+  // }
+  // const getPermission = async () => {
+  //   if (Platform.OS === 'android') {
+  //     await PermissionsAndroid.requestMultiple([
+  //       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
+  //       PermissionsAndroid.PERMISSIONS.CAMERA,
+  //     ]);
+  //   }
+  // };
+  // const getPermissionIos = async () => {
+  //   if (Platform.OS === 'ios') {
+  //     requestMultiple([
+  //       PERMISSIONS.IOS.CAMERA,
+  //       PERMISSIONS.IOS.MICROPHONE,
+  //     ]).then(statuses => {
+  //       console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
+  //       console.log('MICROPHONE', statuses[PERMISSIONS.IOS.MICROPHONE]);
+  //     });
+  //   }
+  // };
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -137,10 +166,10 @@ const VideoLive = props => {
       const endpoint = 'playlist/index';
       const response = await apiCall(endpoint, 'GET', {}, token);
       setPlaylists(response.data.listData);
-      console.log('RawRes', response);
+
       changeloadingState(false);
     } catch (error) {
-      console.error('Error fetching playlists:', error);
+      HelperFunctions.showToastMsg(error.message);
       changeloadingState(false);
     }
   };
@@ -152,7 +181,7 @@ const VideoLive = props => {
   const handlePlaylistClick = async playlistId => {
     try {
       const endpoint = 'playlist/add_media';
-      console.log('Podcast Data', selectedData);
+
       const mediaUrl = selectedData.image;
       const image = selectedData.image;
       const title = selectedData.title;
@@ -168,9 +197,9 @@ const VideoLive = props => {
         updated_at,
         created_at,
       }; // The data to be sent in the POST request
-      console.log('Sent Podcast Data ', data);
+
       const response = await apiCall(endpoint, 'POST', data, token);
-      console.log('API Response:', response.status);
+
       if (response.status === true) {
         HelperFunctions.showToastMsg('Media added to playlist successfully!');
         fetchPlaylists();
@@ -182,12 +211,8 @@ const VideoLive = props => {
           'This media already exists in the playlist.',
         );
       }
-      // Handle the response as needed
     } catch (error) {
-      // HelperFunctions.showToastMsg(
-      //   'This media already exists in the playlist.',
-      // );
-      console.error('Error making API call:', error);
+      HelperFunctions.showToastMsg('Error making API call:', error.message);
     }
   };
 
@@ -199,7 +224,123 @@ const VideoLive = props => {
     };
   }, []);
 
-  
+  //   try {
+  //     // use the helper function to get permissions
+  //     if (Platform.OS === 'android') {
+  //       await getPermission();
+  //     }
+  //     if (Platform.OS === 'ios') {
+  //       await getPermissionIos();
+  //     }
+  //     agoraEngineRef.current = createAgoraRtcEngine();
+  //     const agoraEngine = agoraEngineRef.current;
+  //     agoraEngine.registerEventHandler({
+  //       onJoinChannelSuccess: (_connection, Uid) => {
+  //         HelperFunctions.showToastMsg(
+  //           'Successfully joined the channel ' + channelName,
+  //         );
+  //         console.log('Host ID?dd>>>>>>>>', Uid, _connection.localUid);
+
+  //         setIsJoined(true);
+  //       },
+  //       onUserJoined: (_connection, Uid) => {
+  //         HelperFunctions.showToastMsg('Remote user joined with uid ' + Uid);
+  //         console.log('user joined');
+  //         console.log('user IDsdsd?>>>>>>>>', Uid);
+  //         setRemoteUid(Uid);
+  //       },
+  //       onUserOffline: (_connection, Uid) => {
+  //         console.log('user left');
+  //         console.log('user ID offline?>>>>>>>>', Uid, _connection.localUid);
+  //         HelperFunctions.showToastMsg(
+  //           'Remote user left the channel. uid: ' + Uid,
+  //         );
+  //         setRemoteUid(0);
+  //       },
+  //       // onLocalAudioStateChanged: (_connection,state,error) =>{
+  //       //     console.log('mutermcicc',state)
+  //       // }
+  //     });
+  //     // console.log('khgjhghjghjggjh',idd)
+  //     agoraEngine.initialize({
+  //       appId: appId,
+  //       channelProfile: ChannelProfileType.ChannelProfileLiveBroadcasting,
+  //     });
+  //     agoraEngine.enableVideo();
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+  // const joinAudience = async (channel, tok) => {
+  //   const agoraEngine = agoraEngineRef.current;
+  //   if (isJoined) {
+  //     return;
+  //   }
+  //   try {
+  //     agoraEngineRef.current?.setChannelProfile(
+  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
+  //     );
+  //     //  console.log('dfdfrewtrtertetyty',agoraEngine.getHost());
+  //     // Use low level latency
+  //     var channeloptions = new ChannelMediaOptions();
+  //     // channeloptions.audienceLatencyLevel =
+  //     // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
+  //     agoraEngine.updateChannelMediaOptions(channeloptions);
+  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+  //       clientRoleType: ClientRoleType.ClientRoleAudience,
+  //     });
+  //     HelperFunctions.showToastMsg('Joined Successfully');
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+
+  // const joinHost = async (channel, tok) => {
+  //   const agoraEngine = agoraEngineRef.current;
+  //   if (isJoined) {
+  //     return;
+  //   }
+  //   try {
+  //     agoraEngineRef.current?.setChannelProfile(
+  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
+  //     );
+
+  //     agoraEngineRef.current?.startPreview();
+  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
+  //       clientRoleType: ClientRoleType.ClientRoleBroadcaster,
+  //     });
+  //     HelperFunctions.showToastMsg('Joined Successfully');
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+  const leave = () => {
+    try {
+    } catch (err) {
+      HelperFunctions.showToastMsg(err.message);
+    }
+  };
+
+  //   try {
+  //     agoraEngineRef.current?.switchCamera();
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
+  // const MuteMic = () => {
+  //   try {
+  //     // enableAudio
+  //     if (isHostMic) {
+  //       agoraEngineRef.current?.muteLocalAudioStream(true);
+  //       setIsHosMic(false);
+  //     } else {
+  //       agoraEngineRef.current?.muteLocalAudioStream(false);
+  //       setIsHosMic(true);
+  //     }
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
   const fetchCommentData = async () => {
     const formData = new FormData();
     formData.append('videoId', id);
@@ -227,7 +368,10 @@ const VideoLive = props => {
         }
       })
       .catch(error => {
-        console.error('Error fetching Live comments:', error);
+        HelperFunctions.showToastMsg(
+          'Error fetching Live comments:',
+          error.message,
+        );
       });
   };
   useEffect(() => {
@@ -236,9 +380,8 @@ const VideoLive = props => {
     }
   }, [isFocused]);
   const handleLikePress = () => {
-    // console.log('Heart icon pressed');
     const videoId = id;
-    // console.log('Hart', podcastId);
+
     if (!videoId) {
       console.error('Podcast ID is missing');
       return;
@@ -250,19 +393,21 @@ const VideoLive = props => {
 
     apiCall('videos/like', 'POST', payload, token)
       .then(response => {
-        console.log('Message', response.message);
         if (response.message === 'Liked') {
           setLikeStatus(true);
-          console.log('Video liked successfully');
+
           HelperFunctions.showToastMsg('Video liked');
         } else {
           setLikeStatus(false);
-          console.log('Video disliked successfully');
+
           HelperFunctions.showToastMsg('Video Disliked');
         }
       })
       .catch(error => {
-        console.error('Error while liking the Video:', error);
+        HelperFunctions.showToastMsg(
+          'Error fetching Live comments:',
+          error.message,
+        );
       });
   };
 
@@ -392,6 +537,288 @@ const VideoLive = props => {
           )}
         </TouchableOpacity>
       </View>
+    
+     
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container2}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{flex: 1}}>
+            <KeyboardAwareScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingVertical: 20}}>
+              {mapComment.map((item, index) => (
+                <Pressable
+                  key={index}
+                  onPress={() =>
+                    NavigationService.navigate('CommentChatRoom',{...item, id: item?._id,addEndPoint: 'videos/message-comment', getEndPoint: `videos/comment-messages/${item?._id}`} )
+                  }
+                  style={{
+                    flexDirection: 'row',
+                    marginBottom: 5,
+                    paddingLeft: 20,
+                    paddingRight: 15,
+                    height: 50,
+                  }}>
+                  <Image
+                    source={{uri: item?.user?.full_path_image}}
+                    style={{
+                      height: 40,
+                      width: 40,
+                      borderRadius: 45,
+                      borderWidth: 0.7,
+                      borderColor: 'white',
+                    }}
+                    resizeMode="contain"
+                  />
+
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginLeft: 20,
+                      borderColor: 'rgba(118, 118, 128, 0.24)',
+                      borderBottomWidth: 0,
+                      paddingBottom: 10,
+                     
+                    }}>
+                    <View>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.medium,
+                        }}>
+                        {item?.comment}
+                      </Text>
+                      <Text
+                        style={{
+                          color: 'rgba(255, 255, 255, 0.54)',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.normal,
+                          marginTop: 3,
+                        }}>
+                        {item?.user?.name}{' '}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              ))}
+            </KeyboardAwareScrollView>
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                multiline={true}
+                style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+                placeholder="Message..."
+                value={comment}
+                onChangeText={setComment}
+                placeholderTextColor={Theme.colors.white}
+              />
+
+              <TouchableOpacity
+                // disabled={message.trim().length==0}
+                style={[
+                  styles.sendButton,
+                  {
+                    backgroundColor: 'transparent',
+                    // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+                  },
+                ]}
+                onPress={() => {
+                  sendComment();
+                }}>
+                <SendIcon />
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                // flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'absolute',
+                bottom: 30,
+                // left:0,
+                right: 20,
+                // paddingHorizontal:20,
+                // paddingVertical:10,
+              }}>
+              {mapComment?.length > 0 && (
+                <Pressable
+                  onPress={() =>
+                    NavigationService.navigate('PodcastComment', {mapComment})
+                  }
+                  style={{
+                    height: 50,
+                    width: 50,
+                    borderRadius: 50,
+                    backgroundColor: 'rgba(27, 27, 27, 0.96)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 15,
+                  }}>
+                  <CommentIcon />
+                </Pressable>
+              )}
+
+              <Pressable
+                onPress={() => setModalState(true)}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderRadius: 50,
+                  backgroundColor: 'rgba(27, 27, 27, 0.86)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 15,
+                }}>
+                <ShareIcon />
+              </Pressable>
+              <Pressable
+                onPress={handleLikePress}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderRadius: 50,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  // marginBottom:10
+                }}>
+                {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
+              </Pressable>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+
+      <ReactNativeModal
+        isVisible={ModalState}
+        // backdropColor={'rgba(228, 14, 104, 1)'}
+        backdropOpacity={0.8}
+        style={{
+          margin: 0,
+          padding: 0,
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+        // animationIn={'zoomInDown'}
+        // animationOut={'zoomOut'}
+        onBackButtonPress={() => {
+          //   setPlay(false)
+          setModalState(false);
+        }}
+        onBackdropPress={() => {
+          //   setPlay(false)
+          setModalState(false);
+        }}>
+        <View
+          style={{
+            width: '100%',
+            height: height / 2.5,
+            backgroundColor: '#1C1C1C',
+            borderTopRightRadius: 20,
+            borderTopLeftRadius: 20,
+            // alignItems: 'center',
+            // padding: 20,
+            paddingHorizontal: 25,
+            // justifyContent:'center',
+            // paddingHorizontal: 10,
+          }}>
+          <View
+            style={{
+              alignSelf: 'center',
+              height: 4,
+              width: 32,
+              backgroundColor: 'rgba(118, 118, 128, 0.24)',
+              marginTop: 10,
+              marginBottom: 15,
+            }}
+          />
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+            <BookmarkIcon />
+            <TouchableOpacity onPress={toggleModal}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 17,
+                  fontFamily: Theme.FontFamily.normal,
+                  marginLeft: 15,
+                  // marginTop:10,
+                }}>
+                Save this Video for Later
+              </Text>
+            </TouchableOpacity>
+            {renderPlaylistModal()}
+          </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <ShareIcon />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 15,
+                // marginTop:10,
+              }}>
+              Share with People
+            </Text>
+          </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <SadEmojiIcon />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 15,
+                // marginTop:10,
+              }}>
+              Not Intrested
+            </Text>
+          </View>
+          <View
+            style={{
+              width: '100%',
+              height: 1.5,
+              backgroundColor: 'rgba(118, 118, 128, 0.34)',
+              marginTop: 25,
+            }}
+          />
+
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
+            <ShiledIcon Color={'#fff'} />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 15,
+                // marginTop:10,
+              }}>
+              Unfollow Oseidon Draw
+            </Text>
+          </View>
+          <View
+            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
+            <Notification Color={'#fff'} />
+            <Text
+              style={{
+                color: '#fff',
+                fontSize: 17,
+                fontFamily: Theme.FontFamily.normal,
+                marginLeft: 5,
+                // marginTop:10,
+              }}>
+              Turn Off Live Notifications
+            </Text>
+          </View>
+        </View>
+      </ReactNativeModal>
     </View>
   );
 };

@@ -15,7 +15,7 @@ const {width, height} = Dimensions.get('screen');
 
 const Followers = props => {
   const route = useRoute();
-  console.log('props',props)
+ 
 
   // Access the customProp passed from the source screen
   const customProp = route.params?.showButton;
@@ -28,11 +28,6 @@ const Followers = props => {
       showLoading={loadingState}
       isScrollable={true}
       leftHeading={'Followers'}
-      // viewStyle={{backgroundColor:'transparent'}}
-      // right
-      // Save
-      // onRightTextPress={() => NavigationService.navigate('DrawerNavigation')}
-      // Publish
       leftHeadingStyle={{color: '#E1D01E'}}
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
@@ -42,7 +37,7 @@ const Followers = props => {
         )}
         <KeyboardAwareScrollView>
           {allData.map((res, ind) => {
-            console.log('followers',res)
+            console.log('followers', res);
             return (
               <Pressable
                 onPress={() =>

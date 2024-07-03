@@ -21,6 +21,7 @@ import {useSelector} from 'react-redux';
 import {apiCall} from '../../Services/Service';
 import {useTranslation} from 'react-i18next';
 import AllSourcePath from '../../Constants/PathConfig';
+import HelperFunctions from '../../Constants/HelperFunctions';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -67,7 +68,6 @@ const SearchIndex = props => {
         const response = await apiCall(endpoint, 'GET', {}, token);
 
         let newData = [...data, ...response.data.listData];
-       
 
         if (endpoint === `videos/list?take=15&page=${page}`) {
           // Filter the data to include only items with '.mp4' in their image URL
@@ -89,7 +89,7 @@ const SearchIndex = props => {
         setData(newData);
         setHasMore(response?.data?.isNext);
       } catch (error) {
-        console.error('Error fetching data:', error);
+        HelperFunctions.showToastMsg('Error fetching data:', error.message);
       } finally {
         setLoadingState(false);
         setInitialLoading(false);
@@ -279,7 +279,7 @@ const SearchIndex = props => {
                           id: item?._id,
                         });
                       } else {
-                        NavigationService.navigate('PodcastLive',item);
+                        NavigationService.navigate('PodcastLive', item);
                       }
                     } else if (cat === 2) {
                       if (isStaticImage) {
@@ -292,7 +292,6 @@ const SearchIndex = props => {
                           audio: item?.audioUrl,
                         });
                       }
-                      
                     }
                   }}
                   style={{

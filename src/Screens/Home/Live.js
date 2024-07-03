@@ -20,6 +20,7 @@ import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
 import {useRoute} from '@react-navigation/native';
 import {BlurView} from '@react-native-community/blur';
 import {useSelector} from 'react-redux';
+import HelperFunctions from '../../Constants/HelperFunctions';
 const {width, height} = Dimensions.get('screen');
 
 const LiveEpisode = () => {
@@ -50,7 +51,7 @@ const LiveEpisode = () => {
       setLiveData(prev => [...prev, ...mappedData]);
       setHasMore(response?.data?.isNext);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      HelperFunctions.showToastMsg('Error fetching data:', error.message);
     } finally {
       setLoadingState(false);
       setInitialLoading(false);
@@ -97,86 +98,82 @@ const LiveEpisode = () => {
           showsHorizontalScrollIndicator={false}
           numColumns={2}
           contentContainerStyle={{marginHorizontal: 20, paddingBottom: 20}}
-          renderItem={({item}) => {
+          renderItem={({item}) => (
+            <Pressable
+              onPress={() =>
+                NavigationService.navigate('LiveDetails', {id: item?.id})
+              }
+              key={item.id}
+              style={{
+                width: '46%',
+                height: 165,
+                borderRadius: 15,
+                marginRight: 20,
+                borderTopRightRadius: 10,
+                borderTopLeftRadius: 10,
+                overflow: 'hidden',
 
-            console.log('item',item)
-            return (
-              <Pressable
-                onPress={() =>
-                  NavigationService.navigate('LiveDetails', {id: item?.id})
-                }
-                key={item.id}
+                backgroundColor: 'transparent',
+                marginTop: 20,
+              }}>
+              <Image
+                source={{uri: item.imageUrl}}
                 style={{
-                  width: '46%',
-                  height: 165,
+                  width: '100%',
+                  height: '100%',
                   borderRadius: 15,
-                  marginRight: 20,
-                  borderTopRightRadius: 10,
-                  borderTopLeftRadius: 10,
-                  overflow: 'hidden',
-
-                  backgroundColor: 'transparent',
-                  marginTop: 20,
-                }}>
-                <Image
-                  source={{uri: item.imageUrl}}
+                  // borderBottomLeftRadius:150
+                  // marginHorizontal:10
+                }}
+                resizeMode="cover"
+              />
+              <BlurView
+                style={{
+                  height: 71,
+                  width: 200,
+                  alignItems: 'left',
+                  justifyContent: 'center',
+                  position: 'absolute',
+                  bottom: 0,
+                  //  padding:5
+                  //  borderRadius:15,
+                }}
+                blurType="light"
+                overlayColor="transparent"
+                blurAmount={20}
+                blurRadius={10}
+                reducedTransparencyFallbackColor="white">
+                <View
                   style={{
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: 15,
-                    // borderBottomLeftRadius:150
-                    // marginHorizontal:10
-                  }}
-                  resizeMode="cover"
-                />
-                <BlurView
-                  style={{
-                    height: 71,
-                    width: 200,
-                    alignItems: 'left',
-                    justifyContent: 'center',
-                    position: 'absolute',
-                    bottom: 0,
-                    //  padding:5
-                    //  borderRadius:15,
-                  }}
-                  blurType="light"
-                  overlayColor="transparent"
-                  blurAmount={20}
-                  blurRadius={10}
-                  reducedTransparencyFallbackColor="white">
-                  <View
+                    overflow: 'hidden',
+                    padding: 5,
+                    marginLeft: 10,
+                    textAlign: 'auto',
+                  }}>
+                  <Text
                     style={{
-                      overflow: 'hidden',
-                      padding: 5,
-                      marginLeft:10,
-                      textAlign: 'auto',
+                      color: '#fff',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.normal,
+                      marginHorizontal: 5,
+                      // textAlign: 'auto',
                     }}>
-                    <Text
-                      style={{
-                        color: '#fff',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.normal,
-                        marginHorizontal: 5,
-                        // textAlign: 'auto',
-                      }}>
-                      {item.title}
-                    </Text>
+                    {item.title}
+                  </Text>
 
-                    <Text
-                      style={{
-                        color: 'rgba(255, 255, 255, 0.54)',
-                        fontSize: 14,
-                        fontFamily: Theme.FontFamily.light,
-                        marginLeft: 5,
-                      }}>
-                      Duration: {item.views}
-                    </Text>
-                  </View>
-                </BlurView>
-              </Pressable>
-            );
-          }}
+                  <Text
+                    style={{
+                      color: 'rgba(255, 255, 255, 0.54)',
+                      fontSize: 14,
+                      fontFamily: Theme.FontFamily.light,
+                      marginLeft: 5,
+                    }}>
+                    Duration: {item.views}
+                  </Text>
+                </View>
+              </BlurView>
+            </Pressable>
+          )}
         />
 
         {loadingState && hasMore && (

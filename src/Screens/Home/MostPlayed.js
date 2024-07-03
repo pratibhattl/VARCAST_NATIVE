@@ -8,7 +8,8 @@ import {
   Dimensions,
   Platform,
   FlatList,
-  Image,ActivityIndicator
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useEffect, useCallback} from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -21,6 +22,7 @@ import {BlurView} from '@react-native-community/blur';
 import {apiCall} from '../../Services/Service';
 import {useSelector} from 'react-redux';
 import AllSourcePath from '../../Constants/PathConfig';
+import HelperFunctions from '../../Constants/HelperFunctions';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -49,7 +51,7 @@ const MostPlayed = () => {
         setHasMore(response?.data?.isNext);
       }
     } catch (error) {
-      console.error('Error fetching user data:', error);
+      HelperFunctions.showToastMsg('Error fetching user data:', error.message);
     } finally {
       setLoadingState(false);
       setInitialLoading(false);
@@ -72,8 +74,6 @@ const MostPlayed = () => {
       isScrollable={true}
       viewStyle={{backgroundColor: '#131313'}}
       leftHeading={'Most Played Of The Week'}
-      // ChatIconPress={()=>NavigationService.navigate('ChatList')}
-      // Home
       hideLeftIcon={customProp ? false : true}
       onLeftIconPress={() => NavigationService.back()}>
       <View style={styles.container}>
@@ -116,7 +116,6 @@ const MostPlayed = () => {
                     });
                   }
                 }}
-              
                 style={{
                   width: '50%',
                   height: 165,
@@ -204,7 +203,9 @@ const MostPlayed = () => {
             }}>
             Load More
           </Text>
-        ):''}
+        ) : (
+          ''
+        )}
       </View>
     </ScreenLayout>
   );
