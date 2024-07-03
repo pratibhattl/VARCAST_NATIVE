@@ -24,6 +24,7 @@ import {ImageBackground} from 'react-native';
 import CustomHeader from '../../Components/Header/CustomHeader';
 import {Image} from 'react-native';
 import Theme from '../../Constants/Theme';
+import Slider from '@react-native-community/slider';
 import ClockCircleIcon from '../../assets/icons/ClockCircleIcon';
 import VideoPlayIcon from '../../assets/icons/VideoPlayIcon';
 import {BlurView} from '@react-native-community/blur';
@@ -44,7 +45,7 @@ import RedHeartIcon from '../../assets/icons/RedHeartIcon';
 import DislikeIcon from '../../assets/icons/DislikeIcon';
 import CrossIcon from '../../assets/icons/CrossIcon';
 import {useIsFocused} from '@react-navigation/native';
-import Video from 'react-native-video';
+import Video, { useProgress } from 'react-native-video';
 import {
   ClientRoleType,
   createAgoraRtcEngine,
@@ -80,7 +81,6 @@ const VideoLive = props => {
   const [likeStatus, setLikeStatus] = useState(false);
   const {width, height} = Dimensions.get('window');
   const [selectedData, setSelectedData] = useState({});
-  console.log('Seleceted Video Data', selectedData);
   const [ModalState, setModalState] = useState(false);
   const [paused, setPaused] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
@@ -93,6 +93,9 @@ const VideoLive = props => {
   const [mapComment, setMapcomment] = useState([]);
   const [comment, setComment] = useState('');
 
+  const [sliderValue, setSliderValue] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const videoRef = useRef(null);
 
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -104,6 +107,25 @@ const VideoLive = props => {
   const onVideoPress = () => {
     setShowControls(!showControls);
   };
+
+
+  const onLoad = (data) => {
+    setDuration(data.duration);
+  };
+
+   const onProgress = (data) => {
+    setSliderValue((data.currentTime / duration) * 100);
+  };
+  const onSliderValueChange = (value) => {
+    if (videoRef.current) {
+      const seekTime = (value / 100) * duration;
+      videoRef.current.seek(seekTime);
+      setSliderValue(value);
+    }
+  };
+
+
+
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
@@ -325,7 +347,7 @@ const VideoLive = props => {
   /*** Start Video playing ***/
 
   return (
-    <View style={styles.container}>
+        <View style={styles.container}>
       <TouchableOpacity
         style={styles.closeIconContainer}
         onPress={() => NavigationService.back()}>
@@ -334,6 +356,9 @@ const VideoLive = props => {
       <View style={styles.videoContainer}>
         <TouchableOpacity style={styles.touchable} onPress={onVideoPress}>
           <Video
+            ref={(ref) => {
+              videoRef = ref;
+            }}
             source={{
               uri: `${imageURL}${selectedData?.image}`,
             }}
@@ -353,382 +378,20 @@ const VideoLive = props => {
                   color="white"
                 />
               </TouchableOpacity>
+              <Slider
+                style={styles.slider}
+                value={sliderValue}
+                onValueChange={onSliderValueChange}
+                minimumValue={0}
+                maximumValue={100}
+                minimumTrackTintColor="#FFFFFF"
+                maximumTrackTintColor="#000000"
+                thumbTintColor="#FFFFFF"
+              />
             </View>
           )}
         </TouchableOpacity>
       </View>
-
-      {/* <FlatList
-        showsVerticalScrollIndicator={false}
-        data={mapComment}
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          width: width,
-          height: height / 2.2,
-        }}
-        renderItem={({item, index}) => {
-          // Destructure item and index directly
-          return (
-            <Pressable
-              key={index}
-              onPress={() =>
-                NavigationService.navigate('CommentChatRoom',{...item, id: item?._id,addEndPoint: 'videos/message-comment', getEndPoint: `videos/comment-messages/${item?._id}`} )
-              }
-              // onPress={() =>
-              //   NavigationService.navigate('ChatRoom', {
-              //     id: item?.user?._id,
-              //     title: item?.user?.name,
-              //     image: item?.user?.full_path_image,
-              //   })
-              // }
-              style={{
-                flexDirection: 'row',
-                // alignItems: 'center',
-                // justifyContent:'space-between',
-                marginTop: 15,
-                paddingLeft: 20,
-                paddingRight: 15,
-                height: 50,
-              }}>
-              <Pressable>
-                <Image
-                  source={{uri: item?.user?.full_path_image}}
-                  style={{
-                    height: 40,
-                    width: 40,
-                    borderRadius: 45,
-                    borderWidth: 0.7,
-                    borderColor: 'white',
-                  }}
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginLeft: 20,
-                  borderColor: 'rgba(118, 118, 128, 0.24)',
-                  borderBottomWidth: 0,
-                  paddingBottom: 10,
-                  // marginTop:5
-                }}>
-                <View>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.medium,
-                    }}>
-                    {item?.comment}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.54)',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.normal,
-                      marginTop: 3,
-                    }}>
-                    {item?.user?.name}{' '}
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
-          );
-        }}
-      /> */}
-
-
-<KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container2}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={{ flex: 1 }}>
-      <KeyboardAwareScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 20}}>
-        {mapComment.map((item, index) => (
-          <Pressable
-            key={index}
-            onPress={() =>
-              NavigationService.navigate('ChatRoom', {
-                id: item?.user?._id,
-                title: item?.user?.name,
-                image: item?.user?.full_path_image,
-              })
-            }
-            style={{
-              flexDirection: 'row',
-              // alignItems: 'center',
-              // justifyContent:'space-between',
-              marginTop: 15,
-              paddingLeft: 20,
-              paddingRight: 15,
-              height: 50,
-            }}>
-            <Pressable>
-              <Image
-                source={{uri: item?.user?.full_path_image}}
-                style={{
-                  height: 40,
-                  width: 40,
-                  borderRadius: 45,
-                  borderWidth: 0.7,
-                  borderColor: 'white',
-                }}
-                resizeMode="contain"
-              />
-            </Pressable>
-            <View
-              style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                marginLeft: 20,
-                borderColor: 'rgba(118, 118, 128, 0.24)',
-                borderBottomWidth: 0,
-                paddingBottom: 10,
-                // marginTop:5
-              }}>
-              <View>
-                <Text
-                  style={{
-                    color: '#fff',
-                    fontSize: 14,
-                    fontFamily: Theme.FontFamily.medium,
-                  }}>
-                  {item?.comment}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.54)',
-                    fontSize: 14,
-                    fontFamily: Theme.FontFamily.normal,
-                    marginTop: 3,
-                  }}>
-                  {item?.user?.name}{' '}
-                </Text>
-              </View>
-            </View>
-          </Pressable>
-        ))}
-      </KeyboardAwareScrollView>
-
-     
-        <View style={styles.inputContainer}>
-          <TextInput
-            multiline={true}
-            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-            placeholder="Message..."
-            value={comment}
-            onChangeText={setComment}
-            placeholderTextColor={Theme.colors.white}
-          />
-
-          <TouchableOpacity
-            // disabled={message.trim().length==0}
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor: 'transparent',
-                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-              },
-            ]}
-            onPress={() => {
-              sendComment();
-            }}>
-            <SendIcon />
-          </TouchableOpacity>
-        </View>
-      
-
-      <View
-        style={{
-          // flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'absolute',
-          bottom: 30,
-          // left:0,
-          right: 20,
-          // paddingHorizontal:20,
-          // paddingVertical:10,
-        }}>
-        {mapComment?.length > 0 && (
-          <Pressable
-            onPress={() =>
-              NavigationService.navigate('PodcastComment', {mapComment})
-            }
-            style={{
-              height: 50,
-              width: 50,
-              borderRadius: 50,
-              backgroundColor: 'rgba(27, 27, 27, 0.96)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 15,
-            }}>
-            <CommentIcon />
-          </Pressable>
-        )}
-
-        <Pressable
-          onPress={() => setModalState(true)}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.86)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <ShareIcon />
-        </Pressable>
-        <Pressable
-          onPress={handleLikePress}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            alignItems: 'center',
-            justifyContent: 'center',
-            // marginBottom:10
-          }}>
-          {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
-        </Pressable>
-      </View> 
-      </View>
-      </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-      
-      <ReactNativeModal
-        isVisible={ModalState}
-        // backdropColor={'rgba(228, 14, 104, 1)'}
-        backdropOpacity={0.8}
-        style={{
-          margin: 0,
-          padding: 0,
-          alignItems: 'center',
-          justifyContent: 'flex-end',
-        }}
-        // animationIn={'zoomInDown'}
-        // animationOut={'zoomOut'}
-        onBackButtonPress={() => {
-          //   setPlay(false)
-          setModalState(false);
-        }}
-        onBackdropPress={() => {
-          //   setPlay(false)
-          setModalState(false);
-        }}>
-        <View
-          style={{
-            width: '100%',
-            height: height / 2.5,
-            backgroundColor: '#1C1C1C',
-            borderTopRightRadius: 20,
-            borderTopLeftRadius: 20,
-            // alignItems: 'center',
-            // padding: 20,
-            paddingHorizontal: 25,
-            // justifyContent:'center',
-            // paddingHorizontal: 10,
-          }}>
-          <View
-            style={{
-              alignSelf: 'center',
-              height: 4,
-              width: 32,
-              backgroundColor: 'rgba(118, 118, 128, 0.24)',
-              marginTop: 10,
-              marginBottom: 15,
-            }}
-          />
-          <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-            <BookmarkIcon />
-            <TouchableOpacity onPress={toggleModal}>
-              <Text
-                style={{
-                  color: '#fff',
-                  fontSize: 17,
-                  fontFamily: Theme.FontFamily.normal,
-                  marginLeft: 15,
-                  // marginTop:10,
-                }}>
-                Save this Video for Later
-              </Text>
-            </TouchableOpacity>
-            {renderPlaylistModal()}
-          </View>
-          <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-            <ShareIcon />
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft: 15,
-                // marginTop:10,
-              }}>
-              Share with People
-            </Text>
-          </View>
-          <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-            <SadEmojiIcon />
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft: 15,
-                // marginTop:10,
-              }}>
-              Not Intrested
-            </Text>
-          </View>
-          <View
-            style={{
-              width: '100%',
-              height: 1.5,
-              backgroundColor: 'rgba(118, 118, 128, 0.34)',
-              marginTop: 25,
-            }}
-          />
-
-          <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 25}}>
-            <ShiledIcon Color={'#fff'} />
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft: 15,
-                // marginTop:10,
-              }}>
-              Unfollow Oseidon Draw
-            </Text>
-          </View>
-          <View
-            style={{flexDirection: 'row', alignItems: 'center', marginTop: 20}}>
-            <Notification Color={'#fff'} />
-            <Text
-              style={{
-                color: '#fff',
-                fontSize: 17,
-                fontFamily: Theme.FontFamily.normal,
-                marginLeft: 5,
-                // marginTop:10,
-              }}>
-              Turn Off Live Notifications
-            </Text>
-          </View>
-        </View>
-      </ReactNativeModal>
     </View>
   );
 };
@@ -798,6 +461,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     borderRadius: 30,
     // marginTop:30
+  },
+  slider: {
+    width: '80%',
+    marginHorizontal: 10,
   },
   sendButton: {
     borderRadius: 50,

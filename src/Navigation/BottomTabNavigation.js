@@ -40,7 +40,6 @@ function BottomTabNavigation() {
     <View style={{flex: 1}}>
       <Tab.Navigator
         initialRouteName="HomePage"
-        // screenOptions={{ headerShown: false }}
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: '#fff',
@@ -52,7 +51,6 @@ function BottomTabNavigation() {
             height: Platform.OS === 'ios' ? 90 : 70,
             borderWidth: 0,
             borderColor: 'black',
-            // paddingBottom: 5,
           },
         }}>
         <Tab.Screen
@@ -60,7 +58,6 @@ function BottomTabNavigation() {
           component={HomePage}
           options={{
             unmountOnBlur: false,
-            // tabBarIcon:'',
             tabBarIcon: ({color}) => <HomeEnableIcon Color={color} />,
           }}
         />
@@ -85,10 +82,14 @@ function BottomTabNavigation() {
         <Tab.Screen
           name="AddPlaylist"
           component={AddPlaylist}
-          options={{
+          options={({navigation}) => ({
             unmountOnBlur: false,
             tabBarIcon: ({color}) => <PlaylistIcon Color={color} />,
-          }}
+            tabBarOnPress: () => {
+              console.log('AddPlaylist tab pressed');
+              navigation.navigate('AddPlaylist'); 
+            },
+          })}
         />
         <Tab.Screen
           name="Profile"
@@ -98,20 +99,7 @@ function BottomTabNavigation() {
             tabBarIcon: ({color}) => <UserIcon Color={color} />,
           }}
         />
-        {/* <Tab.Screen
-          name="UserDetails"
-          component={UserDetails}
-          options={
-            {
-              // tabBarStyle: {display: 'none'}, // Hide the UserDetails tab
-            }
-          }
-        /> */}
       </Tab.Navigator>
-      {/* <View style={{ position: 'absolute', bottom: 89 }}>
-
-        <SongPlayComp />
-      </View> */}
     </View>
   );
 }
