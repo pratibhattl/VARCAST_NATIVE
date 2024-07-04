@@ -13,7 +13,8 @@ import {
   Keyboard,
   Switch,
   KeyboardAvoidingView,
-  Platform,TouchableWithoutFeedback
+  Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import ScreenLayout from '../../Components/ScreenLayout/ScreenLayout';
@@ -131,6 +132,8 @@ const VideoLive = props => {
 
   const togglePlayPause = () => {
     setPaused(!paused);
+    setShowControls(!showControls);
+
   };
 
   const onVideoPress = () => {
@@ -579,169 +582,166 @@ const VideoLive = props => {
         }}
       /> */}
 
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.container2}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={{flex: 1}}>
+            <KeyboardAwareScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: 20}}>
+              {mapComment.map((item, index) => (
+                <Pressable
+                  key={index}
+                  onPress={() =>
+                    NavigationService.navigate('ChatRoom', {
+                      id: item?.user?._id,
+                      title: item?.user?.name,
+                      image: item?.user?.full_path_image,
+                    })
+                  }
+                  style={{
+                    flexDirection: 'row',
+                    // alignItems: 'center',
+                    // justifyContent:'space-between',
+                    marginTop: 15,
+                    paddingLeft: 20,
+                    paddingRight: 15,
+                    height: 50,
+                  }}>
+                  <Pressable>
+                    <Image
+                      source={{uri: item?.user?.full_path_image}}
+                      style={{
+                        height: 40,
+                        width: 40,
+                        borderRadius: 45,
+                        borderWidth: 0.7,
+                        borderColor: 'white',
+                      }}
+                      resizeMode="contain"
+                    />
+                  </Pressable>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      marginLeft: 20,
+                      borderColor: 'rgba(118, 118, 128, 0.24)',
+                      borderBottomWidth: 0,
+                      paddingBottom: 10,
+                      // marginTop:5
+                    }}>
+                    <View>
+                      <Text
+                        style={{
+                          color: '#fff',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.medium,
+                        }}>
+                        {item?.comment}
+                      </Text>
+                      <Text
+                        style={{
+                          color: 'rgba(255, 255, 255, 0.54)',
+                          fontSize: 14,
+                          fontFamily: Theme.FontFamily.normal,
+                          marginTop: 3,
+                        }}>
+                        {item?.user?.name}{' '}
+                      </Text>
+                    </View>
+                  </View>
+                </Pressable>
+              ))}
+            </KeyboardAwareScrollView>
 
-<KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container2}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={{ flex: 1 }}>
-      <KeyboardAwareScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 20}}>
-        {mapComment.map((item, index) => (
-          <Pressable
-            key={index}
-            onPress={() =>
-              NavigationService.navigate('ChatRoom', {
-                id: item?.user?._id,
-                title: item?.user?.name,
-                image: item?.user?.full_path_image,
-              })
-            }
-            style={{
-              flexDirection: 'row',
-              // alignItems: 'center',
-              // justifyContent:'space-between',
-              marginTop: 15,
-              paddingLeft: 20,
-              paddingRight: 15,
-              height: 50,
-            }}>
-            <Pressable>
-              <Image
-                source={{uri: item?.user?.full_path_image}}
-                style={{
-                  height: 40,
-                  width: 40,
-                  borderRadius: 45,
-                  borderWidth: 0.7,
-                  borderColor: 'white',
-                }}
-                resizeMode="contain"
+            <View style={styles.inputContainer}>
+              <TextInput
+                multiline={true}
+                style={[styles.input, {minHeight: 40, maxHeight: 100}]}
+                placeholder="Message..."
+                value={comment}
+                onChangeText={setComment}
+                placeholderTextColor={Theme.colors.white}
               />
-            </Pressable>
+
+              <TouchableOpacity
+                // disabled={message.trim().length==0}
+                style={[
+                  styles.sendButton,
+                  {
+                    backgroundColor: 'transparent',
+                    // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
+                  },
+                ]}
+                onPress={() => {
+                  sendComment();
+                }}>
+                <SendIcon />
+              </TouchableOpacity>
+            </View>
+
             <View
               style={{
-                flexDirection: 'row',
+                // flexDirection: 'row',
+                alignItems: 'center',
                 justifyContent: 'space-between',
-                marginLeft: 20,
-                borderColor: 'rgba(118, 118, 128, 0.24)',
-                borderBottomWidth: 0,
-                paddingBottom: 10,
-                // marginTop:5
+                position: 'absolute',
+                bottom: 30,
+                // left:0,
+                right: 20,
+                // paddingHorizontal:20,
+                // paddingVertical:10,
               }}>
-              <View>
-                <Text
+              {mapComment?.length > 0 && (
+                <Pressable
+                  onPress={() =>
+                    NavigationService.navigate('PodcastComment', {mapComment})
+                  }
                   style={{
-                    color: '#fff',
-                    fontSize: 14,
-                    fontFamily: Theme.FontFamily.medium,
+                    height: 50,
+                    width: 50,
+                    borderRadius: 50,
+                    backgroundColor: 'rgba(27, 27, 27, 0.96)',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    marginBottom: 15,
                   }}>
-                  {item?.comment}
-                </Text>
-                <Text
-                  style={{
-                    color: 'rgba(255, 255, 255, 0.54)',
-                    fontSize: 14,
-                    fontFamily: Theme.FontFamily.normal,
-                    marginTop: 3,
-                  }}>
-                  {item?.user?.name}{' '}
-                </Text>
-              </View>
+                  <CommentIcon />
+                </Pressable>
+              )}
+
+              <Pressable
+                onPress={() => setModalState(true)}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderRadius: 50,
+                  backgroundColor: 'rgba(27, 27, 27, 0.86)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  marginBottom: 15,
+                }}>
+                <ShareIcon />
+              </Pressable>
+              <Pressable
+                onPress={handleLikePress}
+                style={{
+                  height: 50,
+                  width: 50,
+                  borderRadius: 50,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  // marginBottom:10
+                }}>
+                {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
+              </Pressable>
             </View>
-          </Pressable>
-        ))}
-      </KeyboardAwareScrollView>
-
-     
-        <View style={styles.inputContainer}>
-          <TextInput
-            multiline={true}
-            style={[styles.input, {minHeight: 40, maxHeight: 100}]}
-            placeholder="Message..."
-            value={comment}
-            onChangeText={setComment}
-            placeholderTextColor={Theme.colors.white}
-          />
-
-          <TouchableOpacity
-            // disabled={message.trim().length==0}
-            style={[
-              styles.sendButton,
-              {
-                backgroundColor: 'transparent',
-                // message.trim().length==0?Theme.colors.grey:Theme.colors.primary
-              },
-            ]}
-            onPress={() => {
-              sendComment();
-            }}>
-            <SendIcon />
-          </TouchableOpacity>
-        </View>
-      
-
-      <View
-        style={{
-          // flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          position: 'absolute',
-          bottom: 30,
-          // left:0,
-          right: 20,
-          // paddingHorizontal:20,
-          // paddingVertical:10,
-        }}>
-        {mapComment?.length > 0 && (
-          <Pressable
-            onPress={() =>
-              NavigationService.navigate('PodcastComment', {mapComment})
-            }
-            style={{
-              height: 50,
-              width: 50,
-              borderRadius: 50,
-              backgroundColor: 'rgba(27, 27, 27, 0.96)',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: 15,
-            }}>
-            <CommentIcon />
-          </Pressable>
-        )}
-
-        <Pressable
-          onPress={() => setModalState(true)}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            backgroundColor: 'rgba(27, 27, 27, 0.86)',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 15,
-          }}>
-          <ShareIcon />
-        </Pressable>
-        <Pressable
-          onPress={handleLikePress}
-          style={{
-            height: 50,
-            width: 50,
-            borderRadius: 50,
-            alignItems: 'center',
-            justifyContent: 'center',
-            // marginBottom:10
-          }}>
-          {likeStatus === true ? <RedHeartIcon /> : <DislikeIcon />}
-        </Pressable>
-      </View> 
-      </View>
-      </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
-      
+
       <ReactNativeModal
         isVisible={ModalState}
         // backdropColor={'rgba(228, 14, 104, 1)'}
