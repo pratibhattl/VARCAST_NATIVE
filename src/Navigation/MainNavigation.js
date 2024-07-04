@@ -54,6 +54,7 @@ import LiveStreamHome from '../Screens/Live/LiveStreamHome';
 import HostPage from '../Screens/Live/HostPage';
 import AudiencePage from '../Screens/Live/AudiencePage';
 import PodcastVideo from '../Screens/Podcast/PodcastVideo';
+import WatchLive from '../Screens/Live/WatchLive';
 
 const Stack = createNativeStackNavigator();
 
@@ -185,6 +186,11 @@ function MainNavigation() {
         name="WatchLater"
         options={{headerShown: false}}
         component={WatchLater}
+      />
+       <Stack.Screen
+        name="WatchLive"
+        options={{headerShown: false}}
+        component={WatchLive}
       />
       <Stack.Screen
         name="PlaylistAdd"
