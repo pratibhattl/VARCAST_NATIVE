@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { Button, View, StyleSheet, Text, TextInput, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
-import { apiCall } from '../../Services/Service';
-
+import React, {useEffect, useState} from 'react';
+import {Button, View, StyleSheet, Text, TextInput, Alert} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useSelector} from 'react-redux';
+import {apiCall} from '../../Services/Service';
+import {useRoute} from '@react-navigation/native';
 export default function HomePage(props) {
   const navigation = useNavigation();
+  const route = useRoute();
+  const liveId = route.params?.liveID;
   const insets = useSafeAreaInsets();
   const [userID, setUserID] = useState('');
   const userDetails = useSelector(state => state.authData.userDetails);
@@ -19,34 +21,22 @@ export default function HomePage(props) {
 
   useEffect(() => {
     setUserID(String(Math.floor(Math.random() * 100000)));
-    setLiveID(String(Math.floor(Math.random() * 10000)));
+    setLiveID(liveId);
+    
   }, []);
-
-  const onJoinPress = async (isHost) => {
-    if (!isHost) {
-      try {
-        setLoading(true);
-        const response = await apiCall('lives/list', 'GET', {}, token); 
-        const fetchedLiveID = response.data.liveUniqueId; 
-        setLiveID(fetchedLiveID);
-        navigation.navigate('AudiencePage', {
-          userID: userID,
-          userName: userDetails.name,
-          liveID: fetchedLiveID,
-        });
-      } catch (error) {
-        Alert.alert('Error', 'Failed to fetch live session details. Please try again.');
-        console.error('Error fetching live session details:', error);
-      } finally {
-        setLoading(false);
-      }
-    } else {
-      // Handle host logic
+  console.log('REsPonse------->>>', liveID);
+  const onJoinPress = async isHost => {
+    if (isHost) {
       if (!title || !overview) {
-        Alert.alert('Validation Error', 'Please enter a title and an overview.');
+        Alert.alert(
+          'Validation Error',
+          'Please enter a title and an overview.',
+        );
         return;
       }
+
       setLoading(true);
+      
       try {
         const body = {
           title: title,
@@ -66,19 +56,29 @@ export default function HomePage(props) {
           liveID: liveID,
         });
       } catch (error) {
-        Alert.alert('Error', 'Failed to start a live session. Please try again.');
+        Alert.alert(
+          'Error',
+          'Failed to start a live session. Please try again.',
+        );
         console.error('Error creating live session:', error);
       } finally {
         setLoading(false);
       }
+    } else {
+      navigation.navigate('AudiencePage', {
+        userID: userID,
+        userName: userDetails.name,
+        liveID: liveID,
+      });
     }
   };
+
 
   return (
     <View
       style={[
         styles.container,
-        { paddingTop: insets.top, paddingBottom: insets.bottom },
+        {paddingTop: insets.top, paddingBottom: insets.bottom},
       ]}>
       {/* <Text style={styles.userID}>Host Name: {userDetails.name}</Text>
       <Text style={[styles.liveID, styles.leftPadding]}>Live ID:</Text>

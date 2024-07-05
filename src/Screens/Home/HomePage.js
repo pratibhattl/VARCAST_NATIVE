@@ -178,7 +178,8 @@ const HomePage = props => {
             return (
               <Pressable
                 onPress={() =>
-                  NavigationService.navigate('WatchLive', {id: item?._id})
+                  NavigationService.navigate('WatchLive', {id: item?._id, liveID: item?.liveUniqueId})
+
                 }
                 style={{
                   width: 335,
