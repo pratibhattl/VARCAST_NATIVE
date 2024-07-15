@@ -102,32 +102,7 @@ const VideoLive = props => {
   const channelName = 'test';
   console.log('Route Params:', route.params);
 
-  // const token =
-  //   '007eJxTYJDTnWE2W0rEvP34VofPyjYnvafsOlvB7Tep6Oo8p+9cz64rMKSmmqWZGqcamqaZW5gYG6UlmVmYGadZJiWmpKRYJiUZ8+uxpjUEMjJo/QpkYIRCEJ+FoSS1uISBAQD59R5T';
-  // const uid = 0;
-  // function showMessage(msg) {
-  //   setMessage(msg);
-  // }
-  // const getPermission = async () => {
-  //   if (Platform.OS === 'android') {
-  //     await PermissionsAndroid.requestMultiple([
-  //       PermissionsAndroid.PERMISSIONS.RECORD_AUDIO,
-  //       PermissionsAndroid.PERMISSIONS.CAMERA,
-  //     ]);
-  //   }
-  // };
-  // const getPermissionIos = async () => {
-  //   if (Platform.OS === 'ios') {
-  //     requestMultiple([
-  //       PERMISSIONS.IOS.CAMERA,
-  //       PERMISSIONS.IOS.MICROPHONE,
-  //     ]).then(statuses => {
-  //       console.log('Camera', statuses[PERMISSIONS.IOS.CAMERA]);
-  //       console.log('MICROPHONE', statuses[PERMISSIONS.IOS.MICROPHONE]);
-  //     });
-  //   }
-  // };
-
+  
   const [isPlaying, setIsPlaying] = useState(false);
 
   const togglePlayPause = () => {
@@ -212,96 +187,7 @@ const VideoLive = props => {
     };
   }, []);
 
-  //   try {
-  //     // use the helper function to get permissions
-  //     if (Platform.OS === 'android') {
-  //       await getPermission();
-  //     }
-  //     if (Platform.OS === 'ios') {
-  //       await getPermissionIos();
-  //     }
-  //     agoraEngineRef.current = createAgoraRtcEngine();
-  //     const agoraEngine = agoraEngineRef.current;
-  //     agoraEngine.registerEventHandler({
-  //       onJoinChannelSuccess: (_connection, Uid) => {
-  //         HelperFunctions.showToastMsg(
-  //           'Successfully joined the channel ' + channelName,
-  //         );
-  //         console.log('Host ID?dd>>>>>>>>', Uid, _connection.localUid);
-
-  //         setIsJoined(true);
-  //       },
-  //       onUserJoined: (_connection, Uid) => {
-  //         HelperFunctions.showToastMsg('Remote user joined with uid ' + Uid);
-  //         console.log('user joined');
-  //         console.log('user IDsdsd?>>>>>>>>', Uid);
-  //         setRemoteUid(Uid);
-  //       },
-  //       onUserOffline: (_connection, Uid) => {
-  //         console.log('user left');
-  //         console.log('user ID offline?>>>>>>>>', Uid, _connection.localUid);
-  //         HelperFunctions.showToastMsg(
-  //           'Remote user left the channel. uid: ' + Uid,
-  //         );
-  //         setRemoteUid(0);
-  //       },
-  //       // onLocalAudioStateChanged: (_connection,state,error) =>{
-  //       //     console.log('mutermcicc',state)
-  //       // }
-  //     });
-  //     // console.log('khgjhghjghjggjh',idd)
-  //     agoraEngine.initialize({
-  //       appId: appId,
-  //       channelProfile: ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     });
-  //     agoraEngine.enableVideo();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  // const joinAudience = async (channel, tok) => {
-  //   const agoraEngine = agoraEngineRef.current;
-  //   if (isJoined) {
-  //     return;
-  //   }
-  //   try {
-  //     agoraEngineRef.current?.setChannelProfile(
-  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     );
-  //     //  console.log('dfdfrewtrtertetyty',agoraEngine.getHost());
-  //     // Use low level latency
-  //     var channeloptions = new ChannelMediaOptions();
-  //     // channeloptions.audienceLatencyLevel =
-  //     // AudienceLatencyLevelType.AudienceLatencyLevelLowLatency;
-  //     agoraEngine.updateChannelMediaOptions(channeloptions);
-  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-  //       clientRoleType: ClientRoleType.ClientRoleAudience,
-  //     });
-  //     HelperFunctions.showToastMsg('Joined Successfully');
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
-  // const joinHost = async (channel, tok) => {
-  //   const agoraEngine = agoraEngineRef.current;
-  //   if (isJoined) {
-  //     return;
-  //   }
-  //   try {
-  //     agoraEngineRef.current?.setChannelProfile(
-  //       ChannelProfileType.ChannelProfileLiveBroadcasting,
-  //     );
-
-  //     agoraEngineRef.current?.startPreview();
-  //     agoraEngineRef.current?.joinChannel(token, channelName, uid, {
-  //       clientRoleType: ClientRoleType.ClientRoleBroadcaster,
-  //     });
-  //     HelperFunctions.showToastMsg('Joined Successfully');
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+  
   const leave = () => {
     try {
     } catch (e) {
@@ -309,26 +195,8 @@ const VideoLive = props => {
     }
   };
 
-  //   try {
-  //     agoraEngineRef.current?.switchCamera();
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-  // const MuteMic = () => {
-  //   try {
-  //     // enableAudio
-  //     if (isHostMic) {
-  //       agoraEngineRef.current?.muteLocalAudioStream(true);
-  //       setIsHosMic(false);
-  //     } else {
-  //       agoraEngineRef.current?.muteLocalAudioStream(false);
-  //       setIsHosMic(true);
-  //     }
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
+
+  
   const fetchCommentData = async () => {
     const formData = new FormData();
     formData.append('videoId', id);
@@ -504,84 +372,7 @@ const VideoLive = props => {
         </TouchableOpacity>
       </View>
 
-      {/* <FlatList
-        showsVerticalScrollIndicator={false}
-        data={mapComment}
-        style={{
-          position: 'absolute',
-          bottom: 10,
-          width: width,
-          height: height / 2.2,
-        }}
-        renderItem={({item, index}) => {
-          // Destructure item and index directly
-          return (
-            <Pressable
-              key={index}
-              onPress={() =>
-                NavigationService.navigate('ChatRoom', {
-                  id: item?.user?._id,
-                  title: item?.user?.name,
-                  image: item?.user?.full_path_image,
-                })
-              }
-              style={{
-                flexDirection: 'row',
-                // alignItems: 'center',
-                // justifyContent:'space-between',
-                marginTop: 15,
-                paddingLeft: 20,
-                paddingRight: 15,
-                height: 50,
-              }}>
-              <Pressable>
-                <Image
-                  source={{uri: item?.user?.full_path_image}}
-                  style={{
-                    height: 40,
-                    width: 40,
-                    borderRadius: 45,
-                    borderWidth: 0.7,
-                    borderColor: 'white',
-                  }}
-                  resizeMode="contain"
-                />
-              </Pressable>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  marginLeft: 20,
-                  borderColor: 'rgba(118, 118, 128, 0.24)',
-                  borderBottomWidth: 0,
-                  paddingBottom: 10,
-                  // marginTop:5
-                }}>
-                <View>
-                  <Text
-                    style={{
-                      color: '#fff',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.medium,
-                    }}>
-                    {item?.comment}
-                  </Text>
-                  <Text
-                    style={{
-                      color: 'rgba(255, 255, 255, 0.54)',
-                      fontSize: 14,
-                      fontFamily: Theme.FontFamily.normal,
-                      marginTop: 3,
-                    }}>
-                    {item?.user?.name}{' '}
-                  </Text>
-                </View>
-              </View>
-            </Pressable>
-          );
-        }}
-      /> */}
-
+      
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container2}>
@@ -752,8 +543,7 @@ const VideoLive = props => {
           alignItems: 'center',
           justifyContent: 'flex-end',
         }}
-        // animationIn={'zoomInDown'}
-        // animationOut={'zoomOut'}
+       
         onBackButtonPress={() => {
           //   setPlay(false)
           setModalState(false);
